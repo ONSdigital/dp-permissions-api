@@ -1,0 +1,21 @@
+---
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+    tag: 1.15
+
+inputs:
+  - name: dp-permissions-api
+
+outputs:
+  - name: build
+
+caches:
+  - path: go/
+
+run:
+  path: dp-permissions-api/ci/scripts/build.sh
