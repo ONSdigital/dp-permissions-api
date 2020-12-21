@@ -5,7 +5,6 @@ import (
 
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/config"
-	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -19,7 +18,7 @@ type Service struct {
 	Api         *api.API
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
-	MongoDB     *mongo.Mongo
+	MongoDB     Mongoer
 }
 
 // Run the service
@@ -132,7 +131,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func registerCheckers(ctx context.Context,
 	hc HealthChecker,
-	mongoDB *mongo.Mongo) (err error) {
+	mongoDB Mongoer) (err error) {
 
 	hasErrors := false
 

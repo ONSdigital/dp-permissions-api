@@ -6,18 +6,18 @@ import (
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/ONSdigital/dp-permissions-api/config"
-	"github.com/ONSdigital/dp-permissions-api/mongo"
 )
 
 //go:generate moq -out mock/initialiser.go -pkg mock . Initialiser
 //go:generate moq -out mock/server.go -pkg mock . HTTPServer
 //go:generate moq -out mock/healthCheck.go -pkg mock . HealthChecker
+//go:generate moq -out mock/mongoer.go -pkg mock . Mongoer
 
 // Initialiser defines the methods to initialise external services
 type Initialiser interface {
 	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
 	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
-	DoGetMongoDB(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error)
+	DoGetMongoDB(ctx context.Context, cfg *config.Config) (Mongoer, error)
 }
 
 // HTTPServer defines the required methods from the HTTP server
@@ -32,4 +32,10 @@ type HealthChecker interface {
 	Start(ctx context.Context)
 	Stop()
 	AddCheck(name string, checker healthcheck.Checker) (err error)
+}
+
+//Mongoer defines the required methods from Mongo
+type Mongoer interface {
+	Checker(ctx context.Context, state *healthcheck.CheckState) error
+	Close(ctx context.Context) error
 }

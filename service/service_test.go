@@ -11,7 +11,6 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
-	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"github.com/ONSdigital/dp-permissions-api/service/mock"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
@@ -40,8 +39,10 @@ var funcDoGetHTTPServerNil = func(bindAddr string, router http.Handler) service.
 	return nil
 }
 
-var funcDoGetMongoDB = func(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
-	return nil, nil
+var funcDoGetMongoDB = func(ctx context.Context, cfg *config.Config) (service.Mongoer, error) {
+	return &serviceMock.MongoerMock{
+		CloseFunc: func(ctx context.Context) error { return nil },
+	}, nil
 }
 
 func TestRun(t *testing.T) {
@@ -83,8 +84,8 @@ func TestRun(t *testing.T) {
 			return failingServerMock
 		}
 
-		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
-			return nil, nil
+		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (service.Mongoer, error) {
+			return &serviceMock.MongoerMock{}, nil
 		}
 
 		Convey("Given that initialising healthcheck returns an error", func() {
@@ -128,7 +129,7 @@ func TestRun(t *testing.T) {
 			})
 
 			Convey("The checkers are registered and the healthcheck and http server started", func() {
-				So(len(hcMock.AddCheckCalls()), ShouldEqual, 0)
+				So(len(hcMock.AddCheckCalls()), ShouldEqual, 1)
 				So(len(initMock.DoGetHTTPServerCalls()), ShouldEqual, 1)
 				So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, "localhost:25400")
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
