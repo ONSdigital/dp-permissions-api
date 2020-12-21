@@ -23,12 +23,16 @@ func TestConfig(t *testing.T) {
 			Convey("Then there should be no error returned, and values are as expected", func() {
 				configuration, err = Get() // This Get() is only called once, when inside this function
 				So(err, ShouldBeNil)
-				So(configuration, ShouldResemble, &Config{
-					BindAddr:                   "localhost:25400",
-					GracefulShutdownTimeout:    5 * time.Second,
-					HealthCheckInterval:        30 * time.Second,
-					HealthCheckCriticalTimeout: 90 * time.Second,
-				})
+
+				So(configuration.BindAddr, ShouldEqual, "localhost:25400")
+				So(configuration.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
+				So(configuration.HealthCheckInterval, ShouldEqual, 30*time.Second)
+				So(configuration.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
+
+				So(configuration.MongoConfig.BindAddr, ShouldEqual, "localhost:27017")
+				So(configuration.MongoConfig.Database, ShouldEqual, "permissions")
+				So(configuration.MongoConfig.Collection, ShouldEqual, "permissions")
+
 			})
 
 			Convey("Then a second call to config should return the same config", func() {

@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
+	"github.com/ONSdigital/dp-permissions-api/mongo"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
@@ -13,6 +15,7 @@ import (
 type ExternalServiceList struct {
 	HealthCheck bool
 	Init        Initialiser
+	MongoDB     bool
 }
 
 // NewServiceList creates a new service list with the provided initialiser
@@ -49,6 +52,16 @@ func (e *Init) DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer 
 	return s
 }
 
+// GetMongoDB creates a mongoDB client and sets the Mongo flag to true
+func (e *ExternalServiceList) GetMongoDB(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
+	mongoDB, err := e.Init.DoGetMongoDB(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+	e.MongoDB = true
+	return mongoDB, nil
+}
+
 // DoGetHealthCheck creates a healthcheck with versionInfo
 func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error) {
 	versionInfo, err := healthcheck.NewVersionInfo(buildTime, gitCommit, version)
@@ -57,4 +70,17 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 	}
 	hc := healthcheck.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 	return &hc, nil
+}
+
+// DoGetMongoDB returns a MongoDB
+func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
+	mongodb := &mongo.Mongo{
+		Collection: cfg.MongoConfig.Collection,
+		Database:   cfg.MongoConfig.Database,
+		URI:        cfg.MongoConfig.BindAddr,
+	}
+	if err := mongodb.Init(ctx); err != nil {
+		return nil, err
+	}
+	return mongodb, nil
 }

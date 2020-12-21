@@ -5,9 +5,8 @@ package mock
 
 import (
 	"context"
-	"sync"
-
 	"github.com/ONSdigital/dp-permissions-api/service"
+	"sync"
 )
 
 // Ensure, that HTTPServerMock does implement service.HTTPServer.

@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
+	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"github.com/ONSdigital/dp-permissions-api/service/mock"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
@@ -37,6 +38,10 @@ var funcDoGetHealthcheckErr = func(cfg *config.Config, buildTime string, gitComm
 
 var funcDoGetHTTPServerNil = func(bindAddr string, router http.Handler) service.HTTPServer {
 	return nil
+}
+
+var funcDoGetMongoDB = func(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
+	return nil, nil
 }
 
 func TestRun(t *testing.T) {
@@ -78,12 +83,17 @@ func TestRun(t *testing.T) {
 			return failingServerMock
 		}
 
+		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (*mongo.Mongo, error) {
+			return nil, nil
+		}
+
 		Convey("Given that initialising healthcheck returns an error", func() {
 
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &serviceMock.InitialiserMock{
 				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
 				DoGetHealthCheckFunc: funcDoGetHealthcheckErr,
+				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -105,6 +115,7 @@ func TestRun(t *testing.T) {
 			initMock := &serviceMock.InitialiserMock{
 				DoGetHTTPServerFunc:  funcDoGetHTTPServer,
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
+				DoGetMongoDBFunc:     funcDoGetMongoDB,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -170,6 +181,7 @@ func TestRun(t *testing.T) {
 			initMock := &serviceMock.InitialiserMock{
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
 				DoGetHTTPServerFunc:  funcDoGetFailingHTTPSerer,
+				DoGetMongoDBFunc:     funcDoGetMongoDB,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -224,6 +236,7 @@ func TestClose(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMock, nil
 				},
+				DoGetMongoDBFunc: funcDoGetMongoDB,
 			}
 
 			svcErrors := make(chan error, 1)
@@ -251,6 +264,7 @@ func TestClose(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMock, nil
 				},
+				DoGetMongoDBFunc: funcDoGetMongoDB,
 			}
 
 			svcErrors := make(chan error, 1)
