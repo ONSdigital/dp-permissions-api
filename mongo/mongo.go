@@ -12,11 +12,10 @@ import (
 
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Session    *mgo.Session
-	URI        string
-	Database   string
-	Collection string
-	//client       *dpMongoHealth.Client
+	Session      *mgo.Session
+	URI          string
+	Database     string
+	Collection   string
 	healthClient *dpMongoHealth.CheckMongoClient
 }
 
