@@ -18,7 +18,7 @@ type Service struct {
 	Api         *api.API
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
-	MongoDB     Mongoer
+	MongoDB     PermissionsStore
 }
 
 // Run the service
@@ -32,8 +32,6 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	r := mux.NewRouter()
 
 	s := serviceList.GetHTTPServer(cfg.BindAddr, r)
-
-	// ADD CODE: Add other(s) to serviceList here
 
 	// Get MongoDB client
 	mongoDB, err := serviceList.GetMongoDB(ctx, cfg)
@@ -100,10 +98,9 @@ func (svc *Service) Close(ctx context.Context) error {
 			hasShutdownError = true
 		}
 
-		// ADD CODE HERE: Close other dependencies, in the expected order
 		if svc.ServiceList.MongoDB {
 			if err := svc.MongoDB.Close(ctx); err != nil {
-				log.Event(ctx, "error closing mongoDB", log.Error(err), log.ERROR)
+				log.Event(ctx, "error closing mongo db", log.Error(err), log.ERROR)
 				hasShutdownError = true
 			}
 		}
@@ -131,7 +128,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func registerCheckers(ctx context.Context,
 	hc HealthChecker,
-	mongoDB Mongoer) (err error) {
+	mongoDB PermissionsStore) (err error) {
 
 	hasErrors := false
 

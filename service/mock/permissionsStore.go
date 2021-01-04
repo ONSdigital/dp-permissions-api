@@ -10,16 +10,16 @@ import (
 	"sync"
 )
 
-// Ensure, that MongoerMock does implement service.Mongoer.
+// Ensure, that PermissionsStoreMock does implement service.PermissionsStore.
 // If this is not the case, regenerate this file with moq.
-var _ service.Mongoer = &MongoerMock{}
+var _ service.PermissionsStore = &PermissionsStoreMock{}
 
-// MongoerMock is a mock implementation of service.Mongoer.
+// PermissionsStoreMock is a mock implementation of service.PermissionsStore.
 //
-//     func TestSomethingThatUsesMongoer(t *testing.T) {
+//     func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-//         // make and configure a mocked service.Mongoer
-//         mockedMongoer := &MongoerMock{
+//         // make and configure a mocked service.PermissionsStore
+//         mockedPermissionsStore := &PermissionsStoreMock{
 //             CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
 // 	               panic("mock out the Checker method")
 //             },
@@ -28,11 +28,11 @@ var _ service.Mongoer = &MongoerMock{}
 //             },
 //         }
 //
-//         // use mockedMongoer in code that requires service.Mongoer
+//         // use mockedPermissionsStore in code that requires service.PermissionsStore
 //         // and then make assertions.
 //
 //     }
-type MongoerMock struct {
+type PermissionsStoreMock struct {
 	// CheckerFunc mocks the Checker method.
 	CheckerFunc func(ctx context.Context, state *healthcheck.CheckState) error
 
@@ -59,9 +59,9 @@ type MongoerMock struct {
 }
 
 // Checker calls CheckerFunc.
-func (mock *MongoerMock) Checker(ctx context.Context, state *healthcheck.CheckState) error {
+func (mock *PermissionsStoreMock) Checker(ctx context.Context, state *healthcheck.CheckState) error {
 	if mock.CheckerFunc == nil {
-		panic("MongoerMock.CheckerFunc: method is nil but Mongoer.Checker was just called")
+		panic("PermissionsStoreMock.CheckerFunc: method is nil but PermissionsStore.Checker was just called")
 	}
 	callInfo := struct {
 		Ctx   context.Context
@@ -78,8 +78,8 @@ func (mock *MongoerMock) Checker(ctx context.Context, state *healthcheck.CheckSt
 
 // CheckerCalls gets all the calls that were made to Checker.
 // Check the length with:
-//     len(mockedMongoer.CheckerCalls())
-func (mock *MongoerMock) CheckerCalls() []struct {
+//     len(mockedPermissionsStore.CheckerCalls())
+func (mock *PermissionsStoreMock) CheckerCalls() []struct {
 	Ctx   context.Context
 	State *healthcheck.CheckState
 } {
@@ -94,9 +94,9 @@ func (mock *MongoerMock) CheckerCalls() []struct {
 }
 
 // Close calls CloseFunc.
-func (mock *MongoerMock) Close(ctx context.Context) error {
+func (mock *PermissionsStoreMock) Close(ctx context.Context) error {
 	if mock.CloseFunc == nil {
-		panic("MongoerMock.CloseFunc: method is nil but Mongoer.Close was just called")
+		panic("PermissionsStoreMock.CloseFunc: method is nil but PermissionsStore.Close was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
@@ -111,8 +111,8 @@ func (mock *MongoerMock) Close(ctx context.Context) error {
 
 // CloseCalls gets all the calls that were made to Close.
 // Check the length with:
-//     len(mockedMongoer.CloseCalls())
-func (mock *MongoerMock) CloseCalls() []struct {
+//     len(mockedPermissionsStore.CloseCalls())
+func (mock *PermissionsStoreMock) CloseCalls() []struct {
 	Ctx context.Context
 } {
 	var calls []struct {
