@@ -18,6 +18,7 @@ type Service struct {
 	Api         *api.API
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
+	MongoDB     PermissionsStore
 }
 
 // Run the service
@@ -32,7 +33,12 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 
 	s := serviceList.GetHTTPServer(cfg.BindAddr, r)
 
-	// ADD CODE: Add other(s) to serviceList here
+	// Get MongoDB client
+	mongoDB, err := serviceList.GetMongoDB(ctx, cfg)
+	if err != nil {
+		log.Event(ctx, "failed to initialise mongo DB", log.FATAL, log.Error(err))
+		return nil, err
+	}
 
 	// Setup the API
 	a := api.Setup(ctx, r)
@@ -44,7 +50,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 		return nil, err
 	}
 
-	if err := registerCheckers(ctx, hc); err != nil {
+	if err := registerCheckers(ctx, hc, mongoDB); err != nil {
 		return nil, errors.Wrap(err, "unable to register checkers")
 	}
 
@@ -65,6 +71,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 		HealthCheck: hc,
 		ServiceList: serviceList,
 		Server:      s,
+		MongoDB:     mongoDB,
 	}, nil
 }
 
@@ -91,7 +98,12 @@ func (svc *Service) Close(ctx context.Context) error {
 			hasShutdownError = true
 		}
 
-		// ADD CODE HERE: Close other dependencies, in the expected order
+		if svc.ServiceList.MongoDB {
+			if err := svc.MongoDB.Close(ctx); err != nil {
+				log.Event(ctx, "error closing mongo db", log.Error(err), log.ERROR)
+				hasShutdownError = true
+			}
+		}
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)
@@ -115,9 +127,18 @@ func (svc *Service) Close(ctx context.Context) error {
 }
 
 func registerCheckers(ctx context.Context,
-	hc HealthChecker) (err error) {
+	hc HealthChecker,
+	mongoDB PermissionsStore) (err error) {
 
-	// ADD CODE: add other health checks here, as per dp-upload-service
+	hasErrors := false
 
+	if err = hc.AddCheck("Mongo DB", mongoDB.Checker); err != nil {
+		hasErrors = true
+		log.Event(ctx, "error adding check for mongo db", log.ERROR, log.Error(err))
+	}
+
+	if hasErrors {
+		return errors.New("Error(s) registering checkers for healthcheck")
+	}
 	return nil
 }
