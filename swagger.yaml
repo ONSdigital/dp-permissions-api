@@ -248,9 +248,7 @@ definitions:
       - permissions
     properties:
       id:
-        description: "Unique id for a role"
-        type: string
-        example: "1"
+        $ref: "#/definitions/RoleId"
       role:
         description: "Name of role"
         type: string
@@ -275,15 +273,32 @@ definitions:
         description: "Description for a permission"
         type: string
         example: "read only"
+  RoleId:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        description: "Unique id for a role"
+        type: string
+        example: "1"
   Member:
     type: object
     required:
       - id
     properties:
       id:
-        description: "Unique id for a group or user"
+        $ref: "#/definitions/RoleId"  
+  MemberId:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        description: "Unique id for a member"
         type: string
         example: "1"
+
   Policy:
     type: object
     required:
@@ -299,12 +314,12 @@ definitions:
         description: "A list of members for this policy"
         type: array
         items: 
-          $ref: "#/definitions/Member"
+          $ref: "#/definitions/MemberId"
       roles:
         description: "A list of roles for this policy"
         type: array
         items:
-          $ref: "#/definitions/Role"
+          $ref: "#/definitions/RoleId"
       collection:
         description: "Unique collection id"
         type: string
