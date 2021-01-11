@@ -31,6 +31,22 @@ paths:
             required: 
               - items
             properties: 
+              count:
+                type: integer
+                readOnly: true
+                description: "The number of roles returned"
+              total_count:
+                type: integer
+                readOnly: true
+                description: "The total number of roles"
+              offset:
+                type: integer
+                readOnly: true
+                description: "The first row of resources to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
+              limit:
+                type: integer
+                readOnly: true
+                description: "The number of roles per page"
               items:
                 description: "A list of roles"
                 type: array
