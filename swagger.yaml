@@ -55,7 +55,7 @@ paths:
         400:
           description: "Invalid request"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
   
   /roles/{id}:
     get:
@@ -75,13 +75,13 @@ paths:
         200:
           description: "Successfully returned a role for a given id"
           schema:
-            $ref: "#definitions/Role"
+            $ref: "#/definitions/Role"
         400:
           description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
 
   /policies:
     post:
@@ -92,12 +92,12 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - $ref: "#definitions/Policy" 
+        - $ref: "#/definitions/Policy" 
       responses:
         201:
           description: "Successfully added a policy"
           schema:
-            $ref: "#definitions/Policy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Bad request. Invalid policy supplied"
     get:
@@ -127,13 +127,13 @@ paths:
         200:
           description: "Successfully returned a policy with an id that corresponds to the query parameters."
           schema:
-            $ref: "#definitions/Policy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
     
   /policies/{id}:
     delete:
@@ -153,13 +153,13 @@ paths:
         200:
           description: "Successfully deleted a policy for a given id"
           schema:
-            $ref: "#definitions/Policy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
     get:
       tags:
         - "policies"
@@ -177,13 +177,13 @@ paths:
         200:
           description: "Successfully returned a policy for a given id"
           schema:
-            $ref: "#definitions/Policy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
     put:
       tags:
         - "policies"
@@ -201,13 +201,13 @@ paths:
         200:
           description: "Successfully updated a policy for a given id"
           schema:
-            $ref: "#definitions/Policy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
 
   /authorise:
     post:
@@ -229,7 +229,7 @@ paths:
         403:
           description: "User is unauthorised for this role"
         500:
-          $ref: "#responses/InternalError"
+          $ref: "#/responses/InternalError"
 
 
 
@@ -288,7 +288,7 @@ definitions:
       - id
     properties:
       id:
-        $ref: "#/definitions/RoleId"  
+        $ref: "#/definitions/MemberId"  
   MemberId:
     type: object
     required:
