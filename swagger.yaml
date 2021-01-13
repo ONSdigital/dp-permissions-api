@@ -92,7 +92,10 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - $ref: "#/definitions/Policy" 
+        - in: body
+          name: Policy
+          schema:
+            $ref: "#/definitions/Policy" 
       responses:
         201:
           description: "Successfully added a policy"
