@@ -274,31 +274,13 @@ definitions:
         type: string
         example: "read only"
   RoleId:
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        description: "Unique id for a role"
-        type: string
-        example: "1"
-  Member:
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        $ref: "#/definitions/MemberId"  
+    description: "Unique id for a role"  
+    type: string
+    example: "1"
   MemberId:
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        description: "Unique id for a member"
-        type: string
-        example: "1"
-
+    description: "Unique id for a member"  
+    type: string
+    example: "1"
   Policy:
     type: object
     required:
