@@ -33,7 +33,7 @@ func TestGetHTTPServer(t *testing.T) {
 		svcList := service.NewServiceList(newServiceMock)
 		Convey(" When GetHTTPServer is called", func() {
 			server := svcList.GetHTTPServer(cfg.BindAddr, r)
-			Convey("Then theh mock server is returned and had been initialised with the correct bind address", func() {
+			Convey("Then then mock server is returned and had been initialised with the correct bind address", func() {
 				So(newServiceMock.DoGetHTTPServerCalls(), ShouldHaveLength, 1)
 				So(newServiceMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, cfg.BindAddr)
 				So(server, ShouldEqual, serverMock)
@@ -67,8 +67,8 @@ func TestGetHTTPServer(t *testing.T) {
 			case err = <-svcErrors:
 				cancel()
 			case <-ctx.Done():
-				t.Fatal("ListenAndServe returned no error")
 				server.Shutdown(context.Background())
+				t.Fatal("ListenAndServe returned no error")
 			}
 			Convey("Then the startup has failed and returns the expected error", func() {
 				So(err.Error(), ShouldEqual, "Server error")
@@ -96,9 +96,9 @@ func TestGetHTTPServer(t *testing.T) {
 			go func() {
 				if err := server.ListenAndServe(); err != nil {
 					svcErrors <- err
-				} else {
-					cancel()
+					return
 				}
+				cancel()
 			}()
 
 			var err error

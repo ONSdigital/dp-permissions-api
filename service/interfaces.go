@@ -34,7 +34,7 @@ type HealthChecker interface {
 	AddCheck(name string, checker healthcheck.Checker) (err error)
 }
 
-//PermissionsStore defines the required methods from Mongo
+//PermissionsStore defines the behaviour of a PermissionsStore
 type PermissionsStore interface {
 	Checker(ctx context.Context, state *healthcheck.CheckState) error
 	Close(ctx context.Context) error
