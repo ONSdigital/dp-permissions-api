@@ -69,7 +69,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of role"
-          type: string
+          type: integer
           required: true
       responses:
         200:
@@ -113,17 +113,17 @@ paths:
       parameters:
         - in: query
           name: collection_id
-          type: string
+          type: integer
           description: "A unique id for a collection"
           required: true
         - in: query
           name: group_id
-          type: string
+          type: integer
           description: "A unique id for a group or user"
           required: true
         - in: query
           name: role_id
-          type: string
+          type: integer
           description: "A unique id for a role"
           required: true
       responses:
@@ -150,7 +150,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: string
+          type: integer
           required: true
       responses:
         200:
@@ -174,7 +174,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: string
+          type: integer
           required: true
       responses:
         200:
@@ -198,7 +198,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: string
+          type: integer
           required: true
       responses:
         200:
@@ -270,20 +270,20 @@ definitions:
     properties:
       id:
         description: "Unique id for a permission"
-        type: string
-        example: "1"
+        type: integer
+        example: 1
       description:
         description: "Description for a permission"
         type: string
         example: "read only"
   RoleId:
     description: "Unique id for a role"  
-    type: string
-    example: "1"
+    type: integer
+    example: 1
   MemberId:
     description: "Unique id for a member"  
-    type: string
-    example: "1"
+    type: integer
+    example: 1
   Policy:
     type: object
     required:
@@ -294,7 +294,7 @@ definitions:
     properties:
       id:
         description: "Unique id for this policy"
-        type: string
+        type: integer
       members:
         description: "A list of members for this policy"
         type: array
@@ -307,7 +307,7 @@ definitions:
           $ref: "#/definitions/RoleId"
       collection:
         description: "Unique collection id"
-        type: string
+        type: integer
    
 securityDefinitions:
   UserAuthorisationToken:
