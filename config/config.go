@@ -12,6 +12,14 @@ type Config struct {
 	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
+	MongoConfig                MongoConfiguration
+}
+
+// MongoConfiguration contains the config required to connect to MongoDB.
+type MongoConfiguration struct {
+	BindAddr   string `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
+	Database   string `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
+	Collection string `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
 }
 
 var cfg *Config
@@ -28,6 +36,11 @@ func Get() (*Config, error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
+		MongoConfig: MongoConfiguration{
+			BindAddr:   "localhost:27017",
+			Database:   "permissions",
+			Collection: "permissions",
+		},
 	}
 
 	return cfg, envconfig.Process("", cfg)
