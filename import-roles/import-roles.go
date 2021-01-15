@@ -54,13 +54,19 @@ func main() {
 	}
 
 	b, err := ioutil.ReadAll(f)
+	logData := log.Data{"json file": string(b)}
+	log.Event(ctx, "read json file", log.INFO, logData)
 	if err != nil {
 		log.Event(ctx, "failed to read json file as a byte array", log.ERROR, log.Error(err))
 		return
 	}
 
 	res := Roles{}
-	json.Unmarshal(b, &res)
+	if err := json.Unmarshal([]byte(b), &res); err != nil {
+		logData := log.Data{"json file": res}
+		log.Event(ctx, "failed to unmarshal json", log.ERROR, log.Error(err), logData)
+		return
+	}
 
 	for _, role := range res.ListOfRoles {
 
