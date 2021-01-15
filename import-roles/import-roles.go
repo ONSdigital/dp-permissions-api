@@ -15,11 +15,6 @@ var (
 	mongoURL string
 )
 
-//Roles represents an object containing a list of individual roles
-type Roles struct {
-	ListOfRoles []Role
-}
-
 //Role represents a role that will be stored in mongo
 type Role struct {
 	ID          int      `bson:"id" json:"id"`
@@ -54,21 +49,19 @@ func main() {
 	}
 
 	b, err := ioutil.ReadAll(f)
-	logData := log.Data{"json file": string(b)}
-	log.Event(ctx, "read json file", log.INFO, logData)
 	if err != nil {
 		log.Event(ctx, "failed to read json file as a byte array", log.ERROR, log.Error(err))
 		return
 	}
 
-	res := Roles{}
-	if err := json.Unmarshal([]byte(b), &res); err != nil {
+	res := []Role{}
+	if err := json.Unmarshal(b, &res); err != nil {
 		logData := log.Data{"json file": res}
 		log.Event(ctx, "failed to unmarshal json", log.ERROR, log.Error(err), logData)
 		return
 	}
 
-	for _, role := range res.ListOfRoles {
+	for _, role := range res {
 
 		roleToBeAdded := Role{
 			role.ID,
