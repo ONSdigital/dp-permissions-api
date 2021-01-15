@@ -1,0 +1,26 @@
+[
+    {
+      "id": 1,
+      "name": "Admin",
+      "permissions": [
+          "CreateRole",
+          "Edit",
+          "ReadOnly"
+       ]
+    }, 
+    {
+        "id": "2",
+        "name": "Publisher",
+        "permissions": [
+            "Edit",
+            "ReadOnly"
+        ]
+     },
+     {
+        "id": "3",
+        "name": "Readonly",
+        "permissions": [
+            "ReadOnly"
+        ]
+     }
+]
