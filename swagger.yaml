@@ -95,7 +95,7 @@ paths:
         - in: body
           name: Policy
           schema:
-            $ref: "#/definitions/Policy" 
+            $ref: "#/definitions/NewPolicy" 
       responses:
         201:
           description: "Successfully added a policy"
@@ -106,8 +106,8 @@ paths:
     get:
       tags:
         - "policies"
-      summary: "Returns a policy"
-      description: "Returns the policy that matches the supplied query parameters for collection id, role id and group id."
+      summary: "Returns a list of policies"
+      description: "Returns the policies that match the supplied query parameters for collection id, role id and group id."
       produces:
         - "application/json"
       parameters:
@@ -128,9 +128,15 @@ paths:
           required: true
       responses:
         200:
-          description: "Successfully returned a policy with an id that corresponds to the query parameters."
+          description: "Successfully returned a list of policies with ids that corresponds to the query parameters."
           schema:
-            $ref: "#/definitions/Policy"
+            type: object
+            properties: 
+              items:
+                description: "A list of policies"
+                type: array
+                items:
+                  $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
@@ -204,7 +210,7 @@ paths:
         200:
           description: "Successfully updated a policy for a given id"
           schema:
-            $ref: "#/definitions/NewPolicy"
+            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
