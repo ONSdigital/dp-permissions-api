@@ -69,7 +69,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of role"
-          type: integer
+          type: string
           required: true
       responses:
         200:
@@ -95,7 +95,7 @@ paths:
         - in: body
           name: Policy
           schema:
-            $ref: "#/definitions/Policy" 
+            $ref: "#/definitions/NewPolicy" 
       responses:
         201:
           description: "Successfully added a policy"
@@ -106,31 +106,37 @@ paths:
     get:
       tags:
         - "policies"
-      summary: "Returns a policy"
-      description: "Returns the policy that matches the supplied query parameters for collection id, role id and group id."
+      summary: "Returns a list of policies"
+      description: "Returns the policies that match the supplied query parameters for collection id, role id and group id."
       produces:
         - "application/json"
       parameters:
         - in: query
           name: collection_id
-          type: integer
+          type: string
           description: "A unique id for a collection"
           required: true
         - in: query
           name: group_id
-          type: integer
+          type: string
           description: "A unique id for a group or user"
           required: true
         - in: query
           name: role_id
-          type: integer
+          type: string
           description: "A unique id for a role"
           required: true
       responses:
         200:
-          description: "Successfully returned a policy with an id that corresponds to the query parameters."
+          description: "Successfully returned a list of policies with ids that corresponds to the query parameters."
           schema:
-            $ref: "#/definitions/Policy"
+            type: object
+            properties: 
+              items:
+                description: "A list of policies"
+                type: array
+                items:
+                  $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         404:
@@ -150,7 +156,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: integer
+          type: string
           required: true
       responses:
         200:
@@ -174,7 +180,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: integer
+          type: string
           required: true
       responses:
         200:
@@ -198,7 +204,7 @@ paths:
         - in: path
           name: id
           description: "Unique id of policy"
-          type: integer
+          type: string
           required: true
       responses:
         200:
@@ -270,20 +276,20 @@ definitions:
     properties:
       id:
         description: "Unique id for a permission"
-        type: integer
-        example: 1
+        type: string
+        example: "1b"
       description:
         description: "Description for a permission"
         type: string
         example: "read only"
   RoleId:
     description: "Unique id for a role"  
-    type: integer
-    example: 1
+    type: string
+    example: "1b"
   MemberId:
     description: "Unique id for a member"  
-    type: integer
-    example: 1
+    type: string
+    example: "1d"
   Policy:
     type: object
     required:
@@ -294,7 +300,7 @@ definitions:
     properties:
       id:
         description: "Unique id for this policy"
-        type: integer
+        type: string
       members:
         description: "A list of members for this policy"
         type: array
@@ -307,7 +313,27 @@ definitions:
           $ref: "#/definitions/RoleId"
       collection:
         description: "Unique collection id"
-        type: integer
+        type: string
+  NewPolicy:
+    type: object
+    required:
+      - members
+      - roles
+      - collection
+    properties:
+      members:
+        description: "A list of members for this policy"
+        type: array
+        items: 
+          $ref: "#/definitions/MemberId"
+      roles:
+        description: "A list of roles for this policy"
+        type: array
+        items:
+          $ref: "#/definitions/RoleId"
+      collection:
+        description: "Unique collection id"
+        type: string
    
 securityDefinitions:
   UserAuthorisationToken:
