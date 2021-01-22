@@ -8,31 +8,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-/*
-//GetRolesHandler is a handler that gets all roles from MongoDB
-func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request, mongoConf config.MongoConfiguration) {
-	ctx := req.Context()
-
-	// get roles from MongoDB
-	items, err := api.mongoDB.GetRoles(ctx, mongoConf)
-	if err != nil {
-		log.Event(ctx, "api endpoint getRoles returned an error", log.ERROR, log.Error(err))
-		return nil, err
-	}
-
-	roles := models.Roles{
-		Items:      items,
-		Count:      len(items),
-		Limit:      len(items),
-		TotalCount: len(items),
-	}
-
-	var b []byte
-	b, err = json.Marshal(roles)
-
-}
-*/
-
 //GetRoleHandler is a handler that gets a role by its ID from MongoDB
 func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
