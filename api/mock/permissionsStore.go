@@ -6,19 +6,20 @@ package mock
 import (
 	"context"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	"github.com/ONSdigital/dp-permissions-api/service"
+	"github.com/ONSdigital/dp-permissions-api/api"
+	"github.com/ONSdigital/dp-permissions-api/models"
 	"sync"
 )
 
-// Ensure, that PermissionsStoreMock does implement service.PermissionsStore.
+// Ensure, that PermissionsStoreMock does implement api.PermissionsStore.
 // If this is not the case, regenerate this file with moq.
-var _ service.PermissionsStore = &PermissionsStoreMock{}
+var _ api.PermissionsStore = &PermissionsStoreMock{}
 
-// PermissionsStoreMock is a mock implementation of service.PermissionsStore.
+// PermissionsStoreMock is a mock implementation of api.PermissionsStore.
 //
 //     func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-//         // make and configure a mocked service.PermissionsStore
+//         // make and configure a mocked api.PermissionsStore
 //         mockedPermissionsStore := &PermissionsStoreMock{
 //             CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
 // 	               panic("mock out the Checker method")
@@ -26,9 +27,12 @@ var _ service.PermissionsStore = &PermissionsStoreMock{}
 //             CloseFunc: func(ctx context.Context) error {
 // 	               panic("mock out the Close method")
 //             },
+//             GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
+// 	               panic("mock out the GetRole method")
+//             },
 //         }
 //
-//         // use mockedPermissionsStore in code that requires service.PermissionsStore
+//         // use mockedPermissionsStore in code that requires api.PermissionsStore
 //         // and then make assertions.
 //
 //     }
@@ -38,6 +42,9 @@ type PermissionsStoreMock struct {
 
 	// CloseFunc mocks the Close method.
 	CloseFunc func(ctx context.Context) error
+
+	// GetRoleFunc mocks the GetRole method.
+	GetRoleFunc func(ctx context.Context, id string) (*models.Role, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -53,9 +60,17 @@ type PermissionsStoreMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
+		// GetRole holds details about calls to the GetRole method.
+		GetRole []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID string
+		}
 	}
 	lockChecker sync.RWMutex
 	lockClose   sync.RWMutex
+	lockGetRole sync.RWMutex
 }
 
 // Checker calls CheckerFunc.
@@ -121,5 +136,40 @@ func (mock *PermissionsStoreMock) CloseCalls() []struct {
 	mock.lockClose.RLock()
 	calls = mock.calls.Close
 	mock.lockClose.RUnlock()
+	return calls
+}
+
+// GetRole calls GetRoleFunc.
+func (mock *PermissionsStoreMock) GetRole(ctx context.Context, id string) (*models.Role, error) {
+	if mock.GetRoleFunc == nil {
+		panic("PermissionsStoreMock.GetRoleFunc: method is nil but PermissionsStore.GetRole was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		ID  string
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	mock.lockGetRole.Lock()
+	mock.calls.GetRole = append(mock.calls.GetRole, callInfo)
+	mock.lockGetRole.Unlock()
+	return mock.GetRoleFunc(ctx, id)
+}
+
+// GetRoleCalls gets all the calls that were made to GetRole.
+// Check the length with:
+//     len(mockedPermissionsStore.GetRoleCalls())
+func (mock *PermissionsStoreMock) GetRoleCalls() []struct {
+	Ctx context.Context
+	ID  string
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  string
+	}
+	mock.lockGetRole.RLock()
+	calls = mock.calls.GetRole
+	mock.lockGetRole.RUnlock()
 	return calls
 }
