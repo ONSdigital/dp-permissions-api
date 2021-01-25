@@ -11,7 +11,7 @@ type Roles struct {
 
 //Role represents the structure for a role
 type Role struct {
-	ID          string   `bson:"_id"`
+	ID          string   `bson:"_id" json:"id"`
 	Name        string   `bson:"name" json:"name"`
 	Permissions []string `bson:"permissions" json:"permissions"`
 }

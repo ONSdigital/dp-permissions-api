@@ -16,7 +16,7 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 	logdata := log.Data{"role-id": roleID}
 
 	//get role from mongoDB by id
-	role, err := api.mongoDB.GetRole(ctx, roleID)
+	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
 		log.Event(ctx, "getRole Handler: retrieving role from mongoDB returned an error", log.ERROR, log.Error(err), logdata)
 		http.Error(w, err.Error(), http.StatusNotFound)

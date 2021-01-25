@@ -72,7 +72,7 @@ func (m *Mongo) Checker(ctx context.Context, state *healthcheck.CheckState) erro
 func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
 	s := m.Session.Copy()
 	defer s.Close()
-	log.Event(ctx, "getting role by ID", log.Data{"id": id})
+	log.Event(ctx, "getting role by ID", log.INFO, log.Data{"id": id})
 
 	var role models.Role
 	err := s.DB(m.Database).C(m.Collection).Find(bson.M{"_id": id}).One(&role)
