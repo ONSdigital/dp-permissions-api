@@ -23,7 +23,8 @@ type Mongo struct {
 }
 
 var (
-	errRoleNotFound = errors.New("role not found")
+	//ErrRoleNotFound is an error when the role can not be found in mongoDB
+	ErrRoleNotFound = errors.New("role not found")
 )
 
 //Init creates a new mgo.Session with a strong consistency and a write mode of "majority"
@@ -78,7 +79,7 @@ func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
 	err := s.DB(m.Database).C(m.Collection).Find(bson.M{"_id": id}).One(&role)
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, errRoleNotFound
+			return nil, ErrRoleNotFound
 		}
 		return nil, err
 	}

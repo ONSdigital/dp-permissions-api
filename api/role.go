@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 )
@@ -19,7 +20,11 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
 		log.Event(ctx, "getRole Handler: retrieving role from mongoDB returned an error", log.ERROR, log.Error(err), logdata)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		if err == mongo.ErrRoleNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
