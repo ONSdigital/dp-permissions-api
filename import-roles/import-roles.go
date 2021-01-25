@@ -7,15 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/globalsign/mgo"
+	uuid "github.com/satori/go.uuid"
 )
-
-//Role represents a role that will be stored in mongo
-type Role struct {
-	Name        string   `bson:"name" json:"name"`
-	Permissions []string `bson:"permissions" json:"permissions"`
-}
 
 func main() {
 
@@ -49,7 +45,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	res := []Role{}
+	res := []models.Role{}
 	if err := json.Unmarshal(b, &res); err != nil {
 		logData := log.Data{"json file": res}
 		log.Event(ctx, "failed to unmarshal json", log.ERROR, log.Error(err), logData)
@@ -58,6 +54,7 @@ func main() {
 
 	for _, role := range res {
 
+		role.ID = uuid.NewV4().String()
 		logData := log.Data{"role": role}
 
 		if err = session.DB("permissions").C("permissions").Insert(role); err != nil {

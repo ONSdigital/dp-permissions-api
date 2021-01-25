@@ -15,10 +15,10 @@ type Service struct {
 	Config      *config.Config
 	Server      HTTPServer
 	Router      *mux.Router
-	Api         *api.API
+	api         *api.API
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
-	MongoDB     PermissionsStore
+	MongoDB     api.PermissionsStore
 }
 
 // Run the service
@@ -41,7 +41,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	}
 
 	// Setup the API
-	a := api.Setup(ctx, r)
+	a := api.Setup(ctx, r, mongoDB)
 
 	hc, err := serviceList.GetHealthCheck(cfg, buildTime, gitCommit, version)
 
@@ -67,7 +67,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	return &Service{
 		Config:      cfg,
 		Router:      r,
-		Api:         a,
+		api:         a,
 		HealthCheck: hc,
 		ServiceList: serviceList,
 		Server:      s,
@@ -128,7 +128,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func registerCheckers(ctx context.Context,
 	hc HealthChecker,
-	mongoDB PermissionsStore) (err error) {
+	mongoDB api.PermissionsStore) (err error) {
 
 	hasErrors := false
 
