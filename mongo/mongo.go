@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
+
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongodb "github.com/ONSdigital/dp-mongodb"
 	dpMongoHealth "github.com/ONSdigital/dp-mongodb/health"
@@ -21,11 +23,6 @@ type Mongo struct {
 	Database     string
 	Collection   string
 }
-
-var (
-	//ErrRoleNotFound is an error when the role can not be found in mongoDB
-	ErrRoleNotFound = errors.New("role not found")
-)
 
 //Init creates a new mgo.Session with a strong consistency and a write mode of "majority"
 func (m *Mongo) Init(mongoConf config.MongoConfiguration) (err error) {
@@ -79,7 +76,7 @@ func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
 	err := s.DB(m.Database).C(m.Collection).Find(bson.M{"_id": id}).One(&role)
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, ErrRoleNotFound
+			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
 	}

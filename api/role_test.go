@@ -9,12 +9,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
+
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/dp-permissions-api/mongo"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -42,7 +43,7 @@ func TestGetRoleHandler(t *testing.T) {
 				case testRoleID1:
 					return &models.Role{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, nil
 				default:
-					return nil, mongo.ErrRoleNotFound
+					return nil, apierrors.ErrRoleNotFound
 				}
 			},
 		}
