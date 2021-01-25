@@ -3,7 +3,6 @@ package api_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -15,15 +14,12 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/models"
+	"github.com/ONSdigital/dp-permissions-api/mongo"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 const (
 	testRoleID1 = "roleID1"
-)
-
-var (
-	errRoleNotFound = errors.New("role not found")
 )
 
 func dbRole(id string) *models.Role {
@@ -46,7 +42,7 @@ func TestGetRoleHandler(t *testing.T) {
 				case testRoleID1:
 					return &models.Role{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, nil
 				default:
-					return nil, errRoleNotFound
+					return nil, mongo.ErrRoleNotFound
 				}
 			},
 		}
