@@ -52,7 +52,7 @@ func TestGetRoleHandler(t *testing.T) {
 
 		Convey("When an existing role is requested with its Role ID", func() {
 
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/role/%s", testRoleID1), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/roles/%s", testRoleID1), nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -69,7 +69,7 @@ func TestGetRoleHandler(t *testing.T) {
 
 		Convey("When a non existing role is requested a Not Found response is returned", func() {
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/role/inexistent", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles/inexistent", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 			So(w.Code, ShouldEqual, http.StatusNotFound)
