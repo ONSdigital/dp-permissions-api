@@ -24,5 +24,6 @@ func Setup(ctx context.Context, r *mux.Router, permissionsStore PermissionsStore
 	log.Event(ctx, "remove hello endpoint")
 	r.HandleFunc("/hello", HelloHandler()).Methods("GET")
 	r.HandleFunc("/role/{id}", api.GetRoleHandler).Methods(http.MethodGet)
+	r.HandleFunc("/roles", api.GetRolesHandler).Methods(http.MethodGet)
 	return api
 }

@@ -23,6 +23,7 @@ func TestSetup(t *testing.T) {
 			// Replace the check below with any newly added api endpoints
 			So(hasRoute(api.Router, "/hello", "GET"), ShouldBeTrue)
 			So(hasRoute(api.Router, "/role/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/roles", "GET"), ShouldBeTrue)
 		})
 	})
 }

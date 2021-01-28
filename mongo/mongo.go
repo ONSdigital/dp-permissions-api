@@ -83,3 +83,29 @@ func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
 
 	return &role, nil
 }
+
+// GetRoles retrieves all role documents from Mongo
+func (m *Mongo) GetRoles(ctx context.Context) ([]models.Role, error) {
+	s := m.Session.Copy()
+	defer s.Close()
+	log.Event(ctx, "getting roles", log.INFO)
+
+	iter := s.DB(m.Database).C(m.Collection).Find(nil).Iter()
+	defer func() {
+		err := iter.Close()
+		if err != nil {
+			log.Event(ctx, "error closing iterator", log.ERROR, log.Error(err))
+		}
+	}()
+
+	results := []models.Role{}
+	if err := iter.All(&results); err != nil {
+		if err == mgo.ErrNotFound {
+			return nil, apierrors.ErrRoleNotFound
+		}
+		return nil, err
+	}
+
+	return results, nil
+
+}
