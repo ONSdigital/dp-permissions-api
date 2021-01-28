@@ -57,7 +57,7 @@ func main() {
 		role.ID = uuid.NewV4().String()
 		logData := log.Data{"role": role}
 
-		if err = session.DB("permissions").C("permissions").Insert(role); err != nil {
+		if err = session.DB("permissions").C("roles").Insert(role); err != nil {
 			log.Event(ctx, "failed to insert new edition document, data lost in mongo but exists in this log", log.ERROR, log.Error(err), logData)
 			os.Exit(1)
 		}
