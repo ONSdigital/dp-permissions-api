@@ -6,11 +6,11 @@ import (
 	"flag"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/globalsign/mgo"
-	uuid "github.com/satori/go.uuid"
 )
 
 func main() {
@@ -54,7 +54,7 @@ func main() {
 
 	for _, role := range res {
 
-		role.ID = uuid.NewV4().String()
+		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
 		if err = session.DB("permissions").C("roles").Insert(role); err != nil {
