@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/ONSdigital/dp-permissions-api/config"
+
 	"github.com/gorilla/mux"
 )
 
@@ -11,13 +13,17 @@ import (
 type API struct {
 	Router           *mux.Router
 	permissionsStore PermissionsStore
+	defaultLimit     int
+	defaultOffset    int
 }
 
 //Setup function sets up the api and returns an api
-func Setup(ctx context.Context, r *mux.Router, permissionsStore PermissionsStore) *API {
+func Setup(ctx context.Context, cfg *config.Config, r *mux.Router, permissionsStore PermissionsStore) *API {
 	api := &API{
 		Router:           r,
 		permissionsStore: permissionsStore,
+		defaultLimit:     cfg.MongoConfig.Limit,
+		defaultOffset:    cfg.MongoConfig.Offset,
 	}
 
 	r.HandleFunc("/roles/{id}", api.GetRoleHandler).Methods(http.MethodGet)

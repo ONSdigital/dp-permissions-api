@@ -3,8 +3,8 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/ONSdigital/dp-permissions-api/models"
+	"net/url"
+	"strconv"
 
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/log.go/log"
@@ -54,27 +54,33 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	log.Event(ctx, "getRoles Handler: came in here", log.INFO)
+	//get limit from query parameters, or default value
+	limit, err := getPaginationQueryParameter(req.URL.Query(), "limit", api.defaultLimit)
+	if err != nil {
+		log.Event(ctx, "failed to obtain limit from request query parameters", log.ERROR)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	//get offset from query parameters, or default value
+	offset, err := getPaginationQueryParameter(req.URL.Query(), "offset", api.defaultOffset)
+	if err != nil {
+		log.Event(ctx, "failed to obtain limit from request query parameters", log.ERROR)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// get roles from MongoDB
-	listOfRoles, err := api.permissionsStore.GetRoles(ctx)
+	listOfRoles, err := api.permissionsStore.GetRoles(ctx, offset, limit)
+
 	if err != nil {
 		log.Event(ctx, "getRoles Handler: retrieving roles from MongoDB returned an error", log.ERROR, log.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	logdata := log.Data{"role-id": listOfRoles}
-	log.Event(ctx, "getRoles Handler: came in here", logdata)
-
-	roles := models.Roles{
-		Items:      listOfRoles,
-		Count:      len(listOfRoles),
-		Limit:      len(listOfRoles),
-		TotalCount: len(listOfRoles),
-	}
-
 	var b []byte
-	b, err = json.Marshal(roles)
+	b, err = json.Marshal(listOfRoles)
 	if err != nil {
 		log.Event(ctx, "getRoles Handler: failed to marshal roles resource into bytes", log.ERROR, log.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -91,4 +97,19 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Event(ctx, "getRoles Handler: Successfully retrieved roles", log.INFO)
 
+}
+
+func getPaginationQueryParameter(queryVars url.Values, varKey string, defaultValue int) (val int, err error) {
+	strVal, found := queryVars[varKey]
+	if !found {
+		return defaultValue, nil
+	}
+	val, err = strconv.Atoi(strVal[0])
+	if err != nil {
+		return -1, apierrors.ErrInvalidQueryParameter
+	}
+	if val < 0 {
+		return 0, nil
+	}
+	return val, nil
 }

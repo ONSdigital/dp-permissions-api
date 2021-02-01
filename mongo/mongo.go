@@ -84,28 +84,39 @@ func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
 	return &role, nil
 }
 
-// GetRoles retrieves all role documents from Mongo
-func (m *Mongo) GetRoles(ctx context.Context) ([]models.Role, error) {
+// GetRoles retrieves all role documents from Mongo, according to the provided limit and offset.
+//Offset and limit need to  be positive or zero. Zero limit is equivalent to no limit and all items starting at the offset will be returned.
+func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles, error) {
+	if offset < 0 || limit < 0 {
+		return nil, apierrors.ErrLimitAndOffset
+	}
+
 	s := m.Session.Copy()
 	defer s.Close()
 	log.Event(ctx, "getting roles", log.INFO)
 
-	iter := s.DB(m.Database).C(m.Collection).Find(nil).Iter()
-	defer func() {
-		err := iter.Close()
-		if err != nil {
-			log.Event(ctx, "error closing iterator", log.ERROR, log.Error(err))
-		}
-	}()
-
-	results := []models.Role{}
-	if err := iter.All(&results); err != nil {
+	roles := s.DB(m.Database).C(m.Collection).Find(nil)
+	totalCount, err := roles.Count()
+	if err != nil {
 		if err == mgo.ErrNotFound {
 			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
 	}
 
-	return results, nil
+	results := []models.Role{}
+	iter := roles.Skip(offset).Limit(limit).Iter()
+	if err := iter.All(&results); err != nil {
+		return nil, err
+	}
+
+	//return results, nil
+	return &models.Roles{
+		Items:      results,
+		Count:      len(results),
+		TotalCount: totalCount,
+		Offset:     offset,
+		Limit:      limit,
+	}, nil
 
 }

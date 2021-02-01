@@ -14,5 +14,5 @@ type PermissionsStore interface {
 	Checker(ctx context.Context, state *healthcheck.CheckState) error
 	Close(ctx context.Context) error
 	GetRole(ctx context.Context, id string) (*models.Role, error)
-	GetRoles(ctx context.Context) ([]models.Role, error)
+	GetRoles(ctx context.Context, offset, limit int) (*models.Roles, error)
 }

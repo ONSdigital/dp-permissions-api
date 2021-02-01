@@ -30,7 +30,7 @@ var _ api.PermissionsStore = &PermissionsStoreMock{}
 //             GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
 // 	               panic("mock out the GetRole method")
 //             },
-//             GetRolesFunc: func(ctx context.Context) ([]models.Role, error) {
+//             GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 // 	               panic("mock out the GetRoles method")
 //             },
 //         }
@@ -50,7 +50,7 @@ type PermissionsStoreMock struct {
 	GetRoleFunc func(ctx context.Context, id string) (*models.Role, error)
 
 	// GetRolesFunc mocks the GetRoles method.
-	GetRolesFunc func(ctx context.Context) ([]models.Role, error)
+	GetRolesFunc func(ctx context.Context, offset int, limit int) (*models.Roles, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -77,6 +77,10 @@ type PermissionsStoreMock struct {
 		GetRoles []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+			// Offset is the offset argument value.
+			Offset int
+			// Limit is the limit argument value.
+			Limit int
 		}
 	}
 	lockChecker  sync.RWMutex
@@ -187,29 +191,37 @@ func (mock *PermissionsStoreMock) GetRoleCalls() []struct {
 }
 
 // GetRoles calls GetRolesFunc.
-func (mock *PermissionsStoreMock) GetRoles(ctx context.Context) ([]models.Role, error) {
+func (mock *PermissionsStoreMock) GetRoles(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 	if mock.GetRolesFunc == nil {
 		panic("PermissionsStoreMock.GetRolesFunc: method is nil but PermissionsStore.GetRoles was just called")
 	}
 	callInfo := struct {
-		Ctx context.Context
+		Ctx    context.Context
+		Offset int
+		Limit  int
 	}{
-		Ctx: ctx,
+		Ctx:    ctx,
+		Offset: offset,
+		Limit:  limit,
 	}
 	mock.lockGetRoles.Lock()
 	mock.calls.GetRoles = append(mock.calls.GetRoles, callInfo)
 	mock.lockGetRoles.Unlock()
-	return mock.GetRolesFunc(ctx)
+	return mock.GetRolesFunc(ctx, offset, limit)
 }
 
 // GetRolesCalls gets all the calls that were made to GetRoles.
 // Check the length with:
 //     len(mockedPermissionsStore.GetRolesCalls())
 func (mock *PermissionsStoreMock) GetRolesCalls() []struct {
-	Ctx context.Context
+	Ctx    context.Context
+	Offset int
+	Limit  int
 } {
 	var calls []struct {
-		Ctx context.Context
+		Ctx    context.Context
+		Offset int
+		Limit  int
 	}
 	mock.lockGetRoles.RLock()
 	calls = mock.calls.GetRoles
