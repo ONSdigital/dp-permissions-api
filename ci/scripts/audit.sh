@@ -1,15 +1,7 @@
----
-platform: linux
+#!/bin/bash -eux
 
-image_resource:
-  type: docker-image
-  source:
-    repository: onsdigital/dp-concourse-tools-nancy
-    tag: latest
+export cwd=$(pwd)
 
-inputs:
-  - name: dp-permissions-api
-    path: dp-permissions-api
-
-run:
-  path: dp-permissions-api/ci/scripts/audit.sh 
+pushd $cwd/dp-permissions-api
+  make audit
+popd

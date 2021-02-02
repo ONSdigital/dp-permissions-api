@@ -10,33 +10,333 @@ basePath: "/v1"
 schemes:
   - http
 tags:
-  - name: "hello"
+  - name: "roles"
+  - name: "permissions"
+  - name: "policies"
 paths:
-  /hello:
+
+  /roles:
     get:
       tags:
-        - hello
-      summary: Example hello world endpoint
-      description: Returns an example payload.
+        - "roles"
+      summary: "Returns a list of all roles"
+      description: "Returns a paginated list of all roles" 
       produces:
-        - application/json
+        - "application/json"
+      responses:
+        200: 
+          description: "Successfully returned a json object containing a list of all roles"
+          schema:
+            type: object
+            required: 
+              - items
+            properties: 
+              count:
+                type: integer
+                readOnly: true
+                description: "The number of roles returned"
+              total_count:
+                type: integer
+                readOnly: true
+                description: "The total number of roles"
+              offset:
+                type: integer
+                readOnly: true
+                description: "The first row of resources to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
+              limit:
+                type: integer
+                readOnly: true
+                description: "The number of roles per page"
+              items:
+                description: "A list of roles"
+                type: array
+                items:
+                  $ref: "#/definitions/Role"
+        400:
+          description: "Invalid request"
+        500:
+          $ref: "#/responses/InternalError"
+  
+  /roles/{id}:
+    get:
+      tags:
+        - "roles"
+      summary: "Returns a role"
+      description: "Returns a role for a given id"
+      produces:
+        - "application/json"
+      parameters:
+        - in: path
+          name: id
+          description: "Unique id of role"
+          type: string
+          required: true
       responses:
         200:
-          description: OK
+          description: "Successfully returned a role for a given id"
           schema:
-            $ref: "#/definitions/HelloResponse"
+            $ref: "#/definitions/Role"
+        400:
+          description: "Invalid request"
+        404:
+          $ref: "#/responses/NotFound"
         500:
-          $ref: '#/responses/InternalError'
+          $ref: "#/responses/InternalError"
+
+  /policies:
+    post:
+      tags:
+        - "policies"
+      summary: "Adds a policy"
+      description: "Adds a policy corresponding to the provided body in this request. A policy binds a role to specific members (groups or users) conditional on various attributes"
+      produces:
+        - "application/json"
+      parameters:
+        - in: body
+          name: Policy
+          schema:
+            $ref: "#/definitions/NewPolicy" 
+      responses:
+        201:
+          description: "Successfully added a policy"
+          schema:
+            $ref: "#/definitions/Policy"
+        400:
+          description: "Bad request. Invalid policy supplied"
+    get:
+      tags:
+        - "policies"
+      summary: "Returns a list of policies"
+      description: "Returns the policies that match the supplied query parameters for collection id, role id and group id."
+      produces:
+        - "application/json"
+      parameters:
+        - in: query
+          name: collection_id
+          type: string
+          description: "A unique id for a collection"
+          required: true
+        - in: query
+          name: group_id
+          type: string
+          description: "A unique id for a group or user"
+          required: true
+        - in: query
+          name: role_id
+          type: string
+          description: "A unique id for a role"
+          required: true
+      responses:
+        200:
+          description: "Successfully returned a list of policies with ids that corresponds to the query parameters."
+          schema:
+            type: object
+            properties: 
+              items:
+                description: "A list of policies"
+                type: array
+                items:
+                  $ref: "#/definitions/Policy"
+        400:
+          description: "Invalid request"
+        404:
+          $ref: "#/responses/NotFound"
+        500:
+          $ref: "#/responses/InternalError"
+    
+  /policies/{id}:
+    delete:
+      tags:
+        - "policies"
+      summary: "Removes a policy"
+      description: "Removes a policy with a specific policy id."
+      produces:
+        - "application/json"
+      parameters:
+        - in: path
+          name: id
+          description: "Unique id of policy"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Successfully deleted a policy for a given id"
+          schema:
+            $ref: "#/definitions/Policy"
+        400:
+          description: "Invalid request"
+        404:
+          $ref: "#/responses/NotFound"
+        500:
+          $ref: "#/responses/InternalError"
+    get:
+      tags:
+        - "policies"
+      summary: "Returns a policy"
+      description: "Returns a policy for a given id"
+      produces:
+        - "application/json"
+      parameters:
+        - in: path
+          name: id
+          description: "Unique id of policy"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Successfully returned a policy for a given id"
+          schema:
+            $ref: "#/definitions/Policy"
+        400:
+          description: "Invalid request"
+        404:
+          $ref: "#/responses/NotFound"
+        500:
+          $ref: "#/responses/InternalError"
+    put:
+      tags:
+        - "policies"
+      summary: "Updates a policy"
+      description: "Updates a policy for a given id"
+      produces:
+        - "application/json"
+      parameters:
+        - in: path
+          name: id
+          description: "Unique id of policy"
+          type: string
+          required: true
+      responses:
+        200:
+          description: "Successfully updated a policy for a given id"
+          schema:
+            $ref: "#/definitions/Policy"
+        400:
+          description: "Invalid request"
+        404:
+          $ref: "#/responses/NotFound"
+        500:
+          $ref: "#/responses/InternalError"
+
+  /authorise:
+    post:
+      tags: 
+        - "permissions"
+      summary: "Returns status code indicating if the user is authorised"
+      description: "Returns a status code for a specifc user. The user details, user_id, group_id and roles are passed in by a JWT. The status code indicates if the user is authorised for this role."
+      produces:
+        - "application/json"
+      security:
+        - UserAuthorisationToken: []
+      responses:
+        200:
+          description: "User is authorised for this role"
+        400:
+          description: "Invalid request"
+        401:
+          description: "Unauthorised request"
+        403:
+          description: "User is unauthorised for this role"
+        500:
+          $ref: "#/responses/InternalError"
+
+
 
 responses:
   InternalError:
     description: "Failed to process the request due to an internal error"
+  NotFound:
+    description: "Requested id can not be found"
 
-definitions:
-  HelloResponse:
+definitions: 
+  Role:
     type: object
+    required:
+      - id
+      - role
+      - permissions
     properties:
-      message:
+      id:
+        $ref: "#/definitions/RoleId"
+      role:
+        description: "Name of role"
         type: string
-        description: "Message returned by hello world endpoint"
-        example: "Hello, world!"
+        example: "admin"
+      permissions:
+        description: "A list of permissions associated with this role"
+        type: array
+        items:
+          $ref: "#/definitions/Permission"
+        example: "read only"
+  Permission:
+    type: object
+    required:
+      - id
+      - description
+    properties:
+      id:
+        description: "Unique id for a permission"
+        type: string
+        example: "1b"
+      description:
+        description: "Description for a permission"
+        type: string
+        example: "read only"
+  RoleId:
+    description: "Unique id for a role"  
+    type: string
+    example: "1b"
+  MemberId:
+    description: "Unique id for a member"  
+    type: string
+    example: "1d"
+  Policy:
+    type: object
+    required:
+      - id
+      - members
+      - roles
+      - collection
+    properties:
+      id:
+        description: "Unique id for this policy"
+        type: string
+      members:
+        description: "A list of members for this policy"
+        type: array
+        items: 
+          $ref: "#/definitions/MemberId"
+      roles:
+        description: "A list of roles for this policy"
+        type: array
+        items:
+          $ref: "#/definitions/RoleId"
+      collection:
+        description: "Unique collection id"
+        type: string
+  NewPolicy:
+    type: object
+    required:
+      - members
+      - roles
+      - collection
+    properties:
+      members:
+        description: "A list of members for this policy"
+        type: array
+        items: 
+          $ref: "#/definitions/MemberId"
+      roles:
+        description: "A list of roles for this policy"
+        type: array
+        items:
+          $ref: "#/definitions/RoleId"
+      collection:
+        description: "Unique collection id"
+        type: string
+   
+securityDefinitions:
+  UserAuthorisationToken:
+    type: apiKey
+    in: header
+    name: user-authorisation-token 

@@ -4,6 +4,7 @@ API for managing access control permissions for Digital Publishing API resources
 
 ### Getting started
 
+* Load inital roles into your local mongodb using the `import-roles` utility in the import-roles folder. Follow the steps in the [README](./import-roles/README.md).
 * Run `make debug`
 
 ### Dependencies
@@ -28,7 +29,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ### License
 
-Copyright © 2020, Office for National Statistics (https://www.ons.gov.uk)
+Copyright © 2021, Office for National Statistics (https://www.ons.gov.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
 
