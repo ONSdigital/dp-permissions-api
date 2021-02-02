@@ -1,0 +1,23 @@
+[
+    {
+      "name": "Admin",
+      "permissions": [
+          "CreateRole",
+          "Edit",
+          "ReadOnly"
+       ]
+    }, 
+    {
+        "name": "Publisher",
+        "permissions": [
+            "Edit",
+            "ReadOnly"
+        ]
+     },
+     {
+        "name": "Readonly",
+        "permissions": [
+            "ReadOnly"
+        ]
+     }
+]

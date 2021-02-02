@@ -1,23 +1,26 @@
-package api
+package api_test
 
 import (
 	"context"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dp-permissions-api/api"
+	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestSetup(t *testing.T) {
 	Convey("Given an API instance", t, func() {
+		mongoMock := &mock.PermissionsStoreMock{}
+
 		r := mux.NewRouter()
 		ctx := context.Background()
-		api := Setup(ctx, r)
+		api := api.Setup(ctx, r, mongoMock)
 
 		Convey("When created the following routes should have been added", func() {
-			// Replace the check below with any newly added api endpoints
-			So(hasRoute(api.Router, "/hello", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
 		})
 	})
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 
@@ -53,7 +54,7 @@ func (e *Init) DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer 
 }
 
 // GetMongoDB creates a mongoDB client and sets the Mongo flag to true
-func (e *ExternalServiceList) GetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error) {
+func (e *ExternalServiceList) GetMongoDB(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
 	mongoDB, err := e.Init.DoGetMongoDB(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 }
 
 // DoGetMongoDB returns a MongoDB
-func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error) {
+func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
 	mongodb := &mongo.Mongo{}
 	if err := mongodb.Init(cfg.MongoConfig); err != nil {
 		return nil, err
