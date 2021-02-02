@@ -55,7 +55,7 @@ var paginatedImageList = models.Roles{
 	Items:      []models.Role{*dbRole(testRoleID2)},
 	Count:      1,
 	Limit:      1,
-	TotalCount: 2,
+	TotalCount: 1,
 	Offset:     1,
 }
 
@@ -158,7 +158,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Offset:     1,
 						Limit:      1,
 						Items:      []models.Role{{ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
-						TotalCount: 2,
+						TotalCount: 1,
 					}, nil
 				},
 			}

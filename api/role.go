@@ -30,8 +30,7 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var b []byte
-	b, err = json.Marshal(role)
+	b, err := json.Marshal(role)
 	if err != nil {
 		log.Event(ctx, "getRole Handler: failed to marshal role resource into bytes", log.ERROR, log.Error(err), logdata)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -79,8 +78,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var b []byte
-	b, err = json.Marshal(listOfRoles)
+	b, err := json.Marshal(listOfRoles)
 	if err != nil {
 		log.Event(ctx, "getRoles Handler: failed to marshal roles resource into bytes", log.ERROR, log.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
