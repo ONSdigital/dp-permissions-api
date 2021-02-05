@@ -157,6 +157,24 @@ func (mock *PermissionsStoreMock) GetRole(ctx context.Context, id string) (*mode
 	return mock.GetRoleFunc(ctx, id)
 }
 
+// GetPolicies calls GetRoleFunc.
+func (mock *PermissionsStoreMock) GetPolicies(ctx context.Context, id string) (*models.Role, error) {
+	if mock.GetRoleFunc == nil {
+		panic("PermissionsStoreMock.GetRoleFunc: method is nil but PermissionsStore.GetRole was just called")
+	}
+	callInfo := struct {
+		Ctx context.Context
+		ID  string
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	mock.lockGetRole.Lock()
+	mock.calls.GetRole = append(mock.calls.GetRole, callInfo)
+	mock.lockGetRole.Unlock()
+	return mock.GetRoleFunc(ctx, id)
+}
+
 // GetRoleCalls gets all the calls that were made to GetRole.
 // Check the length with:
 //     len(mockedPermissionsStore.GetRoleCalls())
