@@ -58,5 +58,5 @@ func (api *API) GetPoliciesHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Event(ctx, "getRole Handler: Successfully retrieved role", log.INFO, logdata)
+	log.Event(ctx, "getPolicy Handler: Successfully retrieved policy", log.INFO, logdata)
 }
