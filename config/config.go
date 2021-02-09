@@ -20,6 +20,8 @@ type MongoConfiguration struct {
 	BindAddr   string `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
 	Database   string `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
 	Collection string `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
+	Limit      int    `envconfig:"MONGODB_LIMIT"`
+	Offset     int    `envconfig:"MONGODB_OFFSET"`
 }
 
 var cfg *Config
@@ -40,6 +42,8 @@ func Get() (*Config, error) {
 			BindAddr:   "localhost:27017",
 			Database:   "permissions",
 			Collection: "roles",
+			Limit:      10,
+			Offset:     0,
 		},
 	}
 

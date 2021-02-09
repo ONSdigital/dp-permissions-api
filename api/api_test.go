@@ -7,6 +7,7 @@ import (
 
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -15,12 +16,14 @@ func TestSetup(t *testing.T) {
 	Convey("Given an API instance", t, func() {
 		mongoMock := &mock.PermissionsStoreMock{}
 
+		cfg := &config.Config{}
 		r := mux.NewRouter()
 		ctx := context.Background()
-		api := api.Setup(ctx, r, mongoMock)
+		api := api.Setup(ctx, cfg, r, mongoMock)
 
 		Convey("When created the following routes should have been added", func() {
 			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/roles", "GET"), ShouldBeTrue)
 		})
 	})
 }
