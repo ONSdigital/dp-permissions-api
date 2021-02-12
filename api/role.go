@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/utils"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 )
@@ -62,7 +62,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 
 	if limitParameter != "" {
 		logData["limit"] = limitParameter
-		limit, err = validatePositiveInteger(limitParameter)
+		limit, err = utils.ValidatePositiveInteger(limitParameter)
 		if err != nil {
 			log.Event(ctx, "invalid query parameter: limit", log.ERROR, log.Error(err), logData)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -72,7 +72,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 
 	if offsetParameter != "" {
 		logData["offset"] = offsetParameter
-		offset, err = validatePositiveInteger(offsetParameter)
+		offset, err = utils.ValidatePositiveInteger(offsetParameter)
 		if err != nil {
 			log.Event(ctx, "invalid query parameter: offset", log.ERROR, log.Error(err), logData)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -114,15 +114,4 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Event(ctx, "getRoles Handler: Successfully retrieved roles", log.INFO)
 
-}
-
-func validatePositiveInteger(value string) (int, error) {
-	val, err := strconv.Atoi(value)
-	if err != nil {
-		return -1, apierrors.ErrInvalidPositiveInteger
-	}
-	if val < 0 {
-		return -1, apierrors.ErrInvalidPositiveInteger
-	}
-	return val, nil
 }
