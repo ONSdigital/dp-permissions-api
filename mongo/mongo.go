@@ -93,7 +93,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 
 	s := m.Session.Copy()
 	defer s.Close()
-	log.Event(ctx, "getting roles", log.INFO)
+	log.Event(ctx, "querying document store for list of roles", log.INFO)
 
 	roles := s.DB(m.Database).C(m.Collection).Find(nil)
 	totalCount, err := roles.Count()
@@ -110,7 +110,6 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		return nil, err
 	}
 
-	//return results, nil
 	return &models.Roles{
 		Items:      results,
 		Count:      len(results),

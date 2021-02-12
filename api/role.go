@@ -3,10 +3,9 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"net/url"
-	"strconv"
 
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/utils"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/gorilla/mux"
 )
@@ -52,19 +51,39 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 //GetRolesHandler is a handler that gets all roles from MongoDB
 func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
+	logData := log.Data{}
 
-	//get limit from query parameters, or default value
-	limit, err := getPaginationQueryParameter(req.URL.Query(), "limit", api.defaultLimit)
-	if err != nil {
-		log.Event(ctx, "failed to obtain limit from request query parameters", log.ERROR)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	offsetParameter := req.URL.Query().Get("offset")
+	limitParameter := req.URL.Query().Get("limit")
+
+	offset := api.defaultOffset
+	limit := api.defaultLimit
+	var err error
+
+	if limitParameter != "" {
+		logData["limit"] = limitParameter
+		limit, err = utils.ValidatePositiveInteger(limitParameter)
+		if err != nil {
+			log.Event(ctx, "invalid query parameter: limit", log.ERROR, log.Error(err), logData)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 
-	//get offset from query parameters, or default value
-	offset, err := getPaginationQueryParameter(req.URL.Query(), "offset", api.defaultOffset)
-	if err != nil {
-		log.Event(ctx, "failed to obtain limit from request query parameters", log.ERROR)
+	if offsetParameter != "" {
+		logData["offset"] = offsetParameter
+		offset, err = utils.ValidatePositiveInteger(offsetParameter)
+		if err != nil {
+			log.Event(ctx, "invalid query parameter: offset", log.ERROR, log.Error(err), logData)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	if limit > api.maximumDefaultLimit {
+		logData["max_limit"] = api.maximumDefaultLimit
+		err = apierrors.ErrorMaximumLimitReached(api.maximumDefaultLimit)
+		log.Event(ctx, "invalid query parameter: limit, maximum limit reached", log.ERROR, log.Error(err), logData)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -95,19 +114,4 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	log.Event(ctx, "getRoles Handler: Successfully retrieved roles", log.INFO)
 
-}
-
-func getPaginationQueryParameter(queryVars url.Values, varKey string, defaultValue int) (val int, err error) {
-	strVal, found := queryVars[varKey]
-	if !found {
-		return defaultValue, nil
-	}
-	val, err = strconv.Atoi(strVal[0])
-	if err != nil {
-		return -1, apierrors.ErrInvalidQueryParameter
-	}
-	if val < 0 {
-		return 0, nil
-	}
-	return val, nil
 }

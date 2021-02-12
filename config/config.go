@@ -13,6 +13,9 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	MongoConfig                MongoConfiguration
+	DefaultLimit               int `envconfig:"DEFAULT_LIMIT"`
+	DefaultOffset              int `envconfig:"DEFAULT_OFFSET"`
+	MaximumDefaultLimit        int `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
 }
 
 // MongoConfiguration contains the config required to connect to MongoDB.
@@ -20,8 +23,6 @@ type MongoConfiguration struct {
 	BindAddr   string `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
 	Database   string `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
 	Collection string `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
-	Limit      int    `envconfig:"MONGODB_LIMIT"`
-	Offset     int    `envconfig:"MONGODB_OFFSET"`
 }
 
 var cfg *Config
@@ -42,9 +43,10 @@ func Get() (*Config, error) {
 			BindAddr:   "localhost:27017",
 			Database:   "permissions",
 			Collection: "roles",
-			Limit:      10,
-			Offset:     0,
 		},
+		DefaultLimit:        20,
+		DefaultOffset:       0,
+		MaximumDefaultLimit: 1000,
 	}
 
 	return cfg, envconfig.Process("", cfg)
