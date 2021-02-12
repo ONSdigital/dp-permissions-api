@@ -16,16 +16,18 @@ tags:
 parameters:
   limit:
     name: limit
-    description: "Maximum number of items that will be returned. A value of zero will return all available items, without limit. The default value is 10."
+    description: "Maximum number of items that will be returned. A value of zero will return an empty items array. The default value is 20, with a maxiumum cap of 1000."
     in: query
     required: false
     type: integer
+    default: 20
   offset:
     name: offset
     description: "Starting index of the items array that will be returned. By default it is zero, meaning that the returned items will start from the beginning."
     in: query
     required: false
     type: integer
+    default: 0
 
 paths:
 
@@ -63,7 +65,7 @@ paths:
               limit:
                 type: integer
                 readOnly: true
-                description: "The number of roles per page"
+                description: "The number of items returned per request"
               items:
                 description: "A list of roles"
                 type: array
