@@ -13,6 +13,9 @@ type Config struct {
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	MongoConfig                MongoConfiguration
+	DefaultLimit               int `envconfig:"DEFAULT_LIMIT"`
+	DefaultOffset              int `envconfig:"DEFAULT_OFFSET"`
+	MaximumDefaultLimit        int `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
 }
 
 // MongoConfiguration contains the config required to connect to MongoDB.
@@ -41,6 +44,9 @@ func Get() (*Config, error) {
 			Database:   "permissions",
 			Collection: "roles",
 		},
+		DefaultLimit:        20,
+		DefaultOffset:       0,
+		MaximumDefaultLimit: 1000,
 	}
 
 	return cfg, envconfig.Process("", cfg)

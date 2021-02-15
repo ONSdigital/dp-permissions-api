@@ -21,7 +21,10 @@ API for managing access control permissions for Digital Publishing API resources
 | HEALTHCHECK_CRITICAL_TIMEOUT      | 90s       | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format)
 | MOGODB_BIND_ADDR                  | localhost:27017 | The MongoDB bind address
 | MONGODB_PERMISSIONS_DATABASE      | permissions     | The MongoDB permissions database
-| MONGODB_PERMISSIONS_COLLECTION    | permissions     | The MongoDB permissions collection
+| MONGODB_PERMISSIONS_COLLECTION    | roles     | The MongoDB permissions collection
+| DEFAULT_LIMIT                     | 20        | Default limit for pagination
+| DEFAULT_OFFSET                    | 0         | Default offset for pagination
+| DEFAULT_MAXIMUM_LIMIT             | 1000      | Default maximum limit for pagination
 
 ### Contributing
 

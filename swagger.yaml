@@ -13,6 +13,22 @@ tags:
   - name: "roles"
   - name: "permissions"
   - name: "policies"
+parameters:
+  limit:
+    name: limit
+    description: "Maximum number of items that will be returned. A value of zero will return an empty items array. The default value is 20, with a maxiumum cap of 1000."
+    in: query
+    required: false
+    type: integer
+    default: 20
+  offset:
+    name: offset
+    description: "Starting index of the items array that will be returned. By default it is zero, meaning that the returned items will start from the beginning."
+    in: query
+    required: false
+    type: integer
+    default: 0
+
 paths:
 
   /roles:
@@ -20,7 +36,10 @@ paths:
       tags:
         - "roles"
       summary: "Returns a list of all roles"
-      description: "Returns a paginated list of all roles" 
+      description: "Returns a paginated list of all roles. By default all roles are returned, but a subset can be returned by providing offset and limit query parameters." 
+      parameters:
+      - $ref: '#/parameters/limit'
+      - $ref: '#/parameters/offset'
       produces:
         - "application/json"
       responses:
@@ -46,14 +65,17 @@ paths:
               limit:
                 type: integer
                 readOnly: true
-                description: "The number of roles per page"
+                description: "The number of items returned per request"
               items:
                 description: "A list of roles"
                 type: array
                 items:
                   $ref: "#/definitions/Role"
         400:
-          description: "Invalid request"
+          description: |
+            Invalid request, reasons can be one of the following:
+              * query parameters incorrect offset provided
+              * query parameters incorrect limit provided
         500:
           $ref: "#/responses/InternalError"
   
