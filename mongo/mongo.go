@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/pkg/health"
-	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/pkg/mongodb"
+	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
