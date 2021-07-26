@@ -10,6 +10,8 @@ github.com/ONSdigital/dp-mongodb v1.5.0 h1:Jrqixx0xr9aPSPya0Wce8Ly1zVwB0M6nC3K4u
 github.com/ONSdigital/dp-mongodb v1.5.0/go.mod h1:zm2gWzuqR+aiy2y2NLnfBIafvhKQ0IVPtiClaYyLkmo=
 github.com/ONSdigital/dp-mongodb/v2 v2.3.0 h1:dVU8AdbsREREfHZdNTdsDiKryfFay/CejwrWtzQRP8M=
 github.com/ONSdigital/dp-mongodb/v2 v2.3.0/go.mod h1:MjnhhOPx1EN4HmkN4/DZmg2XdJHOsSNvfMPL2HMsxLw=
+github.com/ONSdigital/dp-mongodb/v2 v2.3.1 h1:e27vzywrOI3rdDM+XafLI91+bP8e57OMH4olpHsSEnk=
+github.com/ONSdigital/dp-mongodb/v2 v2.3.1/go.mod h1:MjnhhOPx1EN4HmkN4/DZmg2XdJHOsSNvfMPL2HMsxLw=
 github.com/ONSdigital/dp-net v1.0.5-0.20200805082802-e518bc287596/go.mod h1:wDVhk2pYosQ1q6PXxuFIRYhYk2XX5+1CeRRnXpSczPY=
 github.com/ONSdigital/dp-net v1.0.5-0.20200805145012-9227a11caddb/go.mod h1:MrSZwDUvp8u1VJEqa+36Gwq4E7/DdceW+BDCvGes6Cs=
 github.com/ONSdigital/dp-net v1.0.5-0.20200805150805-cac050646ab5/go.mod h1:de3LB9tedE0tObBwa12dUOt5rvTW4qQkF5rXtt4b6CE=
