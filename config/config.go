@@ -23,6 +23,9 @@ type MongoConfiguration struct {
 	BindAddr   string `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
 	Database   string `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
 	Collection string `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
+	Username   string `envconfig:"MONGODB_USERNAME"    json:"-"`
+	Password   string `envconfig:"MONGODB_PASSWORD"    json:"-"`
+	IsSSL      bool   `envconfig:"MONGODB_IS_SSL"`
 }
 
 var cfg *Config
@@ -43,6 +46,9 @@ func Get() (*Config, error) {
 			BindAddr:   "localhost:27017",
 			Database:   "permissions",
 			Collection: "roles",
+			Username:   "",
+			Password:   "",
+			IsSSL:      false,
 		},
 		DefaultLimit:        20,
 		DefaultOffset:       0,

@@ -4,46 +4,64 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ONSdigital/dp-permissions-api/apierrors"
-
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dpMongodb "github.com/ONSdigital/dp-mongodb"
-	dpMongoHealth "github.com/ONSdigital/dp-mongodb/health"
-	"github.com/ONSdigital/dp-permissions-api/config"
+	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
-	"github.com/globalsign/mgo"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
+)
+
+const (
+	connectTimeoutInSeconds = 5
+	queryTimeoutInSeconds   = 15
 )
 
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Session      *mgo.Session
-	healthClient *dpMongoHealth.CheckMongoClient
+	URI          string
 	Database     string
 	Collection   string
+	Connection   *dpMongodb.MongoConnection
+	Username     string
+	Password     string
+	healthClient *dpMongoHealth.CheckMongoClient
+	IsSSL        bool
 }
 
-//Init creates a new mgo.Session with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(mongoConf config.MongoConfiguration) (err error) {
-	if m.Session != nil {
-		return errors.New("session already exists")
+func (m *Mongo) getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern bool) *dpMongodb.MongoConnectionConfig {
+	return &dpMongodb.MongoConnectionConfig{
+		IsSSL:                   m.IsSSL,
+		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
+		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
+
+		Username:                      m.Username,
+		Password:                      m.Password,
+		ClusterEndpoint:               m.URI,
+		Database:                      m.Database,
+		Collection:                    m.Collection,
+		IsWriteConcernMajorityEnabled: shouldEnableWriteConcern,
+		IsStrongReadConcernEnabled:    shouldEnableReadConcern,
+	}
+}
+
+//Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
+func (m *Mongo) Init(ctx context.Context, shouldEnableReadConcern, shouldEnableWriteConcern bool) (err error) {
+	if m.Connection != nil {
+		return errors.New("datastore connection already exists")
 	}
 
-	//Create Session
-	if m.Session, err = mgo.Dial(mongoConf.BindAddr); err != nil {
+	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern))
+	if err != nil {
 		return err
 	}
-	m.Session.EnsureSafe(&mgo.Safe{WMode: "majority"})
-	m.Session.SetMode(mgo.Strong, true)
 
-	m.Database = mongoConf.Database
-	m.Collection = mongoConf.Collection
-
+	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
-	databaseCollectionBuilder[(dpMongoHealth.Database)(mongoConf.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(mongoConf.Collection)}
+	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.Collection)}
 
-	client := dpMongoHealth.NewClientWithCollections(m.Session, databaseCollectionBuilder)
+	client := dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
 
 	m.healthClient = &dpMongoHealth.CheckMongoClient{
 		Client:      *client,
@@ -55,10 +73,10 @@ func (m *Mongo) Init(mongoConf config.MongoConfiguration) (err error) {
 
 // Close closes the mongo session and returns any error
 func (m *Mongo) Close(ctx context.Context) error {
-	if m.Session == nil {
-		return errors.New("cannot close a mongoDB connection without a valid session")
+	if m.Connection == nil {
+		return errors.New("cannot close a empty connection")
 	}
-	return dpMongodb.Close(ctx, m.Session)
+	return m.Connection.Close(ctx)
 }
 
 // Checker is called by the healthcheck library to check the health state of this mongoDB instance
@@ -68,14 +86,12 @@ func (m *Mongo) Checker(ctx context.Context, state *healthcheck.CheckState) erro
 
 //GetRole retrieves a role document by its ID
 func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
-	s := m.Session.Copy()
-	defer s.Close()
 	log.Event(ctx, "getting role by ID", log.INFO, log.Data{"id": id})
 
 	var role models.Role
-	err := s.DB(m.Database).C(m.Collection).Find(bson.M{"_id": id}).One(&role)
+	err := m.Connection.GetConfiguredCollection().FindOne(ctx, bson.M{"_id": id}, &role)
 	if err != nil {
-		if err == mgo.ErrNotFound {
+		if dpMongodb.IsErrNoDocumentFound(err) {
 			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
@@ -91,14 +107,12 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		return nil, apierrors.ErrLimitAndOffset
 	}
 
-	s := m.Session.Copy()
-	defer s.Close()
 	log.Event(ctx, "querying document store for list of roles", log.INFO)
 
-	roles := s.DB(m.Database).C(m.Collection).Find(nil)
-	totalCount, err := roles.Count()
+	roles := m.Connection.GetConfiguredCollection().Find(nil)
+	totalCount, err := roles.Count(ctx)
 	if err != nil {
-		if err == mgo.ErrNotFound {
+		if dpMongodb.IsErrNoDocumentFound(err) {
 			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
@@ -106,7 +120,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 
 	results := []models.Role{}
 	iter := roles.Skip(offset).Limit(limit).Iter()
-	if err := iter.All(&results); err != nil {
+	if err := iter.All(ctx, &results); err != nil {
 		return nil, err
 	}
 

@@ -12,6 +12,11 @@ import (
 	dphttp "github.com/ONSdigital/dp-net/http"
 )
 
+var (
+	shouldEnableReadConcern  = true
+	shouldEnableWriteConcern = true
+)
+
 // ExternalServiceList holds the initialiser and initialisation state of external services.
 type ExternalServiceList struct {
 	HealthCheck bool
@@ -76,7 +81,7 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 // DoGetMongoDB returns a MongoDB
 func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
 	mongodb := &mongo.Mongo{}
-	if err := mongodb.Init(cfg.MongoConfig); err != nil {
+	if err := mongodb.Init(ctx, shouldEnableReadConcern, shouldEnableWriteConcern); err != nil {
 		return nil, err
 	}
 	return mongodb, nil
