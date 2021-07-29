@@ -3,35 +3,37 @@ package mongo
 import (
 	"context"
 	"errors"
-	"github.com/ONSdigital/dp-permissions-api/config"
+	"time"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
 	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const (
-	connectTimeoutInSeconds = 5
-	queryTimeoutInSeconds   = 15
-)
-
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Database     string
-	Collection   string
-	Connection   *dpMongodb.MongoConnection
-	healthClient *dpMongoHealth.CheckMongoClient
+	URI                     string
+	Database                string
+	Collection              string
+	Connection              *dpMongodb.MongoConnection
+	Username                string
+	Password                string
+	healthClient            *dpMongoHealth.CheckMongoClient
+	IsSSL                   bool
+	ConnectTimeoutInSeconds time.Duration
+	QueryTimeoutInSeconds   time.Duration
 }
 
 func (m *Mongo) getConnectionConfig(mongoConf config.MongoConfiguration, shouldEnableReadConcern, shouldEnableWriteConcern bool) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
-		IsSSL:                   mongoConf.IsSSL,
-		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
-		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
+		IsSSL:                   m.IsSSL,
+		ConnectTimeoutInSeconds: m.ConnectTimeoutInSeconds,
+		QueryTimeoutInSeconds:   m.QueryTimeoutInSeconds,
 
 		Username:                      mongoConf.Username,
 		Password:                      mongoConf.Password,
@@ -108,7 +110,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 
 	log.Event(ctx, "querying document store for list of roles", log.INFO)
 
-	roles := m.Connection.GetConfiguredCollection().Find(bson.M{})
+	roles := m.Connection.GetConfiguredCollection().Find(bson.D{})
 	totalCount, err := roles.Count(ctx)
 	if err != nil {
 		if dpMongodb.IsErrNoDocumentFound(err) {

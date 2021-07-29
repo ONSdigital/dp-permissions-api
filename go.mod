@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/ONSdigital/dp-healthcheck v1.0.5
-	github.com/ONSdigital/dp-mongodb/v2 v2.3.1
+	github.com/ONSdigital/dp-mongodb/v2 v2.3.0
 	github.com/ONSdigital/dp-net v1.0.12
 	github.com/ONSdigital/log.go v1.0.1
 	github.com/fatih/color v1.12.0 // indirect
