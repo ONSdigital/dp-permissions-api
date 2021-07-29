@@ -9,7 +9,6 @@ import (
 	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
 	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
-	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
 	"go.mongodb.org/mongo-driver/bson"
@@ -29,35 +28,33 @@ type Mongo struct {
 	QueryTimeoutInSeconds   time.Duration
 }
 
-func (m *Mongo) getConnectionConfig(mongoConf config.MongoConfiguration, shouldEnableReadConcern, shouldEnableWriteConcern bool) *dpMongodb.MongoConnectionConfig {
+func (m *Mongo) getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern bool) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
 		IsSSL:                   m.IsSSL,
 		ConnectTimeoutInSeconds: m.ConnectTimeoutInSeconds,
 		QueryTimeoutInSeconds:   m.QueryTimeoutInSeconds,
 
-		Username:                      mongoConf.Username,
-		Password:                      mongoConf.Password,
-		ClusterEndpoint:               mongoConf.BindAddr,
-		Database:                      mongoConf.Database,
-		Collection:                    mongoConf.Collection,
+		Username:                      m.Username,
+		Password:                      m.Password,
+		ClusterEndpoint:               m.URI,
+		Database:                      m.Database,
+		Collection:                    m.Collection,
 		IsWriteConcernMajorityEnabled: shouldEnableWriteConcern,
 		IsStrongReadConcernEnabled:    shouldEnableReadConcern,
 	}
 }
 
 //Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(mongoConf config.MongoConfiguration, shouldEnableReadConcern, shouldEnableWriteConcern bool) (err error) {
+func (m *Mongo) Init(shouldEnableReadConcern, shouldEnableWriteConcern bool) (err error) {
 	if m.Connection != nil {
 		return errors.New("datastore connection already exists")
 	}
 
-	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(mongoConf, shouldEnableReadConcern, shouldEnableWriteConcern))
+	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern))
 	if err != nil {
 		return err
 	}
 
-	m.Database = mongoConf.Database
-	m.Collection = mongoConf.Collection
 	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
 	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.Collection)}

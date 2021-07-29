@@ -85,7 +85,7 @@ func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (api.Permis
 		ConnectTimeoutInSeconds: cfg.MongoConfig.ConnectTimeoutInSeconds,
 		QueryTimeoutInSeconds:   cfg.MongoConfig.QueryTimeoutInSeconds,
 	}
-	if err := mongodb.Init(ctx, cfg.MongoConfig.EnableReadConcern, cfg.MongoConfig.EnableWriteConcern); err != nil {
+	if err := mongodb.Init(cfg.MongoConfig.EnableReadConcern, cfg.MongoConfig.EnableWriteConcern); err != nil {
 		return nil, err
 	}
 	return mongodb, nil
