@@ -75,17 +75,8 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 
 // DoGetMongoDB returns a MongoDB
 func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
-	mongodb := &mongo.Mongo{
-		Collection:              cfg.MongoConfig.Collection,
-		Database:                cfg.MongoConfig.Database,
-		URI:                     cfg.MongoConfig.BindAddr,
-		Username:                cfg.MongoConfig.Username,
-		Password:                cfg.MongoConfig.Password,
-		IsSSL:                   cfg.MongoConfig.IsSSL,
-		ConnectTimeoutInSeconds: cfg.MongoConfig.ConnectTimeoutInSeconds,
-		QueryTimeoutInSeconds:   cfg.MongoConfig.QueryTimeoutInSeconds,
-	}
-	if err := mongodb.Init(cfg.MongoConfig.EnableReadConcern, cfg.MongoConfig.EnableWriteConcern); err != nil {
+	mongodb := &mongo.Mongo{}
+	if err := mongodb.Init(cfg.MongoConfig); err != nil {
 		return nil, err
 	}
 	return mongodb, nil

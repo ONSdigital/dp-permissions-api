@@ -3,58 +3,58 @@ package mongo
 import (
 	"context"
 	"errors"
-	"time"
-
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
 	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/log"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+const (
+	connectTimeoutInSeconds = 5
+	queryTimeoutInSeconds   = 15
+)
+
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	URI                     string
-	Database                string
-	Collection              string
-	Connection              *dpMongodb.MongoConnection
-	Username                string
-	Password                string
-	healthClient            *dpMongoHealth.CheckMongoClient
-	IsSSL                   bool
-	ConnectTimeoutInSeconds time.Duration
-	QueryTimeoutInSeconds   time.Duration
+	Database     string
+	Collection   string
+	Connection   *dpMongodb.MongoConnection
+	healthClient *dpMongoHealth.CheckMongoClient
 }
 
-func (m *Mongo) getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern bool) *dpMongodb.MongoConnectionConfig {
+func (m *Mongo) getConnectionConfig(mongoConf config.MongoConfiguration) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
-		IsSSL:                   m.IsSSL,
-		ConnectTimeoutInSeconds: m.ConnectTimeoutInSeconds,
-		QueryTimeoutInSeconds:   m.QueryTimeoutInSeconds,
+		IsSSL:                   mongoConf.IsSSL,
+		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
+		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
 
-		Username:                      m.Username,
-		Password:                      m.Password,
-		ClusterEndpoint:               m.URI,
-		Database:                      m.Database,
-		Collection:                    m.Collection,
-		IsWriteConcernMajorityEnabled: shouldEnableWriteConcern,
-		IsStrongReadConcernEnabled:    shouldEnableReadConcern,
+		Username:                      mongoConf.Username,
+		Password:                      mongoConf.Password,
+		ClusterEndpoint:               mongoConf.BindAddr,
+		Database:                      mongoConf.Database,
+		Collection:                    mongoConf.Collection,
+		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
+		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
 	}
 }
 
 //Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(shouldEnableReadConcern, shouldEnableWriteConcern bool) (err error) {
+func (m *Mongo) Init(mongoConf config.MongoConfiguration) error {
 	if m.Connection != nil {
 		return errors.New("datastore connection already exists")
 	}
 
-	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(shouldEnableReadConcern, shouldEnableWriteConcern))
+	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(mongoConf))
 	if err != nil {
 		return err
 	}
 
+	m.Database = mongoConf.Database
+	m.Collection = mongoConf.Collection
 	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
 	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.Collection)}
