@@ -15,11 +15,11 @@ type Config struct {
 	DefaultLimit               int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultOffset              int           `envconfig:"DEFAULT_OFFSET"`
 	MaximumDefaultLimit        int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
-	MongoConfig                MongoConfiguration
+	MongoConfig                MongoDB
 }
 
-// MongoConfiguration contains the config required to connect to MongoDB.
-type MongoConfiguration struct {
+// MongoDB contains the config required to connect to MongoDB.
+type MongoDB struct {
 	BindAddr                string        `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
 	Database                string        `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
 	Collection              string        `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
@@ -46,7 +46,7 @@ func Get() (*Config, error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		MongoConfig: MongoConfiguration{
+		MongoConfig: MongoDB{
 			BindAddr:                "localhost:27017",
 			Database:                "permissions",
 			Collection:              "roles",

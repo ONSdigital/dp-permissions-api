@@ -26,7 +26,7 @@ type Mongo struct {
 	healthClient *dpMongoHealth.CheckMongoClient
 }
 
-func (m *Mongo) getConnectionConfig(mongoConf config.MongoConfiguration) *dpMongodb.MongoConnectionConfig {
+func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
 		IsSSL:                   mongoConf.IsSSL,
 		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
@@ -43,7 +43,7 @@ func (m *Mongo) getConnectionConfig(mongoConf config.MongoConfiguration) *dpMong
 }
 
 //Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(mongoConf config.MongoConfiguration) error {
+func (m *Mongo) Init(mongoConf config.MongoDB) error {
 	if m.Connection != nil {
 		return errors.New("datastore connection already exists")
 	}
