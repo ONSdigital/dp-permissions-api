@@ -30,3 +30,6 @@ test:
 convey:
 	goconvey ./...
 
+.PHONY: test-component
+test-component:
+	go test -race -cover -coverprofile="coverage.txt" -coverpkg=github.com/ONSdigital/dp-permissions-api/... -component
