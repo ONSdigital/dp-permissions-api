@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/globalsign/mgo"
 )
 
@@ -26,7 +26,7 @@ func main() {
 
 	session, err := mgo.Dial(mongoURL)
 	if err != nil {
-		log.Event(ctx, "unable to create mongo session", log.ERROR, log.Error(err))
+		log.Error(ctx, "unable to create mongo session", err)
 		os.Exit(1)
 	}
 	defer session.Close()
@@ -35,20 +35,20 @@ func main() {
 	fileLocation := "./" + filename
 	f, err := os.Open(fileLocation)
 	if err != nil {
-		log.Event(ctx, "failed to open roles json file", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "failed to open roles json file", err)
 		os.Exit(1)
 	}
 
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
-		log.Event(ctx, "failed to read json file as a byte array", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to read json file as a byte array", err)
 		os.Exit(1)
 	}
 
 	res := []models.Role{}
 	if err := json.Unmarshal(b, &res); err != nil {
 		logData := log.Data{"json file": res}
-		log.Event(ctx, "failed to unmarshal json", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "failed to unmarshal json", err, logData)
 		os.Exit(1)
 	}
 
@@ -58,11 +58,11 @@ func main() {
 		logData := log.Data{"role": role}
 
 		if err = session.DB("permissions").C("roles").Insert(role); err != nil {
-			log.Event(ctx, "failed to insert new edition document, data lost in mongo but exists in this log", log.ERROR, log.Error(err), logData)
+			log.Error(ctx, "failed to insert new edition document, data lost in mongo but exists in this log", err, logData)
 			os.Exit(1)
 		}
 
-		log.Event(ctx, "successfully put role into mongo", log.INFO, logData)
+		log.Info(ctx, "successfully put role into mongo", logData)
 	}
 
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -84,7 +84,7 @@ func (m *Mongo) Checker(ctx context.Context, state *healthcheck.CheckState) erro
 
 //GetRole retrieves a role document by its ID
 func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
-	log.Event(ctx, "getting role by ID", log.INFO, log.Data{"id": id})
+	log.Info(ctx, "getting role by ID", log.Data{"id": id})
 
 	var role models.Role
 	err := m.Connection.GetConfiguredCollection().FindOne(ctx, bson.M{"_id": id}, &role)
@@ -105,7 +105,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		return nil, apierrors.ErrLimitAndOffset
 	}
 
-	log.Event(ctx, "querying document store for list of roles", log.INFO)
+	log.Info(ctx, "querying document store for list of roles")
 
 	roles := m.Connection.GetConfiguredCollection().Find(bson.D{})
 	totalCount, err := roles.Count(ctx)
