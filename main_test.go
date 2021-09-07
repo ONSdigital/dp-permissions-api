@@ -58,6 +58,7 @@ func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
 }
 
 func TestMain(t *testing.T) {
+	flag.Parse()
 	// *componentFlag = true // put this line in if you want to "debug test" this function in vscode IDE
 	if *componentFlag {
 		status := 0

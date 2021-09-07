@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -48,7 +49,10 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 
 	f.Config.MongoConfig.Database = databaseName
 	f.Config.MongoConfig.BindAddr = getMongoURI
-	f.Config.MongoConfig.Username, f.Config.MongoConfig.Password = createCredsInDB(getMongoURI, databaseName)
+	f.Config.MongoConfig.Username, f.Config.MongoConfig.Password, err = createCredsInDB(getMongoURI, databaseName)
+	if err != nil {
+		return nil, err
+	}
 
 	mongodb := &mongo.Mongo{}
 
@@ -61,7 +65,7 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	return f, nil
 }
 
-func createCredsInDB(getMongoURI string, databaseName string) (string, string) {
+func createCredsInDB(getMongoURI string, databaseName string) (string, string, error) {
 	username := "admin"
 	password, _ := uuid.NewV4()
 	mongoConnectionConfig := &dpMongoDriver.MongoConnectionConfig{
@@ -76,7 +80,7 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string) {
 	}
 	mongoConnection, err := dpMongoDriver.Open(mongoConnectionConfig)
 	if err != nil {
-		panic("expected db connection to be opened")
+		return username, password.String(), errors.New(fmt.Sprintf("expected db connection to be opened: %+v", err))
 	}
 	mongoDatabaseSelection := mongoConnection.
 		GetMongoCollection().
@@ -85,7 +89,7 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string) {
 		{"create", "test"},
 	})
 	if createCollectionResponse.Err() != nil {
-		panic("expected collection creation to go through")
+		return username, password.String(), errors.New(fmt.Sprintf("expected database creation to go through: %+v", err))
 	}
 	userCreationResponse := mongoDatabaseSelection.RunCommand(context.TODO(), bson.D{
 		{"createUser", username},
@@ -95,9 +99,9 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string) {
 		}},
 	})
 	if userCreationResponse.Err() != nil {
-		panic("expected user creation to go through")
+		return username, password.String(), errors.New(fmt.Sprintf("expected user creation to go through: %+v", err))
 	}
-	return username, password.String()
+	return username, password.String(), nil
 }
 
 func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
