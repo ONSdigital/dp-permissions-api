@@ -20,6 +20,7 @@ import (
 	"net/http"
 )
 
+// PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
 type PermissionsComponent struct {
 	ErrorFeature   componenttest.ErrorFeature
 	svc            *service.Service
@@ -29,7 +30,7 @@ type PermissionsComponent struct {
 	HTTPServer     *dphttp.Server
 	ServiceRunning bool
 }
-
+// NewPermissionsComponent initializes mock server and inmemory mongodb used for running component tests.
 func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*PermissionsComponent, error) {
 
 	f := &PermissionsComponent{
