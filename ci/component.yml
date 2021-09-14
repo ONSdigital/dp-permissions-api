@@ -12,4 +12,4 @@ inputs:
   - name: dp-permissions-api
 
 run:
-  path: dp-topic-api/ci/scripts/component.sh
+  path: dp-permissions-api/ci/scripts/component.sh

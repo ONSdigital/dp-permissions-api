@@ -7,7 +7,6 @@ import (
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v2/mongodb"
-	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/mongo"
@@ -27,14 +26,14 @@ type PermissionsComponent struct {
 	errorChan      chan error
 	MongoClient    *mongo.Mongo
 	Config         *config.Config
-	HTTPServer     *dphttp.Server
+	HTTPServer     *http.Server
 	ServiceRunning bool
 }
 // NewPermissionsComponent initializes mock server and inmemory mongodb used for running component tests.
 func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*PermissionsComponent, error) {
 
 	f := &PermissionsComponent{
-		HTTPServer:     &dphttp.Server{},
+		HTTPServer:     &http.Server{},
 		errorChan:      make(chan error),
 		ServiceRunning: false,
 	}
