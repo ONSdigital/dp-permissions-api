@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+
 	componenttest "github.com/ONSdigital/dp-component-test"
+	"github.com/ONSdigital/dp-component-test/utils"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/api"
@@ -12,11 +15,9 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
-	"github.com/benweissmann/memongo"
 	"github.com/cucumber/godog"
 	"github.com/gofrs/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	"net/http"
 )
 
 // PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
@@ -29,6 +30,7 @@ type PermissionsComponent struct {
 	HTTPServer     *http.Server
 	ServiceRunning bool
 }
+
 // NewPermissionsComponent initializes mock server and inmemory mongodb used for running component tests.
 func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*PermissionsComponent, error) {
 
@@ -46,7 +48,7 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	}
 
 	getMongoURI := fmt.Sprintf("localhost:%d", mongoFeature.Server.Port())
-	databaseName := memongo.RandomDatabase()
+	databaseName := utils.RandomDatabase()
 
 	f.Config.MongoConfig.Database = databaseName
 	f.Config.MongoConfig.BindAddr = getMongoURI
@@ -110,7 +112,7 @@ func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 }
 
 func (f *PermissionsComponent) Reset() *PermissionsComponent {
-	f.MongoClient.Database = memongo.RandomDatabase()
+	f.MongoClient.Database = utils.RandomDatabase()
 	f.MongoClient.Init(f.Config.MongoConfig)
 	return f
 }

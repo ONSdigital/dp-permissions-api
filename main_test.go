@@ -3,17 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ONSdigital/dp-permissions-api/features/steps"
 	"os"
 	"testing"
+
+	"github.com/ONSdigital/dp-permissions-api/features/steps"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )
 
-// Mongo version here is overridden in the pipeline by the URL provided in the component.sh
-const MongoVersion = "4.0.23"
+const MongoVersion = "4.4.8"
 const DatabaseName = "testing"
 
 var componentFlag = flag.Bool("component", false, "perform component tests")
