@@ -13,6 +13,10 @@ all: audit test build
 audit:
 	go list -m all | nancy sleuth
 
+.PHONY: lint
+lint:
+	exit
+
 .PHONY: build
 build:
 	go build -tags 'production' $(LDFLAGS) -o $(BINPATH)/dp-permissions-api
