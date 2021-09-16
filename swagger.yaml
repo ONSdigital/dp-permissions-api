@@ -125,6 +125,9 @@ paths:
             $ref: "#/definitions/Policy"
         400:
           description: "Bad request. Invalid policy supplied"
+        500:
+          $ref: "#/responses/InternalError"
+
     get:
       tags:
         - "policies"
@@ -304,59 +307,87 @@ definitions:
         description: "Description for a permission"
         type: string
         example: "read only"
+  Conditions:
+    type: object
+    required:
+      - attributes
+      - operator
+      - values
+    properties:
+      attributes:
+        description: "List of attributes"
+        type: array
+        items:
+          $ref: "#/definitions/Attribute"
+      operator:
+        description: "operator of the condition"
+        type: string
+        example: "equals"
+      values:
+        description: "List of truth condition values"
+        type: array
+        items:
+          $ref: "#/definitions/Value"
+        example: "read only"
+  Attribute:
+    description: "Attribute of the request"
+    type: string
+    example: "a1"
+  Value:
+    description: "value that needs to be satisfied"
+    type: string
+    example: "v1"
   RoleId:
     description: "Unique id for a role"  
     type: string
     example: "1b"
-  MemberId:
-    description: "Unique id for a member"  
+  EntityId:
+    description: "Unique id for an entity"
     type: string
     example: "1d"
   Policy:
     type: object
     required:
       - id
-      - members
+      - entities
       - roles
-      - collection
     properties:
       id:
         description: "Unique id for this policy"
         type: string
       members:
-        description: "A list of members for this policy"
+        description: "A list of entities for this policy"
         type: array
-        items: 
-          $ref: "#/definitions/MemberId"
+        items:
+          $ref: "#/definitions/EntityId"
       roles:
         description: "A list of roles for this policy"
         type: array
         items:
           $ref: "#/definitions/RoleId"
-      collection:
-        description: "Unique collection id"
-        type: string
+      conditions:
+        description: "list of conditions which needs to be true for the policy to be applicable"
+        type: array
   NewPolicy:
     type: object
     required:
-      - members
+      - entities
       - roles
-      - collection
     properties:
       members:
-        description: "A list of members for this policy"
+        description: "A list of entities for this policy"
         type: array
-        items: 
-          $ref: "#/definitions/MemberId"
+        items:
+          $ref: "#/definitions/EntityId"
       roles:
         description: "A list of roles for this policy"
         type: array
         items:
           $ref: "#/definitions/RoleId"
-      collection:
-        description: "Unique collection id"
-        type: string
-   
+      conditions:
+        description: "list of conditions which needs to be true for the policy to be applicable"
+        type: array
+
 securityDefinitions:
   UserAuthorisationToken:
     type: apiKey
