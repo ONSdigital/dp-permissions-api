@@ -307,7 +307,7 @@ definitions:
         description: "Description for a permission"
         type: string
         example: "read only"
-  Conditions:
+  Condition:
     type: object
     required:
       - attributes
@@ -332,7 +332,7 @@ definitions:
   Attribute:
     description: "Attribute of the request"
     type: string
-    example: "a1"
+    example: "collection_id"
   Value:
     description: "value that needs to be satisfied"
     type: string
@@ -383,10 +383,12 @@ definitions:
         description: "A list of roles for this policy"
         type: array
         items:
-          $ref: "#/definitions/RoleId"
+          $ref: "#/definitions/Condition"
       conditions:
         description: "list of conditions which needs to be true for the policy to be applicable"
         type: array
+        items:
+          $ref: "#/definitions/Condition"
 
 securityDefinitions:
   UserAuthorisationToken:
