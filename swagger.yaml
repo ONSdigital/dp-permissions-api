@@ -368,6 +368,8 @@ definitions:
       conditions:
         description: "list of conditions which needs to be true for the policy to be applicable"
         type: array
+        items:
+          $ref: "#/definitions/Condition"
   NewPolicy:
     type: object
     required:
