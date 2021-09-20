@@ -30,6 +30,7 @@ func Setup(ctx context.Context, cfg *config.Config, r *mux.Router, permissionsSt
 
 	r.HandleFunc("/roles/{id}", api.GetRoleHandler).Methods(http.MethodGet)
 	r.HandleFunc("/roles", api.GetRolesHandler).Methods(http.MethodGet)
+	r.HandleFunc("/v1/policies", api.PostPolicesHandler).Methods(http.MethodPost)
 
 	return api
 }

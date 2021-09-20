@@ -131,3 +131,13 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 	}, nil
 
 }
+//AddPolicy inserts new policy to data store
+func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+
+	var documents []interface{}
+	documents = append(documents, policy)
+	if _, err := m.Connection.C(m.Collection).Insert(ctx, documents); err != nil {
+		return nil, err
+	}
+	return policy, nil
+}

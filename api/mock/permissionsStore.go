@@ -17,29 +17,35 @@ var _ api.PermissionsStore = &PermissionsStoreMock{}
 
 // PermissionsStoreMock is a mock implementation of api.PermissionsStore.
 //
-//     func TestSomethingThatUsesPermissionsStore(t *testing.T) {
+// 	func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-//         // make and configure a mocked api.PermissionsStore
-//         mockedPermissionsStore := &PermissionsStoreMock{
-//             CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
-// 	               panic("mock out the Checker method")
-//             },
-//             CloseFunc: func(ctx context.Context) error {
-// 	               panic("mock out the Close method")
-//             },
-//             GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
-// 	               panic("mock out the GetRole method")
-//             },
-//             GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
-// 	               panic("mock out the GetRoles method")
-//             },
-//         }
+// 		// make and configure a mocked api.PermissionsStore
+// 		mockedPermissionsStore := &PermissionsStoreMock{
+// 			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+// 				panic("mock out the AddPolicy method")
+// 			},
+// 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
+// 				panic("mock out the Checker method")
+// 			},
+// 			CloseFunc: func(ctx context.Context) error {
+// 				panic("mock out the Close method")
+// 			},
+// 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
+// 				panic("mock out the GetRole method")
+// 			},
+// 			GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
+// 				panic("mock out the GetRoles method")
+// 			},
+// 		}
 //
-//         // use mockedPermissionsStore in code that requires api.PermissionsStore
-//         // and then make assertions.
+// 		// use mockedPermissionsStore in code that requires api.PermissionsStore
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type PermissionsStoreMock struct {
+	// AddPolicyFunc mocks the AddPolicy method.
+	AddPolicyFunc func(ctx context.Context, policy *models.Policy) (*models.Policy, error)
+
 	// CheckerFunc mocks the Checker method.
 	CheckerFunc func(ctx context.Context, state *healthcheck.CheckState) error
 
@@ -54,6 +60,13 @@ type PermissionsStoreMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// AddPolicy holds details about calls to the AddPolicy method.
+		AddPolicy []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Policy is the policy argument value.
+			Policy *models.Policy
+		}
 		// Checker holds details about calls to the Checker method.
 		Checker []struct {
 			// Ctx is the ctx argument value.
@@ -83,10 +96,46 @@ type PermissionsStoreMock struct {
 			Limit int
 		}
 	}
-	lockChecker  sync.RWMutex
-	lockClose    sync.RWMutex
-	lockGetRole  sync.RWMutex
-	lockGetRoles sync.RWMutex
+	lockAddPolicy sync.RWMutex
+	lockChecker   sync.RWMutex
+	lockClose     sync.RWMutex
+	lockGetRole   sync.RWMutex
+	lockGetRoles  sync.RWMutex
+}
+
+// AddPolicy calls AddPolicyFunc.
+func (mock *PermissionsStoreMock) AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+	if mock.AddPolicyFunc == nil {
+		panic("PermissionsStoreMock.AddPolicyFunc: method is nil but PermissionsStore.AddPolicy was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		Policy *models.Policy
+	}{
+		Ctx:    ctx,
+		Policy: policy,
+	}
+	mock.lockAddPolicy.Lock()
+	mock.calls.AddPolicy = append(mock.calls.AddPolicy, callInfo)
+	mock.lockAddPolicy.Unlock()
+	return mock.AddPolicyFunc(ctx, policy)
+}
+
+// AddPolicyCalls gets all the calls that were made to AddPolicy.
+// Check the length with:
+//     len(mockedPermissionsStore.AddPolicyCalls())
+func (mock *PermissionsStoreMock) AddPolicyCalls() []struct {
+	Ctx    context.Context
+	Policy *models.Policy
+} {
+	var calls []struct {
+		Ctx    context.Context
+		Policy *models.Policy
+	}
+	mock.lockAddPolicy.RLock()
+	calls = mock.calls.AddPolicy
+	mock.lockAddPolicy.RUnlock()
+	return calls
 }
 
 // Checker calls CheckerFunc.

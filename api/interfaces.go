@@ -15,4 +15,5 @@ type PermissionsStore interface {
 	Close(ctx context.Context) error
 	GetRole(ctx context.Context, id string) (*models.Role, error)
 	GetRoles(ctx context.Context, offset, limit int) (*models.Roles, error)
+	AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error)
 }
