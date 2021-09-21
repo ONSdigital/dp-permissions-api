@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"strings"
 )
 
 // A list of errors returned from package
@@ -47,7 +48,7 @@ func (policy *NewPolicy) ValidateNewPolicy() error {
 	}
 
 	if invalidFields != nil {
-		return fmt.Errorf("missing mandatory fields: %v", invalidFields)
+		return fmt.Errorf("missing mandatory fields: %v", strings.Join(invalidFields, ", "))
 	}
 
 	return nil

@@ -48,7 +48,7 @@ func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 
 		err = policy.ValidateNewPolicy()
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: %v", []string{"entities", "roles"}))
+		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: entities, roles"))
 	})
 
 	Convey("When a policy message has empty entities fields, an error is returned", t, func() {
@@ -57,6 +57,6 @@ func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 
 		err = policy.ValidateNewPolicy()
 		So(err, ShouldNotBeNil)
-		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: %v", []string{"entities", "roles"}))
+		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: entities, roles"))
 	})
 }

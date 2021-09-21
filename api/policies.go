@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"errors"
 	"github.com/gofrs/uuid"
 
 	"encoding/json"
@@ -17,6 +16,14 @@ func (api *API) PostPolicesHandler(writer http.ResponseWriter, request *http.Req
 	policy, err := models.CreateNewPolicy(request.Body)
 	if err != nil {
 		log.Error(ctx, "unable to unmarshal request body", err)
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := policy.ValidateNewPolicy(); err != nil {
+		logData := log.Data{}
+		logData["policies_parameters"] = policy
+		log.Error(ctx, "policies parameters failed validation", err, logData)
 		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -49,11 +56,6 @@ func (api *API) createNewPolicy(ctx context.Context, policy *models.NewPolicy) (
 	newPolicy := &models.Policy{}
 	logData := log.Data{}
 
-	if err := policy.ValidateNewPolicy(); err != nil {
-		logData["policies_parameters"] = policy
-		log.Error(ctx, "policies parameters failed validation", err, logData)
-		return nil, errors.New("invalid request body")
-	}
 	uuid, err := uuid.NewV4()
 	if err != nil {
 		log.Error(ctx, "failed to create a new UUID for policies", err, logData)
