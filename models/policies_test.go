@@ -17,13 +17,13 @@ func (f reader) Read(bytes []byte) (int, error) {
 
 func TestCreateNewPolicyWithValidJson(t *testing.T) {
 	Convey("When a policy has a valid json body, a new policy is returned", t, func() {
-		reader := strings.NewReader(`{"entities": ["e1", "e2"], "roles": ["r1", "r2"], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
 
 		policy, err := CreateNewPolicy(reader)
 
 		So(err, ShouldBeNil)
 		So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
-		So(policy.Roles, ShouldResemble, []string{"r1", "r2"})
+		So(policy.Role, ShouldResemble, "r1")
 		So(policy.Conditions, ShouldResemble, []Condition{
 			{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: "and"}},
 		)
@@ -52,7 +52,7 @@ func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 	})
 
 	Convey("When a policy message has empty entities fields, an error is returned", t, func() {
-		policy, err := CreateNewPolicy(strings.NewReader(`{"entities": [], "roles": [], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
+		policy, err := CreateNewPolicy(strings.NewReader(`{"entities": [], "role": "", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
 		So(err, ShouldBeNil)
 
 		err = policy.ValidateNewPolicy()

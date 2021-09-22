@@ -41,7 +41,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
 
 		Convey("When a POST request is made to the policies endpoint with all the policies properties", func() {
-			reader := strings.NewReader(`{"entities": ["e1", "e2"], "roles": ["r1", "r2"], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
 			request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 			responseWriter := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -66,7 +66,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
-				So(policy.Roles, ShouldResemble, []string{"r1", "r2"})
+				So(policy.Role, ShouldResemble, "r1")
 				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
 				So(policy.Conditions, ShouldResemble, []models.Condition{
 					{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: "and"}},
@@ -75,7 +75,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 		})
 
 		Convey("When a POST request is made to the policies endpoint without conditions", func() {
-			reader := strings.NewReader(`{"entities": ["e1"], "roles": ["r1"]}`)
+			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
 			request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 			responseWriter := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -100,7 +100,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
-				So(policy.Roles, ShouldResemble, []string{"r1"})
+				So(policy.Role, ShouldResemble, "r1")
 				So(policy.Entities, ShouldResemble, []string{"e1"})
 				So(policy.Conditions, ShouldResemble, []models.Condition(nil),
 				)
@@ -116,7 +116,7 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 	Convey("When a POST request is made to the policies endpoint with empty entities", t, func() {
 		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
 
-		reader := strings.NewReader(`{"entities": [], "roles": ["r1"]}`)
+		reader := strings.NewReader(`{"entities": [], "role": "r1"}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 		responseWriter := httptest.NewRecorder()
 		permissionsApi.Router.ServeHTTP(responseWriter, request)

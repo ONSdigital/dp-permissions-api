@@ -64,7 +64,7 @@ func (api *API) createNewPolicy(ctx context.Context, policy *models.NewPolicy) (
 
 	newPolicy.ID = uuid.String()
 	newPolicy.Entities = policy.Entities
-	newPolicy.Roles = policy.Roles
+	newPolicy.Role = policy.Role
 	newPolicy.Conditions = policy.Conditions
 	logData["new_policy"] = newPolicy
 

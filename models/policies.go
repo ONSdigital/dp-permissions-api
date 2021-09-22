@@ -24,13 +24,13 @@ type Condition struct {
 type Policy struct {
 	ID         string      `bson:"-"          json:"id,omitempty"`
 	Entities   []string    `bson:"entities"   json:"entities"`
-	Roles      []string    `bson:"roles"      json:"roles"`
+	Role       string      `bson:"role"      json:"role"`
 	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`
 }
 
 type NewPolicy struct {
 	Entities   []string    `json:"entities"`
-	Roles      []string    `json:"roles"`
+	Role       string      `json:"role"`
 	Conditions []Condition `json:"conditions,omitempty"`
 }
 
@@ -43,7 +43,7 @@ func (policy *NewPolicy) ValidateNewPolicy() error {
 		invalidFields = append(invalidFields, "entities")
 	}
 
-	if len(policy.Roles) == 0 {
+	if len(policy.Role) == 0 {
 		invalidFields = append(invalidFields, "roles")
 	}
 
