@@ -350,7 +350,7 @@ definitions:
     required:
       - id
       - entities
-      - roles
+      - role
     properties:
       id:
         description: "Unique id for this policy"
@@ -360,11 +360,9 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/EntityId"
-      roles:
-        description: "A list of roles for this policy"
-        type: array
-        items:
-          $ref: "#/definitions/RoleId"
+      role:
+        description: "Role for this policy"
+        type: string
       conditions:
         description: "list of conditions which needs to be true for the policy to be applicable"
         type: array
@@ -374,18 +372,16 @@ definitions:
     type: object
     required:
       - entities
-      - roles
+      - role
     properties:
       members:
         description: "A list of entities for this policy"
         type: array
         items:
           $ref: "#/definitions/EntityId"
-      roles:
-        description: "A list of roles for this policy"
-        type: array
-        items:
-          $ref: "#/definitions/Condition"
+      role:
+        description: "Role for this policy"
+        type: string
       conditions:
         description: "list of conditions which needs to be true for the policy to be applicable"
         type: array
