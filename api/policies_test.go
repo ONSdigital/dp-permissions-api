@@ -199,3 +199,40 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 	})
 
 }
+
+func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
+	Convey("when a permission store fails to insert a policy to data store", t, func() {
+
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+				return nil, errors.New("Something went wrong")
+			},
+		}
+
+		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1"}`)
+		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the permissions store is called to create a new policy", func() {
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 1)
+		})
+
+		Convey("Then the response is 500 internal server error, , with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
+
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "Something went wrong")
+		})
+
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+
+	})
+
+}

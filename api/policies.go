@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func (api *API) PostPolicesHandler(writer http.ResponseWriter, request *http.Request) {
+func (api *API) PostPolicyHandler(writer http.ResponseWriter, request *http.Request) {
 
 	ctx := request.Context()
 	policy, err := models.CreateNewPolicy(request.Body)
@@ -54,11 +54,9 @@ func (api *API) PostPolicesHandler(writer http.ResponseWriter, request *http.Req
 
 func (api *API) createNewPolicy(ctx context.Context, policy *models.NewPolicy) (*models.Policy, error) {
 	newPolicy := &models.Policy{}
-	logData := log.Data{}
-
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		log.Error(ctx, "failed to create a new UUID for policies", err, logData)
+		log.Error(ctx, "failed to create a new UUID for policies", err)
 		return nil, err
 	}
 
@@ -66,11 +64,9 @@ func (api *API) createNewPolicy(ctx context.Context, policy *models.NewPolicy) (
 	newPolicy.Entities = policy.Entities
 	newPolicy.Role = policy.Role
 	newPolicy.Conditions = policy.Conditions
-	logData["new_policy"] = newPolicy
 
 	newPolicy, err = api.permissionsStore.AddPolicy(ctx, newPolicy)
 	if err != nil {
-		log.Error(ctx, "failed to create new policy", err, logData)
 		return nil, err
 	}
 	return newPolicy, nil
