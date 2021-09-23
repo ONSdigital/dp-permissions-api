@@ -139,7 +139,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -171,7 +171,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=1&limit=1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=1&limit=1", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -203,7 +203,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?limit=1500", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?limit=1500", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -229,7 +229,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=-1&limit=-1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=-1&limit=-1", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -255,7 +255,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=h&limit=i", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=h&limit=i", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -281,7 +281,7 @@ func TestGetRolesHandler(t *testing.T) {
 
 			permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 

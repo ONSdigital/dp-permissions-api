@@ -1,4 +1,4 @@
-Feature: Behaviour of application when doing the GET /roles endpoint, using a stripped down version of the database
+Feature: Behaviour of application when doing the GET /v1/roles endpoint, using a stripped down version of the database
 
     # A Background applies to all scenarios in this Feature
   Background:
@@ -32,8 +32,8 @@ Feature: Behaviour of application when doing the GET /roles endpoint, using a st
             ]
             """
 
-  Scenario: [Test #1] GET /roles with default offset and limit
-    When I GET "/roles"
+  Scenario: [Test #1] GET /v1/roles with default offset and limit
+    When I GET "/v1/roles"
     Then the HTTP status code should be "200"
     And the response header "Content-Type" should be "application/json; charset=utf-8"
     And I should receive the following JSON response:
@@ -72,8 +72,8 @@ Feature: Behaviour of application when doing the GET /roles endpoint, using a st
             }
             """
 
-  Scenario: [Test #2] GET /roles with offset and limit
-    When I GET "/roles?offset=2&limit=1"
+  Scenario: [Test #2] GET /v1/roles with offset and limit
+    When I GET "/v1/roles?offset=2&limit=1"
     Then the HTTP status code should be "200"
     And the response header "Content-Type" should be "application/json; charset=utf-8"
     And I should receive the following JSON response:

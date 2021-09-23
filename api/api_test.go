@@ -23,7 +23,7 @@ func TestSetup(t *testing.T) {
 
 		Convey("When created the following routes should have been added", func() {
 			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/roles", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/roles", "GET"), ShouldBeTrue)
 		})
 	})
 }
