@@ -16,9 +16,9 @@ var (
 )
 
 type Condition struct {
-	Attributes []string
-	Operator   string
-	Values     []string
+	Attributes []string `bson:"attributes"          json:"attributes"`
+	Operator   string   `bson:"operator"          json:"operator"`
+	Values     []string `bson:"Values"          json:"values"`
 }
 
 type Policy struct {

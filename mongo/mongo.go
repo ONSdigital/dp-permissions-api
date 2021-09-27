@@ -20,10 +20,11 @@ const (
 
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Database     string
-	Collection   string
-	Connection   *dpMongodb.MongoConnection
-	healthClient *dpMongoHealth.CheckMongoClient
+	Database           string
+	RolesCollection    string
+	PoliciesCollection string
+	Connection         *dpMongodb.MongoConnection
+	healthClient       *dpMongoHealth.CheckMongoClient
 }
 
 func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
@@ -36,7 +37,7 @@ func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoCo
 		Password:                      mongoConf.Password,
 		ClusterEndpoint:               mongoConf.BindAddr,
 		Database:                      mongoConf.Database,
-		Collection:                    mongoConf.Collection,
+		Collection:                    mongoConf.RolesCollection,
 		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
 		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
 	}
@@ -54,10 +55,11 @@ func (m *Mongo) Init(mongoConf config.MongoDB) error {
 	}
 
 	m.Database = mongoConf.Database
-	m.Collection = mongoConf.Collection
+	m.RolesCollection = mongoConf.RolesCollection
+	m.PoliciesCollection = mongoConf.PoliciesCollection
 	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
-	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.Collection)}
+	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.RolesCollection)}
 
 	client := dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
 
@@ -131,12 +133,13 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 	}, nil
 
 }
+
 //AddPolicy inserts new policy to data store
 func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
 
 	var documents []interface{}
 	documents = append(documents, policy)
-	if _, err := m.Connection.C(m.Collection).Insert(ctx, documents); err != nil {
+	if _, err := m.Connection.C(m.PoliciesCollection).Insert(ctx, documents); err != nil {
 		return nil, err
 	}
 	return policy, nil
