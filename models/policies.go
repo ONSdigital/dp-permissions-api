@@ -44,7 +44,7 @@ func (policy *NewPolicy) ValidateNewPolicy() error {
 	}
 
 	if len(policy.Role) == 0 {
-		invalidFields = append(invalidFields, "roles")
+		invalidFields = append(invalidFields, "role")
 	}
 
 	if invalidFields != nil {

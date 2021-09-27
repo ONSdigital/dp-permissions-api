@@ -133,7 +133,7 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 		})
 	})
 
-	Convey("When a POST request is made to the policies without roles", t, func() {
+	Convey("When a POST request is made to the policies without role", t, func() {
 		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
 
 		reader := strings.NewReader(`{"entities": ["e1", "e2"], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
@@ -144,7 +144,7 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "missing mandatory fields: roles")
+			So(response, ShouldContainSubstring, "missing mandatory fields: role")
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -169,7 +169,7 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "missing mandatory fields: entities, roles")
+			So(response, ShouldContainSubstring, "missing mandatory fields: entities, role")
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
