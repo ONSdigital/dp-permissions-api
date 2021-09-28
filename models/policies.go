@@ -22,7 +22,7 @@ type Condition struct {
 }
 
 type Policy struct {
-	ID         string      `bson:"-"          json:"id,omitempty"`
+	ID         string      `bson:"id"          json:"id,omitempty"`
 	Entities   []string    `bson:"entities"   json:"entities"`
 	Role       string      `bson:"role"      json:"role"`
 	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`

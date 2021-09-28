@@ -2,14 +2,14 @@ package api
 
 import (
 	"context"
-	"github.com/gofrs/uuid"
-
 	"encoding/json"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/gofrs/uuid"
 	"net/http"
 )
 
+//PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(writer http.ResponseWriter, request *http.Request) {
 
 	ctx := request.Context()
