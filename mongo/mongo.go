@@ -134,7 +134,31 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		Offset:     offset,
 		Limit:      limit,
 	}, nil
+}
 
+func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
+	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
+
+	var roles []*models.Role
+	if err := query.IterAll(ctx, &roles); err != nil {
+		return nil, err
+	}
+
+	return roles, nil
+}
+
+func (m *Mongo) GetAllPolicies(ctx context.Context) ([]*models.Policy, error) {
+
+	// todo: change collection name
+
+	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
+
+	var policies []*models.Policy
+	if err := query.IterAll(ctx, &policies); err != nil {
+		return nil, err
+	}
+
+	return policies, nil
 }
 
 //AddPolicy inserts new policy to data store
