@@ -59,7 +59,10 @@ func (m *Mongo) Init(mongoConf config.MongoDB) error {
 	m.PoliciesCollection = mongoConf.PoliciesCollection
 	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
-	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(m.RolesCollection)}
+	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{
+		(dpMongoHealth.Collection)(m.RolesCollection),
+		(dpMongoHealth.Collection)(m.PoliciesCollection),
+	}
 
 	client := dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
 
