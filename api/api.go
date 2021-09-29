@@ -1,7 +1,7 @@
 package api
 
 import (
-	"context"
+	"github.com/ONSdigital/dp-permissions-api/permissions"
 	"net/http"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -13,13 +13,18 @@ import (
 type API struct {
 	Router              *mux.Router
 	permissionsStore    PermissionsStore
+	bundler             permissions.Bundler
 	defaultLimit        int
 	defaultOffset       int
 	maximumDefaultLimit int
 }
 
 //Setup function sets up the api and returns an api
-func Setup(ctx context.Context, cfg *config.Config, r *mux.Router, permissionsStore PermissionsStore) *API {
+func Setup(
+	cfg *config.Config,
+	r *mux.Router,
+	permissionsStore PermissionsStore) *API {
+
 	api := &API{
 		Router:              r,
 		permissionsStore:    permissionsStore,

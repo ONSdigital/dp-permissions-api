@@ -4,11 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
-	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -38,7 +35,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 			},
 		}
 
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When a POST request is made to the policies endpoint with all the policies properties", func() {
 			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
@@ -102,8 +99,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
 				So(policy.Entities, ShouldResemble, []string{"e1"})
-				So(policy.Conditions, ShouldResemble, []models.Condition(nil),
-				)
+				So(policy.Conditions, ShouldResemble, []models.Condition(nil))
 			})
 		})
 	})
@@ -114,7 +110,7 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 	t.Parallel()
 
 	Convey("When a POST request is made to the policies endpoint with empty entities", t, func() {
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
+		permissionsApi := setupAPI()
 
 		reader := strings.NewReader(`{"entities": [], "role": "r1"}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
@@ -133,8 +129,8 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 		})
 	})
 
-	Convey("When a POST request is made to the policies without role", t, func() {
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
+	Convey("When a POST request is made to the policies without a role", t, func() {
+		permissionsApi := setupAPI()
 
 		reader := strings.NewReader(`{"entities": ["e1", "e2"], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
@@ -152,14 +148,13 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 			So(err, ShouldEqual, io.EOF)
 		})
 	})
-
 }
 
 func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 	t.Parallel()
 
 	Convey("When a POST request is made to the policies endpoint with an empty JSON message", t, func() {
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
+		permissionsApi := setupAPI()
 
 		reader := strings.NewReader(`{}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
@@ -179,7 +174,7 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 	})
 
 	Convey("When a POST request is made to the policies endpoint with an invalid JSON message", t, func() {
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), &mock.PermissionsStoreMock{})
+		permissionsApi := setupAPI()
 
 		reader := strings.NewReader(`{`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
@@ -209,7 +204,7 @@ func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
 			},
 		}
 
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1"}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)

@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	"context"
 	"net/http/httptest"
 	"testing"
 
@@ -18,8 +17,7 @@ func TestSetup(t *testing.T) {
 
 		cfg := &config.Config{}
 		r := mux.NewRouter()
-		ctx := context.Background()
-		api := api.Setup(ctx, cfg, r, mongoMock)
+		api := api.Setup(cfg, r, mongoMock)
 
 		Convey("When created the following routes should have been added", func() {
 			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
@@ -32,4 +30,18 @@ func hasRoute(r *mux.Router, path, method string) bool {
 	req := httptest.NewRequest(method, path, nil)
 	match := &mux.RouteMatch{}
 	return r.Match(req, match)
+}
+
+var cfg = &config.Config{
+	DefaultLimit:        20,
+	DefaultOffset:       0,
+	MaximumDefaultLimit: 1000,
+}
+
+func setupAPI() *api.API {
+	return setupAPIWithStore(&mock.PermissionsStoreMock{})
+}
+
+func setupAPIWithStore(permissionsStore api.PermissionsStore) *api.API {
+	return api.Setup(cfg, mux.NewRouter(), permissionsStore)
 }
