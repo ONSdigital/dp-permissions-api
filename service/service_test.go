@@ -10,8 +10,6 @@ import (
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
-	"github.com/ONSdigital/dp-permissions-api/api"
-	apiMock "github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"github.com/ONSdigital/dp-permissions-api/service/mock"
@@ -33,7 +31,7 @@ var (
 	errHealthcheck = errors.New("healthCheck error")
 )
 
-var funcDoGetMongoDbErr = func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+var funcDoGetMongoDbErr = func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 	return nil, errMongoDB
 }
 
@@ -84,8 +82,8 @@ func TestRun(t *testing.T) {
 			return failingServerMock
 		}
 
-		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
-			return &apiMock.PermissionsStoreMock{
+		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
+			return &mock.PermissionsStoreMock{
 				CloseFunc: func(ctx context.Context) error { return nil },
 			}, nil
 		}
@@ -169,7 +167,7 @@ func TestRun(t *testing.T) {
 		Convey("Given that Checkers cannot be registered", func() {
 
 			// setup (run before each `Convey` at this scope / indentation):
-			errAddheckFail := errors.New("Error(s) registering checkers for healthcheck")
+			errAddheckFail := errors.New("Error(s) registering checkers for health check")
 			hcMockAddFail := &mock.HealthCheckerMock{
 				AddCheckFunc: func(name string, checker healthcheck.Checker) error { return errAddheckFail },
 				StartFunc:    func(ctx context.Context) {},
@@ -256,7 +254,7 @@ func TestClose(t *testing.T) {
 		}
 
 		// mongoDB Close will fail if healthcheck and http server are not already closed
-		mongoDbMock := &apiMock.PermissionsStoreMock{
+		mongoDbMock := &mock.PermissionsStoreMock{
 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error { return nil },
 			CloseFunc: func(ctx context.Context) error {
 				if !hcStopped || !serverStopped {
@@ -273,7 +271,7 @@ func TestClose(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMock, nil
 				},
-				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 					return mongoDbMock, nil
 				},
 			}
@@ -304,7 +302,7 @@ func TestClose(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMock, nil
 				},
-				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 					return mongoDbMock, nil
 				},
 			}

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/ONSdigital/dp-permissions-api/permissions"
 	"net/http"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -13,7 +12,7 @@ import (
 type API struct {
 	Router              *mux.Router
 	permissionsStore    PermissionsStore
-	bundler             permissions.Bundler
+	bundler             PermissionsBundler
 	defaultLimit        int
 	defaultOffset       int
 	maximumDefaultLimit int
@@ -23,7 +22,8 @@ type API struct {
 func Setup(
 	cfg *config.Config,
 	r *mux.Router,
-	permissionsStore PermissionsStore) *API {
+	permissionsStore PermissionsStore,
+	bundler PermissionsBundler) *API {
 
 	api := &API{
 		Router:              r,
@@ -31,6 +31,7 @@ func Setup(
 		defaultLimit:        cfg.DefaultLimit,
 		defaultOffset:       cfg.DefaultOffset,
 		maximumDefaultLimit: cfg.MaximumDefaultLimit,
+		bundler:             bundler,
 	}
 
 	r.HandleFunc("/roles/{id}", api.GetRoleHandler).Methods(http.MethodGet)

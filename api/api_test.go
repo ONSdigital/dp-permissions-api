@@ -14,10 +14,11 @@ import (
 func TestSetup(t *testing.T) {
 	Convey("Given an API instance", t, func() {
 		mongoMock := &mock.PermissionsStoreMock{}
+		bundlerMock := &mock.PermissionsBundlerMock{}
 
 		cfg := &config.Config{}
 		r := mux.NewRouter()
-		api := api.Setup(cfg, r, mongoMock)
+		api := api.Setup(cfg, r, mongoMock, bundlerMock)
 
 		Convey("When created the following routes should have been added", func() {
 			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
@@ -43,5 +44,5 @@ func setupAPI() *api.API {
 }
 
 func setupAPIWithStore(permissionsStore api.PermissionsStore) *api.API {
-	return api.Setup(cfg, mux.NewRouter(), permissionsStore)
+	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{})
 }

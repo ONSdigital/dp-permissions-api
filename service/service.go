@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/ONSdigital/dp-permissions-api/permissions"
 
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -18,7 +19,7 @@ type Service struct {
 	api         *api.API
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
-	MongoDB     api.PermissionsStore
+	MongoDB     PermissionsStore
 }
 
 // Run the service
@@ -40,8 +41,10 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 		return nil, err
 	}
 
+	bundler := permissions.NewBundler(mongoDB)
+
 	// Setup the API
-	a := api.Setup(cfg, r, mongoDB)
+	a := api.Setup(cfg, r, mongoDB, bundler)
 
 	hc, err := serviceList.GetHealthCheck(cfg, buildTime, gitCommit, version)
 
@@ -128,17 +131,17 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func registerCheckers(ctx context.Context,
 	hc HealthChecker,
-	mongoDB api.PermissionsStore) (err error) {
+	permissionsStore PermissionsStore) (err error) {
 
 	hasErrors := false
 
-	if err = hc.AddCheck("Mongo DB", mongoDB.Checker); err != nil {
+	if err = hc.AddCheck("Mongo DB", permissionsStore.Checker); err != nil {
 		hasErrors = true
 		log.Error(ctx, "error adding check for mongo db", err)
 	}
 
 	if hasErrors {
-		return errors.New("Error(s) registering checkers for healthcheck")
+		return errors.New("Error(s) registering checkers for health check")
 	}
 	return nil
 }

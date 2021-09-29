@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ONSdigital/dp-permissions-api/api"
-	apiMock "github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"github.com/ONSdigital/dp-permissions-api/service/mock"
@@ -163,10 +161,10 @@ func TestGetMongoDB(t *testing.T) {
 
 	Convey("Given a service list that returns a mocked mongo permissions store", t, func() {
 
-		mongoMock := &apiMock.PermissionsStoreMock{}
+		mongoMock := &mock.PermissionsStoreMock{}
 
 		newServiceMock := &mock.InitialiserMock{
-			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 				return mongoMock, nil
 			},
 		}
@@ -185,7 +183,7 @@ func TestGetMongoDB(t *testing.T) {
 	Convey("Given a service list that returns nil for mongo permissions store", t, func() {
 
 		newServiceMock := &mock.InitialiserMock{
-			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 				return nil, errMongoDB
 			},
 		}

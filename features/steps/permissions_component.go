@@ -10,7 +10,6 @@ import (
 	"github.com/ONSdigital/dp-component-test/utils"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v2/mongodb"
-	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
@@ -156,6 +155,6 @@ func (f *PermissionsComponent) DoGetHTTPServer(bindAddr string, router http.Hand
 }
 
 // DoGetMongoDB returns a MongoDB
-func (f *PermissionsComponent) DoGetMongoDB(ctx context.Context, cfg *config.Config) (api.PermissionsStore, error) {
+func (f *PermissionsComponent) DoGetMongoDB(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 	return f.MongoClient, nil
 }
