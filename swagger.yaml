@@ -212,8 +212,6 @@ paths:
           description: "Successfully returned a policy for a given id"
           schema:
             $ref: "#/definitions/Policy"
-        400:
-          description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
