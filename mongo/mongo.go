@@ -136,6 +136,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 	}, nil
 }
 
+// GetAllRoles returns all role documents, without pagination
 func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
 	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
 
@@ -147,6 +148,7 @@ func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
 	return roles, nil
 }
 
+// GetAllPolicies returns all policy documents, without pagination
 func (m *Mongo) GetAllPolicies(ctx context.Context) ([]*models.Policy, error) {
 
 	query := m.Connection.C(m.PoliciesCollection).Find(bson.D{})
