@@ -4,9 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -228,6 +233,77 @@ func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(err, ShouldEqual, io.EOF)
 		})
 
+	})
+
+}
+
+func TestGetPolicyHandler(t *testing.T) {
+
+	Convey("Given a GetPolicy Handler", t, func() {
+
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
+				switch id {
+				case testPolicyID:
+					return &models.Policy{
+						ID:       testPolicyID,
+						Entities: []string{"e1", "e2"},
+						Role:     "r1",
+						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}},
+						}}, nil
+				case "NOTFOUND":
+					return nil, apierrors.ErrPolicyNotFound
+				default:
+					return nil, errors.New("Something went wrong")
+				}
+			},
+		}
+
+		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+
+		Convey("When an existing policy is requested with its policy ID", func() {
+
+			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), nil)
+			responseRecorder := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseRecorder, request)
+
+			Convey("The matched policy is returned with status code 200", func() {
+				expectedPolicy := models.Policy{
+					ID:       testPolicyID,
+					Entities: []string{"e1", "e2"},
+					Role:     "r1",
+					Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}},
+					}}
+
+				policy := models.Policy{}
+				payload, err := ioutil.ReadAll(responseRecorder.Body)
+				err = json.Unmarshal(payload, &policy)
+
+				So(err, ShouldBeNil)
+				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
+				So(policy, ShouldResemble, expectedPolicy)
+			})
+		})
+
+		Convey("When a non existing policy id  is requested a Not Found response with 404 status code is returned", func() {
+			request := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/policies/NOTFOUND", nil)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+			response := responseWriter.Body.String()
+
+			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
+			So(response, ShouldContainSubstring, "policy not found")
+		})
+
+		Convey("When a failed to fetch the policy from DB should return a status code of 500", func() {
+			request := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/policies/XYZ", nil)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+			response := responseWriter.Body.String()
+
+			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
+			So(response, ShouldContainSubstring, "Something went wrong")
+		})
 	})
 
 }

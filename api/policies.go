@@ -3,11 +3,49 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/mux"
 	"net/http"
 )
+
+//GetPolicyHandler is a handler that gets policy by its ID from DB
+func (api *API) GetPolicyHandler(writer http.ResponseWriter, request *http.Request) {
+
+	ctx := request.Context()
+	vars := mux.Vars(request)
+	policyId := vars["id"]
+	logData := log.Data{"policy-id": policyId}
+
+	policy, err := api.permissionsStore.GetPolicy(ctx, policyId)
+	if err != nil {
+		log.Error(ctx, "getPolicy Handler: retrieving policy from DB returned an error", err, logData)
+		if err == apierrors.ErrPolicyNotFound {
+			http.Error(writer, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	b, err := json.Marshal(policy)
+	if err != nil {
+		log.Error(ctx, "getPolicy Handler: failed to marshal policy resource into bytes", err, logData)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	if _, err := writer.Write(b); err != nil {
+		log.Error(ctx, "getPolicy Handler: error writing bytes to response", err, logData)
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	log.Info(ctx, "getPolicy Handler: Successfully retrieved policy", logData)
+}
 
 //PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(writer http.ResponseWriter, request *http.Request) {

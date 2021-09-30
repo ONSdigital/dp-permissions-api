@@ -17,6 +17,7 @@ type PermissionsStore interface {
 	GetRole(ctx context.Context, id string) (*models.Role, error)
 	GetRoles(ctx context.Context, offset, limit int) (*models.Roles, error)
 	AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error)
+	GetPolicy(ctx context.Context, id string) (*models.Policy, error)
 }
 
 // PermissionsBundler defines the functions used by the API to get permissions bundles

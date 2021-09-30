@@ -172,3 +172,19 @@ func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.P
 	}
 	return policy, nil
 }
+
+func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error) {
+	log.Info(ctx, "getting policy by id", log.Data{"id": id})
+
+	var policy models.Policy
+	err := m.Connection.C(m.PoliciesCollection).FindOne(ctx, bson.M{"id": id}, &policy)
+	if err != nil {
+		if dpMongodb.IsErrNoDocumentFound(err) {
+			return nil, apierrors.ErrPolicyNotFound
+		}
+		return nil, err
+	}
+
+	return &policy, nil
+
+}

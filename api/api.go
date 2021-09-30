@@ -37,6 +37,7 @@ func Setup(
 	r.HandleFunc("/roles/{id}", api.GetRoleHandler).Methods(http.MethodGet)
 	r.HandleFunc("/v1/roles", api.GetRolesHandler).Methods(http.MethodGet)
 	r.HandleFunc("/v1/policies", api.PostPolicyHandler).Methods(http.MethodPost)
+	r.HandleFunc("/v1/policies/{id}", api.GetPolicyHandler).Methods(http.MethodGet)
 	r.HandleFunc("/v1/permissions-bundle", api.GetPermissionsBundleHandler).Methods(http.MethodGet)
 
 	return api
