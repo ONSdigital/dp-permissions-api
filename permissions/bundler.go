@@ -79,26 +79,3 @@ func createRoleToPoliciesMap(policies []*models.Policy) map[string][]*models.Pol
 	}
 	return roleIDToPolicies
 }
-
-//func mapToOptimisedLookupFormat(permission string, roles []Role, policies []Policy) PermissionLookup {
-//	lookup := PermissionLookup{entityToPolicies: map[string][]Policy{}}
-//
-//	// work backwards from the permission -> role -> policy, and add the conditions for each entity associated with the permission
-//	for _, role := range roles {
-//		if role.HasPermission(permission) {
-//			for _, policy := range policies {
-//				if policy.HasRole(role.ID) {
-//					for _, entity := range policy.Entities {
-//
-//						if lookup.entityToPolicies[entity] == nil {
-//							lookup.entityToPolicies[entity] = []Policy{}
-//						}
-//
-//						lookup.entityToPolicies[entity] = append(lookup.entityToPolicies[entity], policy)
-//					}
-//				}
-//			}
-//		}
-//	}
-//	return lookup
-//}
