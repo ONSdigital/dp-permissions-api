@@ -21,5 +21,5 @@ type PermissionsStore interface {
 
 // PermissionsBundler defines the functions used by the API to get permissions bundles
 type PermissionsBundler interface {
-	Get(ctx context.Context) (*models.Bundle, error)
+	Get(ctx context.Context) (models.Bundle, error)
 }

@@ -149,9 +149,7 @@ func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
 
 func (m *Mongo) GetAllPolicies(ctx context.Context) ([]*models.Policy, error) {
 
-	// todo: change collection name
-
-	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
+	query := m.Connection.C(m.PoliciesCollection).Find(bson.D{})
 
 	var policies []*models.Policy
 	if err := query.IterAll(ctx, &policies); err != nil {

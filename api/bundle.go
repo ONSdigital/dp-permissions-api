@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// GetPermissionsBundleHandler gets and returns the permissions bundle as JSON in the HTTP response body.
 func (api *API) GetPermissionsBundleHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 

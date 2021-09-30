@@ -43,3 +43,41 @@ func (f *PermissionsComponent) putRolesInDatabase(ctx context.Context, mongoConn
 	}
 	return nil
 }
+
+func (f *PermissionsComponent) iHaveThesePolicies(jsonInput *godog.DocString) error {
+	ctx := context.Background()
+	policies := []models.Policy{}
+	m := f.MongoClient
+
+	err := json.Unmarshal([]byte(jsonInput.Content), &policies)
+	if err != nil {
+		return err
+	}
+
+	for _, policy := range policies {
+		if err := f.putPolicyInDatabase(ctx, m.Connection, policy, f.Config.MongoConfig.PoliciesCollection); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *PermissionsComponent) putPolicyInDatabase(
+	ctx context.Context,
+	mongoConnection *dpMongoDriver.MongoConnection,
+	policy models.Policy,
+	collection string) error {
+
+	update := bson.M{
+		"$set": policy,
+		"$setOnInsert": bson.M{
+			"last_updated": time.Now(),
+		},
+	}
+	_, err := mongoConnection.C(collection).UpsertId(ctx, policy.ID, update)
+	if err != nil {
+		return err
+	}
+	return nil
+}

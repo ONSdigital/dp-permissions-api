@@ -26,22 +26,20 @@ func TestAPI_GetPermissionsBundleHandler(t *testing.T) {
 		},
 		Role: "publisher",
 	}
-	expectedBundle := &models.Bundle{
-		PermissionToEntityLookup: map[string]models.EntityIDToPolicies{
-			"legacy.read": map[string][]*models.Policy{
-				"groups/admin": {
-					adminPolicy,
-				},
-				"groups/publisher": {
-					publisherPolicy,
-				},
+	expectedBundle := models.Bundle{
+		"legacy.read": map[string][]*models.Policy{
+			"groups/admin": {
+				adminPolicy,
+			},
+			"groups/publisher": {
+				publisherPolicy,
 			},
 		},
 	}
 
 	Convey("Given a permissions bundler that returns a bundle", t, func() {
 		bundler := &mock.PermissionsBundlerMock{
-			GetFunc: func(ctx context.Context) (*models.Bundle, error) {
+			GetFunc: func(ctx context.Context) (models.Bundle, error) {
 				return expectedBundle, nil
 			},
 		}
@@ -57,7 +55,7 @@ func TestAPI_GetPermissionsBundleHandler(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 				payload, err := ioutil.ReadAll(w.Body)
 				So(err, ShouldBeNil)
-				actualBundle := &models.Bundle{}
+				actualBundle := models.Bundle{}
 				err = json.Unmarshal(payload, &actualBundle)
 				So(err, ShouldBeNil)
 				So(actualBundle, ShouldResemble, expectedBundle)
@@ -71,7 +69,7 @@ func TestAPI_GetPermissionsBundleHandler_BundlerError(t *testing.T) {
 	Convey("Given a permissions bundler that returns an error", t, func() {
 		expectedError := errors.New("bundler error")
 		bundler := &mock.PermissionsBundlerMock{
-			GetFunc: func(ctx context.Context) (*models.Bundle, error) {
+			GetFunc: func(ctx context.Context) (models.Bundle, error) {
 				return nil, expectedError
 			},
 		}

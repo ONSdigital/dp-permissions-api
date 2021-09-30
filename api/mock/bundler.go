@@ -20,7 +20,7 @@ var _ api.PermissionsBundler = &PermissionsBundlerMock{}
 //
 //         // make and configure a mocked api.PermissionsBundler
 //         mockedPermissionsBundler := &PermissionsBundlerMock{
-//             GetFunc: func(ctx context.Context) (*models.Bundle, error) {
+//             GetFunc: func(ctx context.Context) (models.Bundle, error) {
 // 	               panic("mock out the Get method")
 //             },
 //         }
@@ -31,7 +31,7 @@ var _ api.PermissionsBundler = &PermissionsBundlerMock{}
 //     }
 type PermissionsBundlerMock struct {
 	// GetFunc mocks the Get method.
-	GetFunc func(ctx context.Context) (*models.Bundle, error)
+	GetFunc func(ctx context.Context) (models.Bundle, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -45,7 +45,7 @@ type PermissionsBundlerMock struct {
 }
 
 // Get calls GetFunc.
-func (mock *PermissionsBundlerMock) Get(ctx context.Context) (*models.Bundle, error) {
+func (mock *PermissionsBundlerMock) Get(ctx context.Context) (models.Bundle, error) {
 	if mock.GetFunc == nil {
 		panic("PermissionsBundlerMock.GetFunc: method is nil but PermissionsBundler.Get was just called")
 	}

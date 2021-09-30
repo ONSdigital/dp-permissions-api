@@ -26,7 +26,7 @@ func NewBundler(store Store) *Bundler {
 }
 
 // Get the latest bundle data.
-func (b Bundler) Get(ctx context.Context) (*models.Bundle, error) {
+func (b Bundler) Get(ctx context.Context) (models.Bundle, error) {
 	policies, err := b.store.GetAllPolicies(ctx)
 	if err != nil {
 		return nil, err
@@ -42,9 +42,9 @@ func (b Bundler) Get(ctx context.Context) (*models.Bundle, error) {
 	return bundle, nil
 }
 
-func createBundle(policies []*models.Policy, roles []*models.Role) *models.Bundle {
+func createBundle(policies []*models.Policy, roles []*models.Role) models.Bundle {
 	roleIDToPolicies := createRoleToPoliciesMap(policies)
-	bundle := &models.Bundle{PermissionToEntityLookup: map[string]models.EntityIDToPolicies{}}
+	bundle := models.Bundle{}
 
 	for _, role := range roles {
 
@@ -52,10 +52,10 @@ func createBundle(policies []*models.Policy, roles []*models.Role) *models.Bundl
 
 		for _, permission := range role.Permissions {
 
-			entityLookup, ok := bundle.PermissionToEntityLookup[permission]
+			entityLookup, ok := bundle[permission]
 			if !ok {
 				entityLookup = map[string][]*models.Policy{}
-				bundle.PermissionToEntityLookup[permission] = entityLookup
+				bundle[permission] = entityLookup
 			}
 
 			for _, policy := range policiesForRole {

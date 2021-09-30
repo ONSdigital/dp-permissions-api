@@ -17,31 +17,31 @@ var _ api.PermissionsStore = &PermissionsStoreMock{}
 
 // PermissionsStoreMock is a mock implementation of api.PermissionsStore.
 //
-// 	func TestSomethingThatUsesPermissionsStore(t *testing.T) {
+//     func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-// 		// make and configure a mocked api.PermissionsStore
-// 		mockedPermissionsStore := &PermissionsStoreMock{
-// 			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
-// 				panic("mock out the AddPolicy method")
-// 			},
-// 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
-// 				panic("mock out the Checker method")
-// 			},
-// 			CloseFunc: func(ctx context.Context) error {
-// 				panic("mock out the Close method")
-// 			},
-// 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
-// 				panic("mock out the GetRole method")
-// 			},
-// 			GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
-// 				panic("mock out the GetRoles method")
-// 			},
-// 		}
+//         // make and configure a mocked api.PermissionsStore
+//         mockedPermissionsStore := &PermissionsStoreMock{
+//             AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+// 	               panic("mock out the AddPolicy method")
+//             },
+//             CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
+// 	               panic("mock out the Checker method")
+//             },
+//             CloseFunc: func(ctx context.Context) error {
+// 	               panic("mock out the Close method")
+//             },
+//             GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
+// 	               panic("mock out the GetRole method")
+//             },
+//             GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
+// 	               panic("mock out the GetRoles method")
+//             },
+//         }
 //
-// 		// use mockedPermissionsStore in code that requires api.PermissionsStore
-// 		// and then make assertions.
+//         // use mockedPermissionsStore in code that requires api.PermissionsStore
+//         // and then make assertions.
 //
-// 	}
+//     }
 type PermissionsStoreMock struct {
 	// AddPolicyFunc mocks the AddPolicy method.
 	AddPolicyFunc func(ctx context.Context, policy *models.Policy) (*models.Policy, error)

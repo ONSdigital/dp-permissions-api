@@ -47,31 +47,29 @@ func TestBundler_Get(t *testing.T) {
 		publisherPolicy,
 		viewerPolicy,
 	}
-	expectedBundle := &models.Bundle{
-		PermissionToEntityLookup: map[string]models.EntityIDToPolicies{
-			"legacy.read": map[string][]*models.Policy{
-				"groups/admin": {
-					adminPolicy,
-				},
-				"groups/publisher": {
-					publisherPolicy,
-				},
-				"groups/viewer": {
-					viewerPolicy,
-				},
+	expectedBundle := models.Bundle{
+		"legacy.read": map[string][]*models.Policy{
+			"groups/admin": {
+				adminPolicy,
 			},
-			"legacy.update": map[string][]*models.Policy{
-				"groups/admin": {
-					adminPolicy,
-				},
-				"groups/publisher": {
-					publisherPolicy,
-				},
+			"groups/publisher": {
+				publisherPolicy,
 			},
-			"users.add": map[string][]*models.Policy{
-				"groups/admin": {
-					adminPolicy,
-				},
+			"groups/viewer": {
+				viewerPolicy,
+			},
+		},
+		"legacy.update": map[string][]*models.Policy{
+			"groups/admin": {
+				adminPolicy,
+			},
+			"groups/publisher": {
+				publisherPolicy,
+			},
+		},
+		"users.add": map[string][]*models.Policy{
+			"groups/admin": {
+				adminPolicy,
 			},
 		},
 	}

@@ -108,6 +108,7 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string, e
 
 func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I have this roles:$`, f.iHaveTheseRoles)
+	ctx.Step(`^I have these policies:$`, f.iHaveThesePolicies)
 }
 
 func (f *PermissionsComponent) Reset() *PermissionsComponent {
