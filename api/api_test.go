@@ -46,3 +46,7 @@ func setupAPI() *api.API {
 func setupAPIWithStore(permissionsStore api.PermissionsStore) *api.API {
 	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{})
 }
+
+func setupAPIWithBundler(bundler api.PermissionsBundler) *api.API {
+	return api.Setup(cfg, mux.NewRouter(), &mock.PermissionsStoreMock{}, bundler)
+}
