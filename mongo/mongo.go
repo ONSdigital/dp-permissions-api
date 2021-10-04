@@ -177,7 +177,7 @@ func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error
 	log.Info(ctx, "getting policy by id", log.Data{"id": id})
 
 	var policy models.Policy
-	err := m.Connection.C(m.PoliciesCollection).FindOne(ctx, bson.M{"id": id}, &policy)
+	err := m.Connection.C(m.PoliciesCollection).FindOne(ctx, bson.M{"_id": id}, &policy)
 	if err != nil {
 		if dpMongodb.IsErrNoDocumentFound(err) {
 			return nil, apierrors.ErrPolicyNotFound

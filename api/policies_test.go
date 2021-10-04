@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
-	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"io"
 	"io/ioutil"
@@ -259,7 +257,7 @@ func TestGetPolicyHandler(t *testing.T) {
 			},
 		}
 
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When an existing policy is requested with its policy ID", func() {
 
