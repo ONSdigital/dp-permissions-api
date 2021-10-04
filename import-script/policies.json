@@ -1,0 +1,33 @@
+[
+  {
+    "entities": [
+      "groups/role-admin"
+    ],
+    "role": "administrator",
+    "conditions": []
+  },
+  {
+    "entities": [
+      "groups/role-publisher"
+    ],
+    "role": "collection-author",
+    "conditions": []
+  },
+  {
+    "entities": [
+      "groups/role-publisher"
+    ],
+    "role": "collection-policy-manager",
+    "conditions": [
+      {
+        "attributes": [
+          "role"
+        ],
+        "operator": "=",
+        "values": [
+          "collection-previewer"
+        ]
+      }
+    ]
+  }
+]
