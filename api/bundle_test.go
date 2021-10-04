@@ -14,20 +14,22 @@ import (
 )
 
 func TestAPI_GetPermissionsBundleHandler(t *testing.T) {
-	adminPolicy := &models.Policy{
+	adminPolicy := &models.BundlePolicy{
+		ID: "1234",
 		Entities: []string{
 			"groups/admin",
 		},
 		Role: "admin",
 	}
-	publisherPolicy := &models.Policy{
+	publisherPolicy := &models.BundlePolicy{
+		ID: "5678",
 		Entities: []string{
 			"groups/publisher",
 		},
 		Role: "publisher",
 	}
 	expectedBundle := models.Bundle{
-		"legacy.read": map[string][]*models.Policy{
+		"legacy.read": map[string][]*models.BundlePolicy{
 			"groups/admin": {
 				adminPolicy,
 			},
@@ -55,10 +57,9 @@ func TestAPI_GetPermissionsBundleHandler(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 				payload, err := ioutil.ReadAll(w.Body)
 				So(err, ShouldBeNil)
-				actualBundle := models.Bundle{}
-				err = json.Unmarshal(payload, &actualBundle)
+				expectedJson, err := json.Marshal(expectedBundle)
 				So(err, ShouldBeNil)
-				So(actualBundle, ShouldResemble, expectedBundle)
+				So(payload, ShouldResemble, expectedJson)
 			})
 		})
 	})

@@ -77,29 +77,17 @@ Feature: GET /v1/permissions-bundle endpoint
               "legacy.read": {
                 "group/admin": [
                   {
-                    "id": "admin",
-                    "entities": [
-                      "group/admin"
-                    ],
-                    "role": "admin"
+                    "id": "admin"
                   }
                 ],
                 "group/publisher": [
                   {
-                    "id": "publisher",
-                    "entities": [
-                      "group/publisher"
-                    ],
-                    "role": "publisher"
+                    "id": "publisher"
                   }
                 ],
                 "group/viewer": [
                   {
                     "id": "viewer",
-                    "entities": [
-                      "group/viewer"
-                    ],
-                    "role": "viewer",
                     "conditions": [
                       {
                         "attributes": [
@@ -117,31 +105,19 @@ Feature: GET /v1/permissions-bundle endpoint
               "legacy.update": {
                 "group/admin": [
                   {
-                    "id": "admin",
-                    "entities": [
-                      "group/admin"
-                    ],
-                    "role": "admin"
+                    "id": "admin"
                   }
                 ],
                 "group/publisher": [
                   {
-                    "id": "publisher",
-                    "entities": [
-                      "group/publisher"
-                    ],
-                    "role": "publisher"
+                    "id": "publisher"
                   }
                 ]
               },
               "users.add": {
                 "group/admin": [
                   {
-                    "id": "admin",
-                    "entities": [
-                      "group/admin"
-                    ],
-                    "role": "admin"
+                    "id": "admin"
                   }
                 ]
               }

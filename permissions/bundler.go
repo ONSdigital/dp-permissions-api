@@ -10,7 +10,7 @@ import (
 //Store defines the behaviour of a PermissionsStore as used by the Bundler type.
 type Store interface {
 	GetAllRoles(ctx context.Context) ([]*models.Role, error)
-	GetAllPolicies(ctx context.Context) ([]*models.Policy, error)
+	GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error)
 }
 
 // Bundler creates permission bundle data - a format optimised for evaluating user permissions.
@@ -27,7 +27,7 @@ func NewBundler(store Store) *Bundler {
 
 // Get the latest bundle data.
 func (b Bundler) Get(ctx context.Context) (models.Bundle, error) {
-	policies, err := b.store.GetAllPolicies(ctx)
+	policies, err := b.store.GetAllBundlePolicies(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (b Bundler) Get(ctx context.Context) (models.Bundle, error) {
 	return bundle, nil
 }
 
-func createBundle(policies []*models.Policy, roles []*models.Role) models.Bundle {
+func createBundle(policies []*models.BundlePolicy, roles []*models.Role) models.Bundle {
 	roleIDToPolicies := createRoleToPoliciesMap(policies)
 	bundle := models.Bundle{}
 
@@ -54,14 +54,14 @@ func createBundle(policies []*models.Policy, roles []*models.Role) models.Bundle
 
 			entityLookup, ok := bundle[permission]
 			if !ok {
-				entityLookup = map[string][]*models.Policy{}
+				entityLookup = map[string][]*models.BundlePolicy{}
 				bundle[permission] = entityLookup
 			}
 
 			for _, policy := range policiesForRole {
 				for _, entity := range policy.Entities {
 					if entityLookup[entity] == nil {
-						entityLookup[entity] = []*models.Policy{}
+						entityLookup[entity] = []*models.BundlePolicy{}
 					}
 
 					entityLookup[entity] = append(entityLookup[entity], policy)
@@ -72,8 +72,8 @@ func createBundle(policies []*models.Policy, roles []*models.Role) models.Bundle
 	return bundle
 }
 
-func createRoleToPoliciesMap(policies []*models.Policy) map[string][]*models.Policy {
-	roleIDToPolicies := map[string][]*models.Policy{}
+func createRoleToPoliciesMap(policies []*models.BundlePolicy) map[string][]*models.BundlePolicy {
+	roleIDToPolicies := map[string][]*models.BundlePolicy{}
 	for _, policy := range policies {
 		roleIDToPolicies[policy.Role] = append(roleIDToPolicies[policy.Role], policy)
 	}

@@ -17,19 +17,19 @@ func TestBundler_Get(t *testing.T) {
 		{ID: "publisher", Permissions: []string{"legacy.read", "legacy.update"}},
 		{ID: "viewer", Permissions: []string{"legacy.read"}},
 	}
-	adminPolicy := &models.Policy{
+	adminPolicy := &models.BundlePolicy{
 		Entities: []string{
 			"groups/admin",
 		},
 		Role: "admin",
 	}
-	publisherPolicy := &models.Policy{
+	publisherPolicy := &models.BundlePolicy{
 		Entities: []string{
 			"groups/publisher",
 		},
 		Role: "publisher",
 	}
-	viewerPolicy := &models.Policy{
+	viewerPolicy := &models.BundlePolicy{
 		Entities: []string{
 			"groups/viewer",
 		},
@@ -42,13 +42,13 @@ func TestBundler_Get(t *testing.T) {
 			},
 		},
 	}
-	policies := []*models.Policy{
+	policies := []*models.BundlePolicy{
 		adminPolicy,
 		publisherPolicy,
 		viewerPolicy,
 	}
 	expectedBundle := models.Bundle{
-		"legacy.read": map[string][]*models.Policy{
+		"legacy.read": map[string][]*models.BundlePolicy{
 			"groups/admin": {
 				adminPolicy,
 			},
@@ -59,7 +59,7 @@ func TestBundler_Get(t *testing.T) {
 				viewerPolicy,
 			},
 		},
-		"legacy.update": map[string][]*models.Policy{
+		"legacy.update": map[string][]*models.BundlePolicy{
 			"groups/admin": {
 				adminPolicy,
 			},
@@ -67,7 +67,7 @@ func TestBundler_Get(t *testing.T) {
 				publisherPolicy,
 			},
 		},
-		"users.add": map[string][]*models.Policy{
+		"users.add": map[string][]*models.BundlePolicy{
 			"groups/admin": {
 				adminPolicy,
 			},
@@ -76,7 +76,7 @@ func TestBundler_Get(t *testing.T) {
 
 	Convey("Given a store that returns permissions data", t, func() {
 		store := &mock.StoreMock{
-			GetAllPoliciesFunc: func(ctx context.Context) ([]*models.Policy, error) {
+			GetAllBundlePoliciesFunc: func(ctx context.Context) ([]*models.BundlePolicy, error) {
 				return policies, nil
 			},
 			GetAllRolesFunc: func(ctx context.Context) ([]*models.Role, error) {
@@ -106,7 +106,7 @@ func TestBundler_Get_StoreError(t *testing.T) {
 	Convey("Given a store that returns an error", t, func() {
 		expectedErr := errors.New("store is broken")
 		store := &mock.StoreMock{
-			GetAllPoliciesFunc: func(ctx context.Context) ([]*models.Policy, error) {
+			GetAllBundlePoliciesFunc: func(ctx context.Context) ([]*models.BundlePolicy, error) {
 				return nil, expectedErr
 			},
 		}
