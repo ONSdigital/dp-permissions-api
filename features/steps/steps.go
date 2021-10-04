@@ -76,7 +76,7 @@ func (f *PermissionsComponent) putPolicyInDatabase(
 			"last_updated": time.Now(),
 		},
 	}
-	_, err := mongoConnection.C(collection).UpsertId(ctx, policy.ID, update)
+	_, err := mongoConnection.C(collection).UpsertById(ctx, policy.ID, update)
 	if err != nil {
 		return err
 	}
