@@ -3,9 +3,10 @@ package mongo
 import (
 	"context"
 	"errors"
+
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v2/health"
-	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
+	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v3/health"
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
@@ -166,7 +167,7 @@ func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.P
 
 	var documents []interface{}
 	documents = append(documents, policy)
-	if _, err := m.Connection.C(m.PoliciesCollection).Insert(ctx, documents); err != nil {
+	if _, err := m.Connection.C(m.PoliciesCollection).InsertMany(ctx, documents); err != nil {
 		return nil, err
 	}
 	return policy, nil
