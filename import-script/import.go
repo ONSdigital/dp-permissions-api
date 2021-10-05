@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -78,7 +78,7 @@ func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection
 		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
-		_, err = mongoConnection.C("roles").InsertOne(ctx, role)
+		_, err = mongoConnection.C("roles").Insert(ctx, role)
 		if err != nil {
 			log.Error(ctx, "failed to insert new role document, data lost in mongo but exists in this log", err, logData)
 			os.Exit(1)
@@ -119,7 +119,7 @@ func importPolicies(ctx context.Context, mongoConnection *dpMongodb.MongoConnect
 		}
 		policy.ID = uuid.String()
 
-		_, err = mongoConnection.C("policies").InsertOne(ctx, policy)
+		_, err = mongoConnection.C("policies").Insert(ctx, policy)
 		if err != nil {
 			log.Error(ctx, "failed to insert new policy document, data lost in mongo but exists in this log", err)
 			os.Exit(1)

@@ -30,8 +30,8 @@ var _ service.PermissionsStore = &PermissionsStoreMock{}
 //             CloseFunc: func(ctx context.Context) error {
 // 	               panic("mock out the Close method")
 //             },
-//             GetAllPoliciesFunc: func(ctx context.Context) ([]*models.Policy, error) {
-// 	               panic("mock out the GetAllPolicies method")
+//             GetAllBundlePoliciesFunc: func(ctx context.Context) ([]*models.BundlePolicy, error) {
+// 	               panic("mock out the GetAllBundlePolicies method")
 //             },
 //             GetAllRolesFunc: func(ctx context.Context) ([]*models.Role, error) {
 // 	               panic("mock out the GetAllRoles method")
@@ -58,8 +58,8 @@ type PermissionsStoreMock struct {
 	// CloseFunc mocks the Close method.
 	CloseFunc func(ctx context.Context) error
 
-	// GetAllPoliciesFunc mocks the GetAllPolicies method.
-	GetAllPoliciesFunc func(ctx context.Context) ([]*models.Policy, error)
+	// GetAllBundlePoliciesFunc mocks the GetAllBundlePolicies method.
+	GetAllBundlePoliciesFunc func(ctx context.Context) ([]*models.BundlePolicy, error)
 
 	// GetAllRolesFunc mocks the GetAllRoles method.
 	GetAllRolesFunc func(ctx context.Context) ([]*models.Role, error)
@@ -91,8 +91,8 @@ type PermissionsStoreMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
-		// GetAllPolicies holds details about calls to the GetAllPolicies method.
-		GetAllPolicies []struct {
+		// GetAllBundlePolicies holds details about calls to the GetAllBundlePolicies method.
+		GetAllBundlePolicies []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 		}
@@ -118,13 +118,13 @@ type PermissionsStoreMock struct {
 			Limit int
 		}
 	}
-	lockAddPolicy      sync.RWMutex
-	lockChecker        sync.RWMutex
-	lockClose          sync.RWMutex
-	lockGetAllPolicies sync.RWMutex
-	lockGetAllRoles    sync.RWMutex
-	lockGetRole        sync.RWMutex
-	lockGetRoles       sync.RWMutex
+	lockAddPolicy            sync.RWMutex
+	lockChecker              sync.RWMutex
+	lockClose                sync.RWMutex
+	lockGetAllBundlePolicies sync.RWMutex
+	lockGetAllRoles          sync.RWMutex
+	lockGetRole              sync.RWMutex
+	lockGetRoles             sync.RWMutex
 }
 
 // AddPolicy calls AddPolicyFunc.
@@ -228,34 +228,34 @@ func (mock *PermissionsStoreMock) CloseCalls() []struct {
 	return calls
 }
 
-// GetAllPolicies calls GetAllPoliciesFunc.
-func (mock *PermissionsStoreMock) GetAllPolicies(ctx context.Context) ([]*models.Policy, error) {
-	if mock.GetAllPoliciesFunc == nil {
-		panic("PermissionsStoreMock.GetAllPoliciesFunc: method is nil but PermissionsStore.GetAllPolicies was just called")
+// GetAllBundlePolicies calls GetAllBundlePoliciesFunc.
+func (mock *PermissionsStoreMock) GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error) {
+	if mock.GetAllBundlePoliciesFunc == nil {
+		panic("PermissionsStoreMock.GetAllBundlePoliciesFunc: method is nil but PermissionsStore.GetAllBundlePolicies was just called")
 	}
 	callInfo := struct {
 		Ctx context.Context
 	}{
 		Ctx: ctx,
 	}
-	mock.lockGetAllPolicies.Lock()
-	mock.calls.GetAllPolicies = append(mock.calls.GetAllPolicies, callInfo)
-	mock.lockGetAllPolicies.Unlock()
-	return mock.GetAllPoliciesFunc(ctx)
+	mock.lockGetAllBundlePolicies.Lock()
+	mock.calls.GetAllBundlePolicies = append(mock.calls.GetAllBundlePolicies, callInfo)
+	mock.lockGetAllBundlePolicies.Unlock()
+	return mock.GetAllBundlePoliciesFunc(ctx)
 }
 
-// GetAllPoliciesCalls gets all the calls that were made to GetAllPolicies.
+// GetAllBundlePoliciesCalls gets all the calls that were made to GetAllBundlePolicies.
 // Check the length with:
-//     len(mockedPermissionsStore.GetAllPoliciesCalls())
-func (mock *PermissionsStoreMock) GetAllPoliciesCalls() []struct {
+//     len(mockedPermissionsStore.GetAllBundlePoliciesCalls())
+func (mock *PermissionsStoreMock) GetAllBundlePoliciesCalls() []struct {
 	Ctx context.Context
 } {
 	var calls []struct {
 		Ctx context.Context
 	}
-	mock.lockGetAllPolicies.RLock()
-	calls = mock.calls.GetAllPolicies
-	mock.lockGetAllPolicies.RUnlock()
+	mock.lockGetAllBundlePolicies.RLock()
+	calls = mock.calls.GetAllBundlePolicies
+	mock.lockGetAllBundlePolicies.RUnlock()
 	return calls
 }
 

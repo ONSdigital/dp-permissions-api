@@ -149,12 +149,12 @@ func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
 	return roles, nil
 }
 
-// GetAllPolicies returns all policy documents, without pagination
-func (m *Mongo) GetAllPolicies(ctx context.Context) ([]*models.Policy, error) {
+// GetAllBundlePolicies returns all policy documents for a permissions bundle, without pagination
+func (m *Mongo) GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error) {
 
 	query := m.Connection.C(m.PoliciesCollection).Find(bson.D{})
 
-	var policies []*models.Policy
+	var policies []*models.BundlePolicy
 	if err := query.IterAll(ctx, &policies); err != nil {
 		return nil, err
 	}
