@@ -1,0 +1,55 @@
+[
+  {
+    "name": "collection-previewer",
+    "permissions": [
+      "legacy:read",
+      "datasets:read"
+    ]
+  },
+  {
+    "name": "collection-author",
+    "permissions": [
+      "legacy:read",
+      "legacy:edit",
+      "datasets:create",
+      "datasets:read",
+      "datasets:update",
+      "datasets:delete",
+      "groups:read"
+    ]
+  },
+  {
+    "name": "collection-policy-manager",
+    "permissions": [
+      "policies:create",
+      "policies:read",
+      "policies:update",
+      "policies:delete"
+    ]
+  },
+  {
+    "name": "administrator",
+    "permissions": [
+      "legacy:read",
+      "legacy:edit",
+      "datasets:create",
+      "datasets:read",
+      "datasets:update",
+      "datasets:delete",
+      "groups:read",
+      "policies:create",
+      "policies:read",
+      "policies:update",
+      "policies:delete",
+      "users:create",
+      "users:read",
+      "users:update",
+      "users:delete",
+      "groups:create",
+      "groups:read",
+      "groups:edit",
+      "groups:delete",
+      "users:logoutall"
+    ]
+  }
+]
