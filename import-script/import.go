@@ -3,40 +3,55 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"flag"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/gofrs/uuid"
 	"io/ioutil"
 	"os"
 	"strings"
 
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v2/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/globalsign/mgo"
 )
 
 func main() {
-
-	var (
-		mongoURL string
-	)
-
-	flag.StringVar(&mongoURL, "mongo-url", "localhost:27017", "mongoDB URL")
-	flag.Parse()
-
 	ctx := context.Background()
 
-	session, err := mgo.Dial(mongoURL)
+	cfg, err := config.Get()
 	if err != nil {
-		log.Error(ctx, "unable to create mongo session", err)
+		log.Error(ctx, "error getting config", err)
 		os.Exit(1)
 	}
-	defer session.Close()
 
-	importRoles(ctx, session)
-	importPolicies(ctx, session)
+	log.Info(ctx, "loaded config", log.Data{"config": cfg})
+
+	mongoConnection, err := dpMongodb.Open(getConnectionConfig(cfg.MongoConfig))
+	if err != nil {
+		log.Error(ctx, "error initialising mongo", err)
+		os.Exit(1)
+	}
+
+	importRoles(ctx, mongoConnection)
+	importPolicies(ctx, mongoConnection)
 }
 
-func importRoles(ctx context.Context, session *mgo.Session) {
+func getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
+	return &dpMongodb.MongoConnectionConfig{
+		IsSSL:                   mongoConf.IsSSL,
+		ConnectTimeoutInSeconds: 5,
+		QueryTimeoutInSeconds:   15,
+
+		Username:                      mongoConf.Username,
+		Password:                      mongoConf.Password,
+		ClusterEndpoint:               mongoConf.BindAddr,
+		Database:                      mongoConf.Database,
+		Collection:                    mongoConf.RolesCollection,
+		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
+		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
+	}
+}
+
+func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection) {
 	filename := "roles.json"
 	fileLocation := "./" + filename
 	f, err := os.Open(fileLocation)
@@ -63,8 +78,9 @@ func importRoles(ctx context.Context, session *mgo.Session) {
 		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
-		if err = session.DB("permissions").C("roles").Insert(role); err != nil {
-			log.Error(ctx, "failed to insert new edition document, data lost in mongo but exists in this log", err, logData)
+		_, err = mongoConnection.C("roles").InsertOne(ctx, role)
+		if err != nil {
+			log.Error(ctx, "failed to insert new role document, data lost in mongo but exists in this log", err, logData)
 			os.Exit(1)
 		}
 
@@ -72,7 +88,7 @@ func importRoles(ctx context.Context, session *mgo.Session) {
 	}
 }
 
-func importPolicies(ctx context.Context, session *mgo.Session) {
+func importPolicies(ctx context.Context, mongoConnection *dpMongodb.MongoConnection) {
 	filename := "policies.json"
 	fileLocation := "./" + filename
 	f, err := os.Open(fileLocation)
@@ -103,7 +119,8 @@ func importPolicies(ctx context.Context, session *mgo.Session) {
 		}
 		policy.ID = uuid.String()
 
-		if err = session.DB("permissions").C("policies").Insert(policy); err != nil {
+		_, err = mongoConnection.C("policies").InsertOne(ctx, policy)
+		if err != nil {
 			log.Error(ctx, "failed to insert new policy document, data lost in mongo but exists in this log", err)
 			os.Exit(1)
 		}
