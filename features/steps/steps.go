@@ -3,9 +3,10 @@ package steps
 import (
 	"context"
 	"encoding/json"
-	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v2/mongodb"
-	"github.com/ONSdigital/dp-permissions-api/models"
 	"time"
+
+	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v3/mongodb"
+	"github.com/ONSdigital/dp-permissions-api/models"
 
 	"github.com/cucumber/godog"
 	"go.mongodb.org/mongo-driver/bson"
@@ -37,7 +38,7 @@ func (f *PermissionsComponent) putRolesInDatabase(ctx context.Context, mongoConn
 			"last_updated": time.Now(),
 		},
 	}
-	_, err := mongoConnection.GetConfiguredCollection().UpsertId(ctx, roleDoc.ID, update)
+	_, err := mongoConnection.GetConfiguredCollection().UpsertById(ctx, roleDoc.ID, update)
 	if err != nil {
 		return err
 	}
@@ -75,7 +76,7 @@ func (f *PermissionsComponent) putPolicyInDatabase(
 			"last_updated": time.Now(),
 		},
 	}
-	_, err := mongoConnection.C(collection).UpsertId(ctx, policy.ID, update)
+	_, err := mongoConnection.C(collection).UpsertById(ctx, policy.ID, update)
 	if err != nil {
 		return err
 	}
