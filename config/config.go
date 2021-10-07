@@ -12,17 +12,25 @@ type Config struct {
 	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
-	MongoConfig                MongoConfiguration
-	DefaultLimit               int `envconfig:"DEFAULT_LIMIT"`
-	DefaultOffset              int `envconfig:"DEFAULT_OFFSET"`
-	MaximumDefaultLimit        int `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
+	DefaultLimit               int           `envconfig:"DEFAULT_LIMIT"`
+	DefaultOffset              int           `envconfig:"DEFAULT_OFFSET"`
+	MaximumDefaultLimit        int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
+	MongoConfig                MongoDB
 }
 
-// MongoConfiguration contains the config required to connect to MongoDB.
-type MongoConfiguration struct {
-	BindAddr   string `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
-	Database   string `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
-	Collection string `envconfig:"MONGODB_PERMISSIONS_COLLECTION"`
+// MongoDB contains the config required to connect to MongoDB.
+type MongoDB struct {
+	BindAddr                string        `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
+	Database                string        `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
+	RolesCollection         string        `envconfig:"MONGODB_ROLES_COLLECTION"`
+	PoliciesCollection      string        `envconfig:"MONGODB_POLICIES_COLLECTION"`
+	Username                string        `envconfig:"MONGODB_USERNAME"    json:"-"`
+	Password                string        `envconfig:"MONGODB_PASSWORD"    json:"-"`
+	IsSSL                   bool          `envconfig:"MONGODB_IS_SSL"`
+	EnableReadConcern       bool          `envconfig:"MONGODB_ENABLE_READ_CONCERN"`
+	EnableWriteConcern      bool          `envconfig:"MONGODB_ENABLE_WRITE_CONCERN"`
+	ConnectTimeoutInSeconds time.Duration `envconfig:"MONGODB_CONNECT_TIMEOUT"`
+	QueryTimeoutInSeconds   time.Duration `envconfig:"MONGODB_QUERY_TIMEOUT"`
 }
 
 var cfg *Config
@@ -39,10 +47,18 @@ func Get() (*Config, error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		MongoConfig: MongoConfiguration{
-			BindAddr:   "localhost:27017",
-			Database:   "permissions",
-			Collection: "roles",
+		MongoConfig: MongoDB{
+			BindAddr:                "localhost:27017",
+			Database:                "permissions",
+			RolesCollection:         "roles",
+			PoliciesCollection:      "policies",
+			Username:                "",
+			Password:                "",
+			IsSSL:                   false,
+			EnableReadConcern:       false,
+			EnableWriteConcern:      true,
+			ConnectTimeoutInSeconds: 5 * time.Second,
+			QueryTimeoutInSeconds:   15 * time.Second,
 		},
 		DefaultLimit:        20,
 		DefaultOffset:       0,

@@ -30,3 +30,10 @@ test:
 convey:
 	goconvey ./...
 
+.PHONY: test-component
+test-component:
+	go test -race -cover -coverpkg=github.com/ONSdigital/dp-permissions-api/... -component
+
+.PHONY: lint
+lint:
+	exit

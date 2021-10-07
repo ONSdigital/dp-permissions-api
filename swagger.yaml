@@ -36,20 +36,20 @@ paths:
       tags:
         - "roles"
       summary: "Returns a list of all roles"
-      description: "Returns a paginated list of all roles. By default all roles are returned, but a subset can be returned by providing offset and limit query parameters." 
+      description: "Returns a paginated list of all roles. By default all roles are returned, but a subset can be returned by providing offset and limit query parameters."
       parameters:
-      - $ref: '#/parameters/limit'
-      - $ref: '#/parameters/offset'
+        - $ref: '#/parameters/limit'
+        - $ref: '#/parameters/offset'
       produces:
         - "application/json"
       responses:
-        200: 
+        200:
           description: "Successfully returned a json object containing a list of all roles"
           schema:
             type: object
-            required: 
+            required:
               - items
-            properties: 
+            properties:
               count:
                 type: integer
                 readOnly: true
@@ -78,7 +78,7 @@ paths:
               * query parameters incorrect limit provided
         500:
           $ref: "#/responses/InternalError"
-  
+
   /roles/{id}:
     get:
       tags:
@@ -117,7 +117,7 @@ paths:
         - in: body
           name: Policy
           schema:
-            $ref: "#/definitions/NewPolicy" 
+            $ref: "#/definitions/NewPolicy"
       responses:
         201:
           description: "Successfully added a policy"
@@ -125,6 +125,9 @@ paths:
             $ref: "#/definitions/Policy"
         400:
           description: "Bad request. Invalid policy supplied"
+        500:
+          $ref: "#/responses/InternalError"
+
     get:
       tags:
         - "policies"
@@ -153,7 +156,7 @@ paths:
           description: "Successfully returned a list of policies with ids that corresponds to the query parameters."
           schema:
             type: object
-            properties: 
+            properties:
               items:
                 description: "A list of policies"
                 type: array
@@ -165,7 +168,7 @@ paths:
           $ref: "#/responses/NotFound"
         500:
           $ref: "#/responses/InternalError"
-    
+
   /policies/{id}:
     delete:
       tags:
@@ -209,8 +212,6 @@ paths:
           description: "Successfully returned a policy for a given id"
           schema:
             $ref: "#/definitions/Policy"
-        400:
-          description: "Invalid request"
         404:
           $ref: "#/responses/NotFound"
         500:
@@ -240,19 +241,19 @@ paths:
         500:
           $ref: "#/responses/InternalError"
 
-  /authorise:
+  /permissions-bundle:
     post:
-      tags: 
+      tags:
         - "permissions"
-      summary: "Returns status code indicating if the user is authorised"
-      description: "Returns a status code for a specifc user. The user details, user_id, group_id and roles are passed in by a JWT. The status code indicates if the user is authorised for this role."
+      summary: "Returns the permissions bundle"
+      description: "Returns the permissions bundle, an optimised format for evaluating permissions"
       produces:
         - "application/json"
-      security:
-        - UserAuthorisationToken: []
       responses:
         200:
-          description: "User is authorised for this role"
+          description: "Successfully retrieved the permissions bundle"
+          schema:
+            $ref: "#/definitions/Bundle"
         400:
           description: "Invalid request"
         401:
@@ -262,15 +263,13 @@ paths:
         500:
           $ref: "#/responses/InternalError"
 
-
-
 responses:
   InternalError:
     description: "Failed to process the request due to an internal error"
   NotFound:
     description: "Requested id can not be found"
 
-definitions: 
+definitions:
   Role:
     type: object
     required:
@@ -304,59 +303,116 @@ definitions:
         description: "Description for a permission"
         type: string
         example: "read only"
+  Condition:
+    type: object
+    required:
+      - attributes
+      - operator
+      - values
+    properties:
+      attributes:
+        description: "List of attributes"
+        type: array
+        items:
+          $ref: "#/definitions/Attribute"
+      operator:
+        description: "operator of the condition"
+        type: string
+        example: "equals"
+      values:
+        description: "List of truth condition values"
+        type: array
+        items:
+          $ref: "#/definitions/Value"
+        example: "read only"
+  Attribute:
+    description: "Attribute of the request"
+    type: string
+    example: "collection_id"
+  Value:
+    description: "value that needs to be satisfied"
+    type: string
+    example: "v1"
   RoleId:
-    description: "Unique id for a role"  
+    description: "Unique id for a role"
     type: string
     example: "1b"
-  MemberId:
-    description: "Unique id for a member"  
+  EntityId:
+    description: "Unique id for an entity"
     type: string
     example: "1d"
   Policy:
     type: object
     required:
       - id
-      - members
-      - roles
-      - collection
+      - entities
+      - role
     properties:
       id:
         description: "Unique id for this policy"
         type: string
       members:
-        description: "A list of members for this policy"
-        type: array
-        items: 
-          $ref: "#/definitions/MemberId"
-      roles:
-        description: "A list of roles for this policy"
+        description: "A list of entities for this policy"
         type: array
         items:
-          $ref: "#/definitions/RoleId"
-      collection:
-        description: "Unique collection id"
+          $ref: "#/definitions/EntityId"
+      role:
+        description: "Role for this policy"
         type: string
+      conditions:
+        description: "list of conditions which needs to be true for the policy to be applicable"
+        type: array
+        items:
+          $ref: "#/definitions/Condition"
   NewPolicy:
     type: object
     required:
-      - members
-      - roles
-      - collection
+      - entities
+      - role
     properties:
       members:
-        description: "A list of members for this policy"
-        type: array
-        items: 
-          $ref: "#/definitions/MemberId"
-      roles:
-        description: "A list of roles for this policy"
+        description: "A list of entities for this policy"
         type: array
         items:
-          $ref: "#/definitions/RoleId"
-      collection:
-        description: "Unique collection id"
+          $ref: "#/definitions/EntityId"
+      role:
+        description: "Role for this policy"
         type: string
-   
+      conditions:
+        description: "list of conditions which needs to be true for the policy to be applicable"
+        type: array
+        items:
+          $ref: "#/definitions/Condition"
+  Bundle:
+    description: "A map of permission ID to entity lookup map"
+    type: object
+    additionalProperties:
+      description: "A map of entity ID to policy array"
+      type: object
+      additionalProperties:
+        description: "A list of policies"
+        type: array
+        items:
+          $ref: "#/definitions/Policy"
+    example:
+      legacy.read:
+        group/publisher:
+          - id: publisher
+            entities:
+              - group/publisher
+            role: publisher
+        group/viewer:
+          - id: viewer
+            entities:
+              - group/viewer
+            role: viewer
+            conditions:
+              - attributes:
+                  - collection-id
+                operator: '='
+                values:
+                  - collection-765
+
 securityDefinitions:
   UserAuthorisationToken:
     type: apiKey

@@ -9,13 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ONSdigital/dp-permissions-api/apierrors"
-	"github.com/ONSdigital/dp-permissions-api/config"
-
-	"github.com/gorilla/mux"
-
-	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -67,12 +62,6 @@ var negativeQueryImageList = models.Roles{
 	Offset:     0,
 }
 
-var cfg = &config.Config{
-	DefaultLimit:        20,
-	DefaultOffset:       0,
-	MaximumDefaultLimit: 1000,
-}
-
 func TestGetRoleHandler(t *testing.T) {
 
 	Convey("Given a GetRole Handler", t, func() {
@@ -88,7 +77,7 @@ func TestGetRoleHandler(t *testing.T) {
 			},
 		}
 
-		permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When an existing role is requested with its Role ID", func() {
 
@@ -137,9 +126,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -169,9 +158,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=1&limit=1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=1&limit=1", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -201,9 +190,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?limit=1500", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?limit=1500", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -227,9 +216,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=-1&limit=-1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=-1&limit=-1", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -253,9 +242,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), cfg, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles?offset=h&limit=i", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=h&limit=i", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 
@@ -279,9 +268,9 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := api.Setup(context.Background(), &config.Config{}, mux.NewRouter(), mockedPermissionsStore)
+			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 

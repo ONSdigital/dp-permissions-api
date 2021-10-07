@@ -6,7 +6,7 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: 1.17.1
+    tag: latest
 
 inputs:
   - name: dp-permissions-api
@@ -15,4 +15,4 @@ caches:
   - path: go/
 
 run:
-  path: dp-permissions-api/ci/scripts/unit.sh
+  path: dp-permissions-api/ci/scripts/lint.sh

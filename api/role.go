@@ -6,7 +6,7 @@ import (
 
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/utils"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
@@ -20,7 +20,7 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 	//get role from mongoDB by id
 	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
-		log.Event(ctx, "getRole Handler: retrieving role from mongoDB returned an error", log.ERROR, log.Error(err), logdata)
+		log.Error(ctx, "getRole Handler: retrieving role from mongoDB returned an error", err, logdata)
 		if err == apierrors.ErrRoleNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
@@ -31,7 +31,7 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 
 	b, err := json.Marshal(role)
 	if err != nil {
-		log.Event(ctx, "getRole Handler: failed to marshal role resource into bytes", log.ERROR, log.Error(err), logdata)
+		log.Error(ctx, "getRole Handler: failed to marshal role resource into bytes", err, logdata)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -40,11 +40,11 @@ func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if _, err := w.Write(b); err != nil {
-		log.Event(ctx, "getRole Handler: error writing bytes to response", log.ERROR, log.Error(err), logdata)
+		log.Error(ctx, "getRole Handler: error writing bytes to response", err, logdata)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Event(ctx, "getRole Handler: Successfully retrieved role", log.INFO, logdata)
+	log.Info(ctx, "getRole Handler: Successfully retrieved role", logdata)
 
 }
 
@@ -64,7 +64,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 		logData["limit"] = limitParameter
 		limit, err = utils.ValidatePositiveInteger(limitParameter)
 		if err != nil {
-			log.Event(ctx, "invalid query parameter: limit", log.ERROR, log.Error(err), logData)
+			log.Error(ctx, "invalid query parameter: limit", err, logData)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -74,7 +74,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 		logData["offset"] = offsetParameter
 		offset, err = utils.ValidatePositiveInteger(offsetParameter)
 		if err != nil {
-			log.Event(ctx, "invalid query parameter: offset", log.ERROR, log.Error(err), logData)
+			log.Error(ctx, "invalid query parameter: offset", err, logData)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -83,7 +83,7 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	if limit > api.maximumDefaultLimit {
 		logData["max_limit"] = api.maximumDefaultLimit
 		err = apierrors.ErrorMaximumLimitReached(api.maximumDefaultLimit)
-		log.Event(ctx, "invalid query parameter: limit, maximum limit reached", log.ERROR, log.Error(err), logData)
+		log.Error(ctx, "invalid query parameter: limit, maximum limit reached", err, logData)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -92,14 +92,14 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	listOfRoles, err := api.permissionsStore.GetRoles(ctx, offset, limit)
 
 	if err != nil {
-		log.Event(ctx, "getRoles Handler: retrieving roles from MongoDB returned an error", log.ERROR, log.Error(err))
+		log.Error(ctx, "getRoles Handler: retrieving roles from MongoDB returned an error", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	b, err := json.Marshal(listOfRoles)
 	if err != nil {
-		log.Event(ctx, "getRoles Handler: failed to marshal roles resource into bytes", log.ERROR, log.Error(err))
+		log.Error(ctx, "getRoles Handler: failed to marshal roles resource into bytes", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -108,10 +108,10 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if _, err := w.Write(b); err != nil {
-		log.Event(ctx, "getRoles Handler: error writing bytes to response", log.ERROR, log.Error(err))
+		log.Error(ctx, "getRoles Handler: error writing bytes to response", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Event(ctx, "getRoles Handler: Successfully retrieved roles", log.INFO)
+	log.Info(ctx, "getRoles Handler: Successfully retrieved roles")
 
 }

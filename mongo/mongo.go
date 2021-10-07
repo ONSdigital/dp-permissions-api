@@ -4,46 +4,68 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ONSdigital/dp-permissions-api/apierrors"
-
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dpMongodb "github.com/ONSdigital/dp-mongodb"
-	dpMongoHealth "github.com/ONSdigital/dp-mongodb/health"
+	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v3/health"
+	dpMongodb "github.com/ONSdigital/dp-mongodb/v3/mongodb"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/log.go/log"
-	"github.com/globalsign/mgo"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/ONSdigital/log.go/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
+)
+
+const (
+	connectTimeoutInSeconds = 5
+	queryTimeoutInSeconds   = 15
 )
 
 //Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Session      *mgo.Session
-	healthClient *dpMongoHealth.CheckMongoClient
-	Database     string
-	Collection   string
+	Database           string
+	RolesCollection    string
+	PoliciesCollection string
+	Connection         *dpMongodb.MongoConnection
+	healthClient       *dpMongoHealth.CheckMongoClient
 }
 
-//Init creates a new mgo.Session with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(mongoConf config.MongoConfiguration) (err error) {
-	if m.Session != nil {
-		return errors.New("session already exists")
+func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
+	return &dpMongodb.MongoConnectionConfig{
+		IsSSL:                   mongoConf.IsSSL,
+		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
+		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
+
+		Username:                      mongoConf.Username,
+		Password:                      mongoConf.Password,
+		ClusterEndpoint:               mongoConf.BindAddr,
+		Database:                      mongoConf.Database,
+		Collection:                    mongoConf.RolesCollection,
+		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
+		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
+	}
+}
+
+//Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
+func (m *Mongo) Init(mongoConf config.MongoDB) error {
+	if m.Connection != nil {
+		return errors.New("datastore connection already exists")
 	}
 
-	//Create Session
-	if m.Session, err = mgo.Dial(mongoConf.BindAddr); err != nil {
+	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(mongoConf))
+	if err != nil {
 		return err
 	}
-	m.Session.EnsureSafe(&mgo.Safe{WMode: "majority"})
-	m.Session.SetMode(mgo.Strong, true)
 
 	m.Database = mongoConf.Database
-	m.Collection = mongoConf.Collection
-
+	m.RolesCollection = mongoConf.RolesCollection
+	m.PoliciesCollection = mongoConf.PoliciesCollection
+	m.Connection = mongoConnection
 	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
-	databaseCollectionBuilder[(dpMongoHealth.Database)(mongoConf.Database)] = []dpMongoHealth.Collection{(dpMongoHealth.Collection)(mongoConf.Collection)}
+	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{
+		(dpMongoHealth.Collection)(m.RolesCollection),
+		(dpMongoHealth.Collection)(m.PoliciesCollection),
+	}
 
-	client := dpMongoHealth.NewClientWithCollections(m.Session, databaseCollectionBuilder)
+	client := dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
 
 	m.healthClient = &dpMongoHealth.CheckMongoClient{
 		Client:      *client,
@@ -55,10 +77,10 @@ func (m *Mongo) Init(mongoConf config.MongoConfiguration) (err error) {
 
 // Close closes the mongo session and returns any error
 func (m *Mongo) Close(ctx context.Context) error {
-	if m.Session == nil {
-		return errors.New("cannot close a mongoDB connection without a valid session")
+	if m.Connection == nil {
+		return errors.New("cannot close a empty connection")
 	}
-	return dpMongodb.Close(ctx, m.Session)
+	return m.Connection.Close(ctx)
 }
 
 // Checker is called by the healthcheck library to check the health state of this mongoDB instance
@@ -68,14 +90,12 @@ func (m *Mongo) Checker(ctx context.Context, state *healthcheck.CheckState) erro
 
 //GetRole retrieves a role document by its ID
 func (m *Mongo) GetRole(ctx context.Context, id string) (*models.Role, error) {
-	s := m.Session.Copy()
-	defer s.Close()
-	log.Event(ctx, "getting role by ID", log.INFO, log.Data{"id": id})
+	log.Info(ctx, "getting role by ID", log.Data{"id": id})
 
 	var role models.Role
-	err := s.DB(m.Database).C(m.Collection).Find(bson.M{"_id": id}).One(&role)
+	err := m.Connection.GetConfiguredCollection().FindOne(ctx, bson.M{"_id": id}, &role)
 	if err != nil {
-		if err == mgo.ErrNotFound {
+		if dpMongodb.IsErrNoDocumentFound(err) {
 			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
@@ -91,14 +111,12 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		return nil, apierrors.ErrLimitAndOffset
 	}
 
-	s := m.Session.Copy()
-	defer s.Close()
-	log.Event(ctx, "querying document store for list of roles", log.INFO)
+	log.Info(ctx, "querying document store for list of roles")
 
-	roles := s.DB(m.Database).C(m.Collection).Find(nil)
-	totalCount, err := roles.Count()
+	roles := m.Connection.GetConfiguredCollection().Find(bson.D{})
+	totalCount, err := roles.Count(ctx)
 	if err != nil {
-		if err == mgo.ErrNotFound {
+		if dpMongodb.IsErrNoDocumentFound(err) {
 			return nil, apierrors.ErrRoleNotFound
 		}
 		return nil, err
@@ -106,7 +124,7 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 
 	results := []models.Role{}
 	iter := roles.Skip(offset).Limit(limit).Iter()
-	if err := iter.All(&results); err != nil {
+	if err := iter.All(ctx, &results); err != nil {
 		return nil, err
 	}
 
@@ -117,5 +135,56 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 		Offset:     offset,
 		Limit:      limit,
 	}, nil
+}
+
+// GetAllRoles returns all role documents, without pagination
+func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
+	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
+
+	var roles []*models.Role
+	if err := query.IterAll(ctx, &roles); err != nil {
+		return nil, err
+	}
+
+	return roles, nil
+}
+
+// GetAllBundlePolicies returns all policy documents for a permissions bundle, without pagination
+func (m *Mongo) GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error) {
+
+	query := m.Connection.C(m.PoliciesCollection).Find(bson.D{})
+
+	var policies []*models.BundlePolicy
+	if err := query.IterAll(ctx, &policies); err != nil {
+		return nil, err
+	}
+
+	return policies, nil
+}
+
+//AddPolicy inserts new policy to data store
+func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+
+	var documents []interface{}
+	documents = append(documents, policy)
+	if _, err := m.Connection.C(m.PoliciesCollection).InsertMany(ctx, documents); err != nil {
+		return nil, err
+	}
+	return policy, nil
+}
+
+func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error) {
+	log.Info(ctx, "getting policy by id", log.Data{"id": id})
+
+	var policy models.Policy
+	err := m.Connection.C(m.PoliciesCollection).FindOne(ctx, bson.M{"_id": id}, &policy)
+	if err != nil {
+		if dpMongodb.IsErrNoDocumentFound(err) {
+			return nil, apierrors.ErrPolicyNotFound
+		}
+		return nil, err
+	}
+
+	return &policy, nil
 
 }

@@ -31,7 +31,8 @@ func TestConfig(t *testing.T) {
 
 				So(configuration.MongoConfig.BindAddr, ShouldEqual, "localhost:27017")
 				So(configuration.MongoConfig.Database, ShouldEqual, "permissions")
-				So(configuration.MongoConfig.Collection, ShouldEqual, "roles")
+				So(configuration.MongoConfig.RolesCollection, ShouldEqual, "roles")
+				So(configuration.MongoConfig.PoliciesCollection, ShouldEqual, "policies")
 
 			})
 

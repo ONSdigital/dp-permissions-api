@@ -11,8 +11,5 @@ image_resource:
 inputs:
   - name: dp-permissions-api
 
-caches:
-  - path: go/
-
 run:
-  path: dp-permissions-api/ci/scripts/unit.sh
+  path: dp-permissions-api/ci/scripts/component.sh
