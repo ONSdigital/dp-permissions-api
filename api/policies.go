@@ -3,12 +3,13 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 //GetPolicyHandler is a handler that gets policy by its ID from DB

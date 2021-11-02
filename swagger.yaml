@@ -76,6 +76,10 @@ paths:
             Invalid request, reasons can be one of the following:
               * query parameters incorrect offset provided
               * query parameters incorrect limit provided
+        403:
+          description: |
+            Unauthorised request, reason is:
+              * Requestor does not have necessary permissions to access this resource
         500:
           $ref: "#/responses/InternalError"
 
@@ -100,6 +104,8 @@ paths:
             $ref: "#/definitions/Role"
         400:
           description: "Invalid request"
+        403:
+          description: "Unauthorised request"
         404:
           $ref: "#/responses/NotFound"
         500:
@@ -125,6 +131,8 @@ paths:
             $ref: "#/definitions/Policy"
         400:
           description: "Bad request. Invalid policy supplied"
+        403:
+          description: "Unauthorised request"
         500:
           $ref: "#/responses/InternalError"
 
@@ -164,6 +172,8 @@ paths:
                   $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
+        403:
+          description: "Unauthorised request"
         404:
           $ref: "#/responses/NotFound"
         500:
@@ -190,6 +200,8 @@ paths:
             $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
+        403:
+          description: "Unauthorised request"
         404:
           $ref: "#/responses/NotFound"
         500:
@@ -212,6 +224,8 @@ paths:
           description: "Successfully returned a policy for a given id"
           schema:
             $ref: "#/definitions/Policy"
+        403:
+          description: "Unauthorised request"
         404:
           $ref: "#/responses/NotFound"
         500:
@@ -236,6 +250,8 @@ paths:
             $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
+        403:
+          description: "Unauthorised request"
         404:
           $ref: "#/responses/NotFound"
         500:

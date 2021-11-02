@@ -5,6 +5,10 @@ import (
 
 	"github.com/ONSdigital/dp-permissions-api/config"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+
+	"github.com/ONSdigital/dp-permissions-api/models"
+
 	"github.com/gorilla/mux"
 )
 
@@ -23,7 +27,8 @@ func Setup(
 	cfg *config.Config,
 	r *mux.Router,
 	permissionsStore PermissionsStore,
-	bundler PermissionsBundler) *API {
+	bundler PermissionsBundler,
+	auth authorisation.Middleware) *API {
 
 	api := &API{
 		Router:              r,
@@ -34,10 +39,10 @@ func Setup(
 		bundler:             bundler,
 	}
 
-	r.HandleFunc("/roles/{id}", api.GetRoleHandler).Methods(http.MethodGet)
-	r.HandleFunc("/v1/roles", api.GetRolesHandler).Methods(http.MethodGet)
-	r.HandleFunc("/v1/policies", api.PostPolicyHandler).Methods(http.MethodPost)
-	r.HandleFunc("/v1/policies/{id}", api.GetPolicyHandler).Methods(http.MethodGet)
+	r.HandleFunc("/v1/roles", auth.Require(models.RolesRead, api.GetRolesHandler)).Methods(http.MethodGet)
+	r.HandleFunc("/v1/roles/{id}", auth.Require(models.RolesRead, api.GetRoleHandler)).Methods(http.MethodGet)
+	r.HandleFunc("/v1/policies", auth.Require(models.PoliciesCreate, api.PostPolicyHandler)).Methods(http.MethodPost)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesRead, api.GetPolicyHandler)).Methods(http.MethodGet)
 	r.HandleFunc("/v1/permissions-bundle", api.GetPermissionsBundleHandler).Methods(http.MethodGet)
 
 	return api

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/ONSdigital/dp-permissions-api/permissions"
 
 	"github.com/ONSdigital/dp-permissions-api/api"
@@ -9,6 +10,8 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
 
 // Service contains all the configs, server and clients to run the dp-topic-api API
@@ -20,6 +23,7 @@ type Service struct {
 	ServiceList *ExternalServiceList
 	HealthCheck HealthChecker
 	MongoDB     PermissionsStore
+	AuthorisationMiddleware authorisation.Middleware
 }
 
 // Run the service
@@ -43,8 +47,14 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 
 	bundler := permissions.NewBundler(mongoDB)
 
+	authorisationMiddleware, err := serviceList.GetAuthorisationMiddleware(ctx, cfg.AuthorisationConfig)
+	if err != nil {
+		log.Fatal(ctx, "could not instantiate authorisation middleware", err)
+		return nil, err
+	}
+
 	// Setup the API
-	a := api.Setup(cfg, r, mongoDB, bundler)
+	a := api.Setup(cfg, r, mongoDB, bundler, authorisationMiddleware)
 
 	hc, err := serviceList.GetHealthCheck(cfg, buildTime, gitCommit, version)
 
@@ -53,7 +63,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 		return nil, err
 	}
 
-	if err := registerCheckers(ctx, hc, mongoDB); err != nil {
+	if err := registerCheckers(ctx, hc, mongoDB, authorisationMiddleware); err != nil {
 		return nil, errors.Wrap(err, "unable to register checkers")
 	}
 
@@ -75,6 +85,7 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 		ServiceList: serviceList,
 		Server:      s,
 		MongoDB:     mongoDB,
+		AuthorisationMiddleware: authorisationMiddleware,
 	}, nil
 }
 
@@ -107,6 +118,11 @@ func (svc *Service) Close(ctx context.Context) error {
 				hasShutdownError = true
 			}
 		}
+
+		if err := svc.AuthorisationMiddleware.Close(ctx); err != nil {
+			log.Error(ctx, "failed to close authorisation middleware", err)
+			hasShutdownError = true
+		}
 	}()
 
 	// wait for shutdown success (via cancel) or failure (timeout)
@@ -131,13 +147,19 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func registerCheckers(ctx context.Context,
 	hc HealthChecker,
-	permissionsStore PermissionsStore) (err error) {
+	permissionsStore PermissionsStore,
+	authorisationMiddleware authorisation.Middleware) (err error) {
 
 	hasErrors := false
 
 	if err = hc.AddCheck("Mongo DB", permissionsStore.Checker); err != nil {
 		hasErrors = true
 		log.Error(ctx, "error adding check for mongo db", err)
+	}
+
+	if err := hc.AddCheck("permissions cache health check", authorisationMiddleware.HealthCheck); err != nil {
+		hasErrors = true
+		log.Error(ctx, "error adding check for permissions cache", err)
 	}
 
 	if hasErrors {

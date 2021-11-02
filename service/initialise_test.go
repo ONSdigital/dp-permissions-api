@@ -28,6 +28,7 @@ func TestGetHTTPServer(t *testing.T) {
 			DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer {
 				return serverMock
 			},
+
 		}
 		r := mux.NewRouter()
 		svcList := service.NewServiceList(newServiceMock)
