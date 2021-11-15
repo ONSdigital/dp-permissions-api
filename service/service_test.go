@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -16,6 +17,8 @@ import (
 
 	"github.com/pkg/errors"
 	. "github.com/smartystreets/goconvey/convey"
+
+	authorisationMock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 )
 
 var (
@@ -88,11 +91,20 @@ func TestRun(t *testing.T) {
 			}, nil
 		}
 
+		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+			return &authorisationMock.MiddlewareMock{
+				RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
+					return handlerFunc
+				},
+			}, nil
+		}
+
 		Convey("Given that initialising mongoDB returns an error", func() {
 			initMock := &mock.InitialiserMock{
 				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
 				DoGetMongoDBFunc:     funcDoGetMongoDbErr,
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -112,6 +124,7 @@ func TestRun(t *testing.T) {
 				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
 				DoGetHealthCheckFunc: funcDoGetHealthcheckErr,
 				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -135,6 +148,7 @@ func TestRun(t *testing.T) {
 				DoGetHTTPServerFunc:  funcDoGetHTTPServer,
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
 				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -148,11 +162,12 @@ func TestRun(t *testing.T) {
 			})
 
 			Convey("The checkers are registered and the healthcheck and http server started", func() {
-				So(len(hcMock.AddCheckCalls()), ShouldEqual, 1)
+				So(len(hcMock.AddCheckCalls()), ShouldEqual, 2)
 				So(hcMock.AddCheckCalls()[0].Name, ShouldResemble, "Mongo DB")
 				So(len(initMock.DoGetHTTPServerCalls()), ShouldEqual, 1)
 				So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, "localhost:25400")
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
+				So(initMock.DoGetAuthorisationMiddlewareCalls(), ShouldHaveLength, 1)
 				//!!! a call needed to stop the server, maybe ?
 				serverWg.Wait() // Wait for HTTP server go-routine to finish
 				So(len(serverMock.ListenAndServeCalls()), ShouldEqual, 1)
@@ -179,6 +194,7 @@ func TestRun(t *testing.T) {
 					return hcMockAddFail, nil
 				},
 				DoGetMongoDBFunc: funcDoGetMongoDbOk,
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 				// ADD CODE: add the checkers that you want to register here
 			}
 			svcErrors := make(chan error, 1)
@@ -189,7 +205,7 @@ func TestRun(t *testing.T) {
 				So(err, ShouldNotBeNil)
 				So(err.Error(), ShouldResemble, fmt.Sprintf("unable to register checkers: %s", errAddheckFail.Error()))
 				So(svcList.HealthCheck, ShouldBeTrue)
-				So(len(hcMockAddFail.AddCheckCalls()), ShouldEqual, 1)
+				So(len(hcMockAddFail.AddCheckCalls()), ShouldEqual, 2)
 				So(hcMockAddFail.AddCheckCalls()[0].Name, ShouldResemble, "Mongo DB")
 			})
 			Reset(func() {
@@ -204,6 +220,7 @@ func TestRun(t *testing.T) {
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
 				DoGetHTTPServerFunc:  funcDoGetFailingHTTPServer,
 				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
 			svcList := service.NewServiceList(initMock)
@@ -219,6 +236,25 @@ func TestRun(t *testing.T) {
 
 			Reset(func() {
 				// This reset is run after each `Convey` at the same scope (indentation)
+			})
+		})
+
+		Convey("Given that initialisation of the authorisation middleware fails", func() {
+			expectedError := errors.New("failed to init authorisation middleware")
+			initMock := &mock.InitialiserMock{
+				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
+				DoGetHTTPServerFunc:  funcDoGetFailingHTTPServer,
+				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+					return nil, expectedError
+				},
+			}
+			svcErrors := make(chan error, 1)
+			svcList := service.NewServiceList(initMock)
+			_, err := service.Run(ctx, cfg, svcList, testBuildTime, testGitCommit, testVersion, svcErrors)
+
+			Convey("Then service Run fails with the expected error", func() {
+				So(err, ShouldEqual, expectedError)
 			})
 		})
 	})
@@ -253,6 +289,17 @@ func TestClose(t *testing.T) {
 			},
 		}
 
+		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+			return &authorisationMock.MiddlewareMock{
+				RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
+					return handlerFunc
+				},
+				CloseFunc: func(ctx context.Context) error {
+					return nil
+				},
+			}, nil
+		}
+
 		// mongoDB Close will fail if healthcheck and http server are not already closed
 		mongoDbMock := &mock.PermissionsStoreMock{
 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error { return nil },
@@ -274,6 +321,7 @@ func TestClose(t *testing.T) {
 				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 					return mongoDbMock, nil
 				},
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 
 			svcErrors := make(chan error, 1)
@@ -305,6 +353,7 @@ func TestClose(t *testing.T) {
 				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 					return mongoDbMock, nil
 				},
+				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 
 			svcErrors := make(chan error, 1)

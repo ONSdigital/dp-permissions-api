@@ -9,6 +9,8 @@ import (
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
 
 // ExternalServiceList holds the initialiser and initialisation state of external services.
@@ -79,4 +81,14 @@ func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (Permission
 		return nil, err
 	}
 	return mongodb, nil
+}
+
+// DoGetAuthorisationMiddleware creates authorisation middleware for the given config
+func (e *Init) DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+	return authorisation.NewFeatureFlaggedMiddleware(ctx, authorisationConfig)
+}
+
+// GetAuthorisationMiddleware creates a new instance of authorisation.Middlware
+func (e *ExternalServiceList) GetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+	return e.Init.DoGetAuthorisationMiddleware(ctx, authorisationConfig)
 }

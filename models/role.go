@@ -15,3 +15,11 @@ type Role struct {
 	Name        string   `bson:"name" json:"name"`
 	Permissions []string `bson:"permissions" json:"permissions"`
 }
+
+// roles permissions
+const (
+	RolesRead string = "roles:read"
+	RolesCreate      = "roles:create"
+	RolesUpdate      = "roles:update"
+	RolesDelete      = "roles:delete"
+)

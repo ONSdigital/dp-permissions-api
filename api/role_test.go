@@ -81,7 +81,7 @@ func TestGetRoleHandler(t *testing.T) {
 
 		Convey("When an existing role is requested with its Role ID", func() {
 
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/roles/%s", testRoleID1), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/roles/%s", testRoleID1), nil)
 			w := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(w, r)
 

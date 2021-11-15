@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
 
 // Config represents service configuration for dp-permissions-api
@@ -16,6 +18,7 @@ type Config struct {
 	DefaultOffset              int           `envconfig:"DEFAULT_OFFSET"`
 	MaximumDefaultLimit        int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
 	MongoConfig                MongoDB
+	AuthorisationConfig        *authorisation.Config
 }
 
 // MongoDB contains the config required to connect to MongoDB.
@@ -63,6 +66,7 @@ func Get() (*Config, error) {
 		DefaultLimit:        20,
 		DefaultOffset:       0,
 		MaximumDefaultLimit: 1000,
+		AuthorisationConfig: authorisation.NewDefaultConfig(),
 	}
 
 	return cfg, envconfig.Process("", cfg)
