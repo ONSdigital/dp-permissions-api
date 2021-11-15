@@ -188,3 +188,12 @@ func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error
 	return &policy, nil
 
 }
+
+func (m *Mongo) UpdatePolicy(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+	log.Info(ctx, "update policy by id", log.Data{"id": policy.ID})
+	upsertResult, err := m.Connection.C(m.PoliciesCollection).UpsertById(ctx, policy.ID, policy)
+	if err != nil {
+		return nil, err
+	}
+	return &models.UpdateResult{ModifiedCount: upsertResult.ModifiedCount, UpsertedCount: upsertResult.UpsertedCount}, nil
+}

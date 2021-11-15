@@ -28,6 +28,7 @@ func TestSetup(t *testing.T) {
 			So(hasRoute(api.Router, "/v1/roles/{id}", "GET"), ShouldBeTrue)
 			So(hasRoute(api.Router, "/v1/policies", "POST"), ShouldBeTrue)
 			So(hasRoute(api.Router, "/v1/policies/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/policies/{id}", "PUT"), ShouldBeTrue)
 			So(hasRoute(api.Router, "/v1/permissions-bundle", "GET"), ShouldBeTrue)
 		})
 	})

@@ -17,35 +17,37 @@ var _ api.PermissionsStore = &PermissionsStoreMock{}
 
 // PermissionsStoreMock is a mock implementation of api.PermissionsStore.
 //
-//     func TestSomethingThatUsesPermissionsStore(t *testing.T) {
+// 	func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-//         // make and configure a mocked api.PermissionsStore
-//         mockedPermissionsStore := &PermissionsStoreMock{
-//             AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
-// 	               panic("mock out the AddPolicy method")
-//             },
-//             CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
-// 	               panic("mock out the Checker method")
-//             },
-//             CloseFunc: func(ctx context.Context) error {
-// 	               panic("mock out the Close method")
-//             },
-// 			   GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
-// 				   panic("mock out the GetPolicy method")
-// 			   },
+// 		// make and configure a mocked api.PermissionsStore
+// 		mockedPermissionsStore := &PermissionsStoreMock{
+// 			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+// 				panic("mock out the AddPolicy method")
+// 			},
+// 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
+// 				panic("mock out the Checker method")
+// 			},
+// 			CloseFunc: func(ctx context.Context) error {
+// 				panic("mock out the Close method")
+// 			},
+// 			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
+// 				panic("mock out the GetPolicy method")
+// 			},
+// 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
+// 				panic("mock out the GetRole method")
+// 			},
+// 			GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
+// 				panic("mock out the GetRoles method")
+// 			},
+// 			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+// 				panic("mock out the UpdatePolicy method")
+// 			},
+// 		}
 //
-//             GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
-// 	               panic("mock out the GetRole method")
-//             },
-//             GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
-// 	               panic("mock out the GetRoles method")
-//             },
-//         }
+// 		// use mockedPermissionsStore in code that requires api.PermissionsStore
+// 		// and then make assertions.
 //
-//         // use mockedPermissionsStore in code that requires api.PermissionsStore
-//         // and then make assertions.
-//
-//     }
+// 	}
 type PermissionsStoreMock struct {
 	// AddPolicyFunc mocks the AddPolicy method.
 	AddPolicyFunc func(ctx context.Context, policy *models.Policy) (*models.Policy, error)
@@ -64,6 +66,9 @@ type PermissionsStoreMock struct {
 
 	// GetRolesFunc mocks the GetRoles method.
 	GetRolesFunc func(ctx context.Context, offset int, limit int) (*models.Roles, error)
+
+	// UpdatePolicyFunc mocks the UpdatePolicy method.
+	UpdatePolicyFunc func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -109,13 +114,21 @@ type PermissionsStoreMock struct {
 			// Limit is the limit argument value.
 			Limit int
 		}
+		// UpdatePolicy holds details about calls to the UpdatePolicy method.
+		UpdatePolicy []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Policy is the policy argument value.
+			Policy *models.Policy
+		}
 	}
-	lockAddPolicy sync.RWMutex
-	lockChecker   sync.RWMutex
-	lockClose     sync.RWMutex
-	lockGetPolicy sync.RWMutex
-	lockGetRole   sync.RWMutex
-	lockGetRoles  sync.RWMutex
+	lockAddPolicy    sync.RWMutex
+	lockChecker      sync.RWMutex
+	lockClose        sync.RWMutex
+	lockGetPolicy    sync.RWMutex
+	lockGetRole      sync.RWMutex
+	lockGetRoles     sync.RWMutex
+	lockUpdatePolicy sync.RWMutex
 }
 
 // AddPolicy calls AddPolicyFunc.
@@ -325,5 +338,40 @@ func (mock *PermissionsStoreMock) GetRolesCalls() []struct {
 	mock.lockGetRoles.RLock()
 	calls = mock.calls.GetRoles
 	mock.lockGetRoles.RUnlock()
+	return calls
+}
+
+// UpdatePolicy calls UpdatePolicyFunc.
+func (mock *PermissionsStoreMock) UpdatePolicy(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+	if mock.UpdatePolicyFunc == nil {
+		panic("PermissionsStoreMock.UpdatePolicyFunc: method is nil but PermissionsStore.UpdatePolicy was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		Policy *models.Policy
+	}{
+		Ctx:    ctx,
+		Policy: policy,
+	}
+	mock.lockUpdatePolicy.Lock()
+	mock.calls.UpdatePolicy = append(mock.calls.UpdatePolicy, callInfo)
+	mock.lockUpdatePolicy.Unlock()
+	return mock.UpdatePolicyFunc(ctx, policy)
+}
+
+// UpdatePolicyCalls gets all the calls that were made to UpdatePolicy.
+// Check the length with:
+//     len(mockedPermissionsStore.UpdatePolicyCalls())
+func (mock *PermissionsStoreMock) UpdatePolicyCalls() []struct {
+	Ctx    context.Context
+	Policy *models.Policy
+} {
+	var calls []struct {
+		Ctx    context.Context
+		Policy *models.Policy
+	}
+	mock.lockUpdatePolicy.RLock()
+	calls = mock.calls.UpdatePolicy
+	mock.lockUpdatePolicy.RUnlock()
 	return calls
 }

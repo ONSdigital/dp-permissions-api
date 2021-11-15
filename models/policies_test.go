@@ -19,7 +19,7 @@ func TestCreateNewPolicyWithValidJson(t *testing.T) {
 	Convey("When a policy has a valid json body, a new policy is returned", t, func() {
 		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
 
-		policy, err := CreateNewPolicy(reader)
+		policy, err := CreatePolicy(reader)
 
 		So(err, ShouldBeNil)
 		So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
@@ -33,7 +33,7 @@ func TestCreateNewPolicyWithValidJson(t *testing.T) {
 func TestCreateNewPolicyWithNoBody(t *testing.T) {
 	Convey("When a policy message has no body, an error is returned", t, func() {
 
-		policy, err := CreateNewPolicy(reader{})
+		policy, err := CreatePolicy(reader{})
 
 		So(err, ShouldNotBeNil)
 		So(err, ShouldResemble, ErrorReadingBody)
@@ -43,19 +43,19 @@ func TestCreateNewPolicyWithNoBody(t *testing.T) {
 
 func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 	Convey("When a policy message is missing entities or roles fields, an error is returned", t, func() {
-		policy, err := CreateNewPolicy(strings.NewReader(`{"conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
+		policy, err := CreatePolicy(strings.NewReader(`{"conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
 		So(err, ShouldBeNil)
 
-		err = policy.ValidateNewPolicy()
+		err = policy.ValidatePolicy()
 		So(err, ShouldNotBeNil)
 		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: entities, role"))
 	})
 
 	Convey("When a policy message has empty entities fields, an error is returned", t, func() {
-		policy, err := CreateNewPolicy(strings.NewReader(`{"entities": [], "role": "", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
+		policy, err := CreatePolicy(strings.NewReader(`{"entities": [], "role": "", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
 		So(err, ShouldBeNil)
 
-		err = policy.ValidateNewPolicy()
+		err = policy.ValidatePolicy()
 		So(err, ShouldNotBeNil)
 		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: entities, role"))
 	})

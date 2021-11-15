@@ -8,6 +8,7 @@ import (
 )
 
 //go:generate moq -out mock/permissionsStore.go -pkg mock . PermissionsStore
+//go:generate moq -out ../service/mock/store.go -pkg mock . PermissionsStore
 //go:generate moq -out mock/bundler.go -pkg mock . PermissionsBundler
 
 //PermissionsStore defines the behaviour of a PermissionsStore
@@ -17,6 +18,7 @@ type PermissionsStore interface {
 	GetRole(ctx context.Context, id string) (*models.Role, error)
 	GetRoles(ctx context.Context, offset, limit int) (*models.Roles, error)
 	AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error)
+	UpdatePolicy(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error)
 	GetPolicy(ctx context.Context, id string) (*models.Policy, error)
 }
 
