@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/permissions"
-	"net/http"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/ONSdigital/dp-permissions-api/config"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
 
 //go:generate moq -out mock/initialiser.go -pkg mock . Initialiser
@@ -20,6 +23,7 @@ type Initialiser interface {
 	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
 	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
 	DoGetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error)
+	DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error)
 }
 
 // HTTPServer defines the required methods from the HTTP server

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/ONSdigital/dp-permissions-api/features/steps"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/cucumber/godog"
@@ -24,27 +26,25 @@ type ComponentTest struct {
 
 func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	authorizationFeature := componenttest.NewAuthorizationFeature()
-	topicComponent, err := steps.NewPermissionsComponent(f.MongoFeature)
+	component, err := steps.NewPermissionsComponent(f.MongoFeature)
 	if err != nil {
 		panic(err)
 	}
 
-	apiFeature := componenttest.NewAPIFeature(topicComponent.InitialiseService)
-
 	ctx.BeforeScenario(func(*godog.Scenario) {
-		apiFeature.Reset()
-		topicComponent.Reset()
-		f.MongoFeature.Reset()
+		component.Reset()
 		authorizationFeature.Reset()
 	})
 
 	ctx.AfterScenario(func(*godog.Scenario, error) {
-		topicComponent.Close()
+		if err = component.Close(); err != nil {
+			log.Warn(context.Background(), "error closing identity component", log.FormatErrors([]error{err}))
+		}
 		authorizationFeature.Close()
 	})
 
-	topicComponent.RegisterSteps(ctx)
-	apiFeature.RegisterSteps(ctx)
+	component.RegisterSteps(ctx)
+	component.ApiFeature.RegisterSteps(ctx)
 	authorizationFeature.RegisterSteps(ctx)
 }
 

@@ -11,28 +11,100 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/config"
+	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
 	"github.com/cucumber/godog"
 	"github.com/gofrs/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
+	"github.com/ONSdigital/dp-authorisation/v2/permissions"
 )
 
 // PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
 type PermissionsComponent struct {
-	ErrorFeature   componenttest.ErrorFeature
-	svc            *service.Service
-	errorChan      chan error
-	MongoClient    *mongo.Mongo
-	Config         *config.Config
-	HTTPServer     *http.Server
-	ServiceRunning bool
+	ErrorFeature            componenttest.ErrorFeature
+	svc                     *service.Service
+	errorChan               chan error
+	MongoClient             *mongo.Mongo
+	Config                  *config.Config
+	HTTPServer              *http.Server
+	ServiceRunning          bool
+	ApiFeature              *componenttest.APIFeature
+	AuthorisationMiddleware authorisation.Middleware
+}
+
+func setupFakePermissionsAPI() *authorisationtest.FakePermissionsAPI {
+	fakePermissionsAPI := authorisationtest.NewFakePermissionsAPI()
+	bundle := getPermissionsBundle()
+	fakePermissionsAPI.Reset()
+	fakePermissionsAPI.UpdatePermissionsBundleResponse(bundle)
+	return fakePermissionsAPI
+}
+
+// getPermissionsBundle seed's the PermissionsComponent bundle on startup
+func getPermissionsBundle() *permissions.Bundle {
+	return &permissions.Bundle{
+		models.PoliciesCreate: { // role
+			"groups/role-admin": { // groups
+				permissions.Policy{
+					ID:         "policy1",
+					Conditions: nil,
+				},
+			},
+		},
+		models.PoliciesRead: { // role
+			"groups/role-admin": { // groups
+				permissions.Policy{
+					ID:         "policy1",
+					Conditions: nil,
+				},
+			},
+			"groups/role-publisher": { // groups
+				permissions.Policy{
+					ID:         "policy2",
+					Conditions: nil,
+				},
+			},
+			"groups/role-viewer": { // groups
+				permissions.Policy{
+					ID:         "policy2",
+					Conditions: nil,
+				},
+			},
+		},
+		models.PoliciesUpdate: { // role
+			"groups/role-admin": { // groups
+				permissions.Policy{
+					ID:         "policy3",
+					Conditions: nil,
+				},
+			},
+		},
+		models.PoliciesDelete: { // role
+			"groups/role-admin": { // groups
+				permissions.Policy{
+					ID:         "policy1",
+					Conditions: nil,
+				},
+			},
+		},
+		models.RolesRead: { // role
+			"groups/role-admin": { // groups
+				permissions.Policy{
+					ID:         "policy1",
+					Conditions: nil,
+				},
+			},
+		},
+	}
 }
 
 // NewPermissionsComponent initializes mock server and inmemory mongodb used for running component tests.
 func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*PermissionsComponent, error) {
-
 	f := &PermissionsComponent{
 		HTTPServer:     &http.Server{},
 		errorChan:      make(chan error),
@@ -64,7 +136,18 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 
 	f.MongoClient = mongodb
 
-	return f, nil
+	f.ApiFeature = componenttest.NewAPIFeature(f.InitialiseService)
+
+	f.Config, err = config.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	fakePermissionsAPI := setupFakePermissionsAPI()
+	f.Config.AuthorisationConfig.JWTVerificationPublicKeys = rsaJWKS
+	f.Config.AuthorisationConfig.PermissionsAPIURL = fakePermissionsAPI.URL()
+
+	return f, nil	
 }
 
 func createCredsInDB(getMongoURI string, databaseName string) (string, string, error) {
@@ -109,11 +192,17 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string, e
 func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I have this roles:$`, f.iHaveTheseRoles)
 	ctx.Step(`^I have these policies:$`, f.iHaveThesePolicies)
+	ctx.Step(`^I am an admin user$`, f.adminJWTToken)
+	ctx.Step(`^I am a publisher user$`, f.publisherJWTToken)
+	ctx.Step(`^I am a viewer user$`, f.viewerJWTToken)
+	ctx.Step(`^I am a basic user$`, f.basicUserJWTToken)
+	ctx.Step(`^I am a publisher user with invalid auth token$`, f.publisherWithNoJWTToken)
 }
 
 func (f *PermissionsComponent) Reset() *PermissionsComponent {
 	f.MongoClient.Database = utils.RandomDatabase()
 	f.MongoClient.Init(f.Config.MongoConfig)
+	f.ApiFeature.Reset()
 	return f
 }
 
@@ -130,6 +219,7 @@ func (f *PermissionsComponent) InitialiseService() (http.Handler, error) {
 		DoGetMongoDBFunc:     f.DoGetMongoDB,
 		DoGetHealthCheckFunc: f.DoGetHealthcheckOk,
 		DoGetHTTPServerFunc:  f.DoGetHTTPServer,
+		DoGetAuthorisationMiddlewareFunc: f.DoGetAuthorisationMiddleware,
 	}
 
 	if service, err := service.Run(context.Background(), f.Config, service.NewServiceList(initMock), "1", "", "", f.errorChan); err != nil {
@@ -158,4 +248,15 @@ func (f *PermissionsComponent) DoGetHTTPServer(bindAddr string, router http.Hand
 // DoGetMongoDB returns a MongoDB
 func (f *PermissionsComponent) DoGetMongoDB(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 	return f.MongoClient, nil
+}
+
+// DoGetAuthorisationMiddleware returns an authorisationMock.Middleware object
+func (f *PermissionsComponent) DoGetAuthorisationMiddleware(ctx context.Context, cfg *authorisation.Config) (authorisation.Middleware, error) {
+	middleware, err := authorisation.NewMiddlewareFromConfig(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	f.AuthorisationMiddleware = middleware
+	return f.AuthorisationMiddleware, nil
 }

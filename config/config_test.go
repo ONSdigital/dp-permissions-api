@@ -6,6 +6,8 @@ import (
 	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
+
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
 
 func TestConfig(t *testing.T) {
@@ -33,7 +35,8 @@ func TestConfig(t *testing.T) {
 				So(configuration.MongoConfig.Database, ShouldEqual, "permissions")
 				So(configuration.MongoConfig.RolesCollection, ShouldEqual, "roles")
 				So(configuration.MongoConfig.PoliciesCollection, ShouldEqual, "policies")
-
+				
+				So(configuration.AuthorisationConfig, ShouldResemble, authorisation.NewDefaultConfig())
 			})
 
 			Convey("Then a second call to config should return the same config", func() {

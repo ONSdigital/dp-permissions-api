@@ -34,6 +34,15 @@ type NewPolicy struct {
 	Conditions []Condition `json:"conditions,omitempty"`
 }
 
+// policies permissions
+const (
+	PoliciesRead string = "policies:read"
+	PoliciesCreate      = "policies:create"
+	PoliciesUpdate      = "policies:update"
+	PoliciesDelete      = "policies:delete"
+)
+
+
 // ValidateNewPolicy checks that all the mandatory fields are non-empty
 func (policy *NewPolicy) ValidateNewPolicy() error {
 

@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
+
+	authorisation "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 )
 
 func TestSetup(t *testing.T) {
@@ -18,11 +21,14 @@ func TestSetup(t *testing.T) {
 
 		cfg := &config.Config{}
 		r := mux.NewRouter()
-		api := api.Setup(cfg, r, mongoMock, bundlerMock)
+		api := api.Setup(cfg, r, mongoMock, bundlerMock, newAuthMiddlwareMock())
 
 		Convey("When created the following routes should have been added", func() {
-			So(hasRoute(api.Router, "/roles/{id}", "GET"), ShouldBeTrue)
 			So(hasRoute(api.Router, "/v1/roles", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/roles/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/policies", "POST"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/policies/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(api.Router, "/v1/permissions-bundle", "GET"), ShouldBeTrue)
 		})
 	})
 }
@@ -44,9 +50,17 @@ func setupAPI() *api.API {
 }
 
 func setupAPIWithStore(permissionsStore api.PermissionsStore) *api.API {
-	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{})
+	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{}, newAuthMiddlwareMock())
 }
 
 func setupAPIWithBundler(bundler api.PermissionsBundler) *api.API {
-	return api.Setup(cfg, mux.NewRouter(), &mock.PermissionsStoreMock{}, bundler)
+	return api.Setup(cfg, mux.NewRouter(), &mock.PermissionsStoreMock{}, bundler, newAuthMiddlwareMock())
+}
+
+func newAuthMiddlwareMock() *authorisation.MiddlewareMock {
+	return &authorisation.MiddlewareMock{
+		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
+			return handlerFunc
+		},
+	}
 }
