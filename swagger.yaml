@@ -233,8 +233,8 @@ paths:
     put:
       tags:
         - "policies"
-      summary: "Updates a policy"
-      description: "Updates a policy for a given id"
+      summary: "Upsert a policy"
+      description: "Upsert a policy for a given id"
       produces:
         - "application/json"
       parameters:
@@ -243,11 +243,15 @@ paths:
           description: "Unique id of policy"
           type: string
           required: true
+        - in: body
+          name: Policy
+          schema:
+            $ref: "#/definitions/NewPolicy"
       responses:
         200:
-          description: "Successfully updated a policy for a given id"
-          schema:
-            $ref: "#/definitions/Policy"
+          description: "Successfully updated an existing policy for a given id"
+        201:
+          description: "Successfully created a new policy for a given id"
         400:
           description: "Invalid request"
         403:
