@@ -194,10 +194,8 @@ paths:
           type: string
           required: true
       responses:
-        200:
+        204:
           description: "Successfully deleted a policy for a given id"
-          schema:
-            $ref: "#/definitions/Policy"
         400:
           description: "Invalid request"
         403:
@@ -437,4 +435,4 @@ securityDefinitions:
   UserAuthorisationToken:
     type: apiKey
     in: header
-    name: user-authorisation-token 
+    name: user-authorisation-token

@@ -204,4 +204,20 @@ func (m *Mongo) UpdatePolicy(ctx context.Context, policy *models.Policy) (*model
 		return nil, err
 	}
 	return &models.UpdateResult{ModifiedCount: upsertResult.ModifiedCount, UpsertedCount: upsertResult.UpsertedCount}, nil
+
+}
+
+func (m *Mongo) DeletePolicy(ctx context.Context, id string) error {
+	log.Info(ctx, "deleting policy by id", log.Data{"id": id})
+
+	_, err := m.Connection.C(m.PoliciesCollection).DeleteById(ctx, id)
+	if err != nil {
+		if dpMongodb.IsErrNoDocumentFound(err) {
+			return apierrors.ErrPolicyNotFound
+		}
+		return err
+	}
+
+	return nil
+
 }

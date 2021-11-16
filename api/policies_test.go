@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ONSdigital/dp-permissions-api/api/mock"
-	"github.com/ONSdigital/dp-permissions-api/apierrors"
-	"github.com/ONSdigital/dp-permissions-api/models"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/ONSdigital/dp-permissions-api/api/mock"
+	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/models"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -244,11 +245,10 @@ func TestGetPolicyHandler(t *testing.T) {
 				switch id {
 				case testPolicyID:
 					return &models.Policy{
-						ID:       testPolicyID,
-						Entities: []string{"e1", "e2"},
-						Role:     "r1",
-						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}},
-						}}, nil
+						ID:         testPolicyID,
+						Entities:   []string{"e1", "e2"},
+						Role:       "r1",
+						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -267,11 +267,10 @@ func TestGetPolicyHandler(t *testing.T) {
 
 			Convey("The matched policy is returned with status code 200", func() {
 				expectedPolicy := models.Policy{
-					ID:       testPolicyID,
-					Entities: []string{"e1", "e2"},
-					Role:     "r1",
-					Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}},
-					}}
+					ID:         testPolicyID,
+					Entities:   []string{"e1", "e2"},
+					Role:       "r1",
+					Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}
 
 				policy := models.Policy{}
 				payload, err := ioutil.ReadAll(responseRecorder.Body)
@@ -316,7 +315,7 @@ func TestSuccessfulUpdatePolicy(t *testing.T) {
 			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
 				if policy.ID == "existing_policy" {
 					return &models.UpdateResult{ModifiedCount: 1}, nil
-				}else if policy.ID == "new_policy" {
+				} else if policy.ID == "new_policy" {
 					return &models.UpdateResult{UpsertedCount: 1}, nil
 				}
 				return nil, errors.New("Something went wrong")
@@ -446,6 +445,77 @@ func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(err, ShouldEqual, io.EOF)
 		})
 
+	})
+
+}
+
+func TestDeletePolicyHandler(t *testing.T) {
+
+	Convey("Given a DeletePolicy Handler", t, func() {
+
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			DeletePolicyFunc: func(ctx context.Context, id string) error {
+				switch id {
+				case testPolicyID:
+					return nil
+				case "NOTFOUND":
+					return apierrors.ErrPolicyNotFound
+				default:
+					return errors.New("Something went wrong")
+				}
+			},
+			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
+				switch id {
+				case testPolicyID:
+					return &models.Policy{
+						ID:         testPolicyID,
+						Entities:   []string{"e1", "e2"},
+						Role:       "r1",
+						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}, nil
+				case "NOTFOUND":
+					return nil, apierrors.ErrPolicyNotFound
+				default:
+					return nil, errors.New("Something went wrong")
+				}
+			},
+		}
+
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+
+		Convey("When a DELETE request is made to an existing policy with its policy ID", func() {
+
+			request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), nil)
+			responseRecorder := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseRecorder, request)
+
+			Convey("Then the permissions store is called to delete a policy", func() {
+				So(len(mockedPermissionsStore.DeletePolicyCalls()), ShouldEqual, 1)
+			})
+
+			Convey("The matched policy is returned with status code 204", func() {
+				So(responseRecorder.Code, ShouldEqual, http.StatusNoContent)
+			})
+		})
+
+		Convey("When a DELETE request is made to a non existing policy id, a Not Found response with 404 status code is returned", func() {
+			request := httptest.NewRequest(http.MethodDelete, "http://localhost:25400/v1/policies/NOTFOUND", nil)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+			response := responseWriter.Body.String()
+
+			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
+			So(response, ShouldContainSubstring, "policy not found")
+		})
+
+		Convey("When a failed DELETE request to the policy from the DB should return a status code of 500", func() {
+			request := httptest.NewRequest(http.MethodDelete, "http://localhost:25400/v1/policies/XYZ", nil)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+			response := responseWriter.Body.String()
+
+			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
+			So(response, ShouldContainSubstring, "Something went wrong")
+		})
 	})
 
 }
