@@ -1,5 +1,6 @@
 [
   {
+    "id": "default-admin-administrator",
     "entities": [
       "groups/role-admin"
     ],
@@ -7,6 +8,7 @@
     "conditions": []
   },
   {
+    "id": "default-publisher-collection-author",
     "entities": [
       "groups/role-publisher"
     ],
@@ -14,6 +16,7 @@
     "conditions": []
   },
   {
+    "id": "default-publisher-collection-policy-manager",
     "entities": [
       "groups/role-publisher"
     ],

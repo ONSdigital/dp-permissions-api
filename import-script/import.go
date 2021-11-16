@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"github.com/ONSdigital/dp-permissions-api/config"
-	"github.com/gofrs/uuid"
 	"io/ioutil"
 	"os"
 	"strings"
 
+	"github.com/ONSdigital/dp-permissions-api/config"
+
 	dpMongodb "github.com/ONSdigital/dp-mongodb/v3/mongodb"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
@@ -78,9 +79,9 @@ func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection
 		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
-		_, err = mongoConnection.C("roles").Insert(ctx, role)
+		_, err = mongoConnection.C("roles").UpsertById(ctx, role.ID, bson.M{"$set": role})
 		if err != nil {
-			log.Error(ctx, "failed to insert new role document, data lost in mongo but exists in this log", err, logData)
+			log.Error(ctx, "failed to upsert role document", err, logData)
 			os.Exit(1)
 		}
 
@@ -111,17 +112,11 @@ func importPolicies(ctx context.Context, mongoConnection *dpMongodb.MongoConnect
 	}
 
 	for _, policy := range res {
+		logData := log.Data{"role": policy}
 
-		uuid, err := uuid.NewV4()
+		_, err = mongoConnection.C("policies").UpsertById(ctx, policy.ID, bson.M{"$set": policy})
 		if err != nil {
-			log.Error(ctx, "failed to create a new UUID for policy", err)
-			os.Exit(1)
-		}
-		policy.ID = uuid.String()
-
-		_, err = mongoConnection.C("policies").Insert(ctx, policy)
-		if err != nil {
-			log.Error(ctx, "failed to insert new policy document, data lost in mongo but exists in this log", err)
+			log.Error(ctx, "failed to upsert policy document", err, logData)
 			os.Exit(1)
 		}
 
