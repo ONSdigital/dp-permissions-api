@@ -18,7 +18,7 @@ func (api *API) GetPolicyHandler(writer http.ResponseWriter, request *http.Reque
 	ctx := request.Context()
 	vars := mux.Vars(request)
 	policyId := vars["id"]
-	logData := log.Data{"policy-id": policyId}
+	logData := log.Data{"policy_id": policyId}
 
 	policy, err := api.permissionsStore.GetPolicy(ctx, policyId)
 	if err != nil {
@@ -111,7 +111,7 @@ func (api *API) UpdatePolicyHandler(writer http.ResponseWriter, request *http.Re
 	ctx := request.Context()
 	vars := mux.Vars(request)
 	policyId := vars["id"]
-	logData := log.Data{"policy-id": policyId}
+	logData := log.Data{"policy_id": policyId}
 
 	updatePolicy, err := models.CreatePolicy(request.Body)
 	if err != nil {
@@ -136,10 +136,10 @@ func (api *API) UpdatePolicyHandler(writer http.ResponseWriter, request *http.Re
 		return
 	}
 
-	if updateResult.ModifiedCount >0 {
+	if updateResult.ModifiedCount > 0 {
 		log.Info(ctx, "Updated policy", logData)
 		writer.WriteHeader(http.StatusOK)
-	}else {
+	} else {
 		log.Info(ctx, "Created new policy", logData)
 		writer.WriteHeader(http.StatusCreated)
 	}

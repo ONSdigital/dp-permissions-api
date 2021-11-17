@@ -23,12 +23,14 @@ var (
 	ErrorParsingBody = errors.New("failed to parse json body")
 )
 
+//Condition represents the conditions to be applied for a policy
 type Condition struct {
 	Attributes []string `bson:"attributes"          json:"attributes"`
 	Operator   string   `bson:"operator"          json:"operator"`
 	Values     []string `bson:"Values"          json:"values"`
 }
 
+//Policy represent a structure for a policy in DB
 type Policy struct {
 	ID         string      `bson:"_id"          json:"id,omitempty"`
 	Entities   []string    `bson:"entities"   json:"entities"`
@@ -36,11 +38,14 @@ type Policy struct {
 	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`
 }
 
+//UpdateResult represent a result of the upsert policy
 type UpdateResult struct {
 	ModifiedCount int
 	UpsertedCount int
 }
 
+
+//PolicyInfo contains properties required to create or update a policy
 type PolicyInfo struct {
 	Entities   []string    `json:"entities"`
 	Role       string      `json:"role"`
