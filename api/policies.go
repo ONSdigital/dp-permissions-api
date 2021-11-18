@@ -54,7 +54,7 @@ func (api *API) DeletePolicyHandler(writer http.ResponseWriter, request *http.Re
 	ctx := request.Context()
 	vars := mux.Vars(request)
 	policyId := vars["id"]
-	logData := log.Data{"policy-id": policyId}
+	logData := log.Data{"policy_id": policyId}
 	_, err := api.permissionsStore.GetPolicy(ctx, policyId)
 	if err != nil {
 		log.Error(ctx, "deletePolicy Handler: retrieving policy from DB returned an error", err, logData)
