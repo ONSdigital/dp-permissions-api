@@ -12,7 +12,6 @@ var (
 	ErrInvalidPositiveInteger = errors.New("value is not a positive integer")
 	ErrLimitAndOffset         = errors.New("offset and limit must be positive or zero")
 	ErrPolicyNotFound         = errors.New("policy not found")
-	ErrPolicyNotDeleted       = errors.New("policy not deleted")
 )
 
 // ErrorMaximumLimitReached creates a unique error

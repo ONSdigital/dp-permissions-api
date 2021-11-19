@@ -214,13 +214,11 @@ func (m *Mongo) DeletePolicy(ctx context.Context, id string) error {
 
 	collectionDeleteResult, err := m.Connection.C(m.PoliciesCollection).DeleteById(ctx, id)
 	if err != nil {
-		if dpMongodb.IsErrNoDocumentFound(err) {
-			return apierrors.ErrPolicyNotFound
-		}
 		return err
 	}
+
 	if collectionDeleteResult.DeletedCount == 0 {
-		return apierrors.ErrPolicyNotDeleted
+		return apierrors.ErrPolicyNotFound
 	}
 
 	return nil

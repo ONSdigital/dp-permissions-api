@@ -55,20 +55,14 @@ func (api *API) DeletePolicyHandler(writer http.ResponseWriter, request *http.Re
 	vars := mux.Vars(request)
 	policyId := vars["id"]
 	logData := log.Data{"policy_id": policyId}
-	_, err := api.permissionsStore.GetPolicy(ctx, policyId)
+
+	err := api.permissionsStore.DeletePolicy(ctx, policyId)
 	if err != nil {
-		log.Error(ctx, "deletePolicy Handler: retrieving policy from DB returned an error", err, logData)
+		log.Error(ctx, "deletePolicy Handler: deleting policy in DB returned an error", err, logData)
 		if err == apierrors.ErrPolicyNotFound {
 			http.Error(writer, err.Error(), http.StatusNotFound)
 			return
 		}
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	err = api.permissionsStore.DeletePolicy(ctx, policyId)
-	if err != nil {
-		log.Error(ctx, "deletePolicy Handler: deleting policy in DB returned an error", err, logData)
 		http.Error(writer, err.Error(), http.StatusInternalServerError)
 		return
 	}
