@@ -16,19 +16,19 @@ var _ api.PermissionsBundler = &PermissionsBundlerMock{}
 
 // PermissionsBundlerMock is a mock implementation of api.PermissionsBundler.
 //
-//     func TestSomethingThatUsesPermissionsBundler(t *testing.T) {
+// 	func TestSomethingThatUsesPermissionsBundler(t *testing.T) {
 //
-//         // make and configure a mocked api.PermissionsBundler
-//         mockedPermissionsBundler := &PermissionsBundlerMock{
-//             GetFunc: func(ctx context.Context) (models.Bundle, error) {
-// 	               panic("mock out the Get method")
-//             },
-//         }
+// 		// make and configure a mocked api.PermissionsBundler
+// 		mockedPermissionsBundler := &PermissionsBundlerMock{
+// 			GetFunc: func(ctx context.Context) (models.Bundle, error) {
+// 				panic("mock out the Get method")
+// 			},
+// 		}
 //
-//         // use mockedPermissionsBundler in code that requires api.PermissionsBundler
-//         // and then make assertions.
+// 		// use mockedPermissionsBundler in code that requires api.PermissionsBundler
+// 		// and then make assertions.
 //
-//     }
+// 	}
 type PermissionsBundlerMock struct {
 	// GetFunc mocks the Get method.
 	GetFunc func(ctx context.Context) (models.Bundle, error)

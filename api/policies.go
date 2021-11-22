@@ -48,6 +48,29 @@ func (api *API) GetPolicyHandler(writer http.ResponseWriter, request *http.Reque
 	log.Info(ctx, "getPolicy Handler: Successfully retrieved policy", logData)
 }
 
+//DeletePolicyHandler is a handler that deletes policy by its ID from DB
+func (api *API) DeletePolicyHandler(writer http.ResponseWriter, request *http.Request) {
+
+	ctx := request.Context()
+	vars := mux.Vars(request)
+	policyId := vars["id"]
+	logData := log.Data{"policy_id": policyId}
+
+	err := api.permissionsStore.DeletePolicy(ctx, policyId)
+	if err != nil {
+		log.Error(ctx, "deletePolicy Handler: deleting policy in DB returned an error", err, logData)
+		if err == apierrors.ErrPolicyNotFound {
+			http.Error(writer, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(writer, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writer.WriteHeader(http.StatusNoContent)
+	log.Info(ctx, "deletePolicy Handler: Successfully deleted policy", logData)
+}
+
 //PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(writer http.ResponseWriter, request *http.Request) {
 
