@@ -3,6 +3,7 @@ package mongo
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dpMongoHealth "github.com/ONSdigital/dp-mongodb/v3/health"
@@ -187,4 +188,20 @@ func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error
 
 	return &policy, nil
 
+}
+
+func (m *Mongo) UpdatePolicy(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+	log.Info(ctx, "update policy by id", log.Data{"id": policy.ID})
+	updatePolicy := bson.M{
+		"$set": policy,
+		"$setOnInsert": bson.M{
+			"last_updated": time.Now(),
+		},
+	}
+
+	upsertResult, err := m.Connection.C(m.PoliciesCollection).UpsertById(ctx, policy.ID, updatePolicy)
+	if err != nil {
+		return nil, err
+	}
+	return &models.UpdateResult{ModifiedCount: upsertResult.ModifiedCount, UpsertedCount: upsertResult.UpsertedCount}, nil
 }

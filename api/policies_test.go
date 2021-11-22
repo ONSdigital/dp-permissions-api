@@ -305,3 +305,147 @@ func TestGetPolicyHandler(t *testing.T) {
 	})
 
 }
+
+func TestSuccessfulUpdatePolicy(t *testing.T) {
+
+	t.Parallel()
+
+	Convey("Given a permissions store", t, func() {
+
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+				if policy.ID == "existing_policy" {
+					return &models.UpdateResult{ModifiedCount: 1}, nil
+				}else if policy.ID == "new_policy" {
+					return &models.UpdateResult{UpsertedCount: 1}, nil
+				}
+				return nil, errors.New("Something went wrong")
+			},
+		}
+
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+
+		Convey("When a PUT request is made to the update policies endpoint to update an existing policy", func() {
+			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+			request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/existing_policy", reader)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+			Convey("Then the permissions store is called to create a update policy", func() {
+				So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 1)
+			})
+
+			Convey("Then the response is 200", func() {
+				So(responseWriter.Code, ShouldEqual, http.StatusOK)
+			})
+
+			Convey("Then the request body has been drained", func() {
+				bytesRead, err := request.Body.Read(make([]byte, 1))
+				So(bytesRead, ShouldEqual, 0)
+				So(err, ShouldEqual, io.EOF)
+			})
+		})
+
+		Convey("When a PUT request is made to the update policies endpoint with an non-existing policy id", func() {
+			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
+			request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/new_policy", reader)
+			responseWriter := httptest.NewRecorder()
+			permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+			Convey("Then the permissions store is called to upsert a policy", func() {
+				So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 1)
+			})
+
+			Convey("Then the response is 201 created", func() {
+				So(responseWriter.Code, ShouldEqual, http.StatusCreated)
+			})
+
+			Convey("Then the request body has been drained", func() {
+				bytesRead, err := request.Body.Read(make([]byte, 1))
+				So(bytesRead, ShouldEqual, 0)
+				So(err, ShouldEqual, io.EOF)
+			})
+		})
+	})
+}
+
+func TestFailedUpdatePoliciesWithBadJson(t *testing.T) {
+	t.Parallel()
+
+	Convey("When a PUT request is made to the update policies endpoint with an empty JSON message", t, func() {
+		permissionsApi := setupAPI()
+
+		reader := strings.NewReader(`{}`)
+		request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/policyid", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the response is 400 bad request, with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "missing mandatory fields: entities, role")
+		})
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+	})
+
+	Convey("When a PUT request is made to the update policies endpoint with an invalid JSON message", t, func() {
+		permissionsApi := setupAPI()
+
+		reader := strings.NewReader(`{`)
+		request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/policyid", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the response is 400 bad request, with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "failed to parse json body")
+		})
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+	})
+}
+
+func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
+	Convey("when a permission store fails to insert a policy to data store", t, func() {
+
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+				return nil, errors.New("Something went wrong")
+			},
+		}
+
+		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1"}`)
+		request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/policyid", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the permissions store is called to update a policy", func() {
+			So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 1)
+		})
+
+		Convey("Then the response is 500 internal server error with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
+
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "Something went wrong")
+		})
+
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+
+	})
+
+}

@@ -9,31 +9,6 @@ import (
 	"strings"
 )
 
-// A list of errors returned from package
-var (
-	ErrorReadingBody = errors.New("failed to read message body")
-	ErrorParsingBody = errors.New("failed to parse json body")
-)
-
-type Condition struct {
-	Attributes []string `bson:"attributes"          json:"attributes"`
-	Operator   string   `bson:"operator"          json:"operator"`
-	Values     []string `bson:"Values"          json:"values"`
-}
-
-type Policy struct {
-	ID         string      `bson:"_id"          json:"id,omitempty"`
-	Entities   []string    `bson:"entities"   json:"entities"`
-	Role       string      `bson:"role"      json:"role"`
-	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`
-}
-
-type NewPolicy struct {
-	Entities   []string    `json:"entities"`
-	Role       string      `json:"role"`
-	Conditions []Condition `json:"conditions,omitempty"`
-}
-
 // policies permissions
 const (
 	PoliciesRead string = "policies:read"
@@ -42,9 +17,54 @@ const (
 	PoliciesDelete      = "policies:delete"
 )
 
+// A list of errors returned from package
+var (
+	ErrorReadingBody = errors.New("failed to read message body")
+	ErrorParsingBody = errors.New("failed to parse json body")
+)
 
-// ValidateNewPolicy checks that all the mandatory fields are non-empty
-func (policy *NewPolicy) ValidateNewPolicy() error {
+//Condition represents the conditions to be applied for a policy
+type Condition struct {
+	Attributes []string `bson:"attributes"          json:"attributes"`
+	Operator   string   `bson:"operator"          json:"operator"`
+	Values     []string `bson:"Values"          json:"values"`
+}
+
+//Policy represent a structure for a policy in DB
+type Policy struct {
+	ID         string      `bson:"_id"          json:"id,omitempty"`
+	Entities   []string    `bson:"entities"   json:"entities"`
+	Role       string      `bson:"role"      json:"role"`
+	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`
+}
+
+//UpdateResult represent a result of the upsert policy
+type UpdateResult struct {
+	ModifiedCount int
+	UpsertedCount int
+}
+
+
+//PolicyInfo contains properties required to create or update a policy
+type PolicyInfo struct {
+	Entities   []string    `json:"entities"`
+	Role       string      `json:"role"`
+	Conditions []Condition `json:"conditions,omitempty"`
+}
+
+
+// GetPolicy creates a policy object with ID
+func (policy *PolicyInfo) GetPolicy(id string) *Policy {
+	return &Policy{
+		ID:         id,
+		Entities:   policy.Entities,
+		Role:       policy.Role,
+		Conditions: policy.Conditions,
+	}
+}
+
+// ValidatePolicy checks that all the mandatory fields are non-empty
+func (policy *PolicyInfo) ValidatePolicy() error {
 
 	var invalidFields []string
 
@@ -63,15 +83,15 @@ func (policy *NewPolicy) ValidateNewPolicy() error {
 	return nil
 }
 
-//CreateNewPolicy manages the creation of a filter from reader
-func CreateNewPolicy(reader io.Reader) (*NewPolicy, error) {
+//CreatePolicy manages the creation of a filter from reader
+func CreatePolicy(reader io.Reader) (*PolicyInfo, error) {
 
 	bytes, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, ErrorReadingBody
 	}
 
-	var policy NewPolicy
+	var policy PolicyInfo
 	err = json.Unmarshal(bytes, &policy)
 	if err != nil {
 		return nil, ErrorParsingBody

@@ -43,6 +43,7 @@ func Setup(
 	r.HandleFunc("/v1/roles/{id}", auth.Require(models.RolesRead, api.GetRoleHandler)).Methods(http.MethodGet)
 	r.HandleFunc("/v1/policies", auth.Require(models.PoliciesCreate, api.PostPolicyHandler)).Methods(http.MethodPost)
 	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesRead, api.GetPolicyHandler)).Methods(http.MethodGet)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesUpdate, api.UpdatePolicyHandler)).Methods(http.MethodPut)
 	r.HandleFunc("/v1/permissions-bundle", api.GetPermissionsBundleHandler).Methods(http.MethodGet)
 
 	return api
