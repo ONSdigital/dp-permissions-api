@@ -38,7 +38,9 @@ func main() {
 
 func getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
-		IsSSL:                   mongoConf.IsSSL,
+		TLSConnectionConfig: dpMongodb.TLSConnectionConfig{
+			IsSSL: mongoConf.IsSSL,
+		},
 		ConnectTimeoutInSeconds: 5,
 		QueryTimeoutInSeconds:   15,
 
