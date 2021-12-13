@@ -24,7 +24,6 @@ var (
 )
 
 func TestSuccessfulAddPolicies(t *testing.T) {
-
 	t.Parallel()
 
 	Convey("Given a permissions store", t, func() {
@@ -42,7 +41,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When a POST request is made to the policies endpoint with all the policies properties", func() {
-			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
 			request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 			responseWriter := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -70,7 +69,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy.Role, ShouldResemble, "r1")
 				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
 				So(policy.Conditions, ShouldResemble, []models.Condition{
-					{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: "and"}},
+					{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: models.OperatorStringEquals}},
 				)
 			})
 		})
@@ -110,7 +109,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 
 }
 
-func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
+func TestFailedAddPoliciesWithInvalidPolicy(t *testing.T) {
 	t.Parallel()
 
 	Convey("When a POST request is made to the policies endpoint with empty entities", t, func() {
@@ -136,7 +135,7 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 	Convey("When a POST request is made to the policies without a role", t, func() {
 		permissionsApi := setupAPI()
 
-		reader := strings.NewReader(`{"entities": ["e1", "e2"], "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 		responseWriter := httptest.NewRecorder()
 		permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -145,6 +144,26 @@ func TestFailedAddPoliciesWithEmptyFields(t *testing.T) {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
 			So(response, ShouldContainSubstring, "missing mandatory fields: role")
+		})
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+	})
+
+	Convey("When a POST request is made to the policies with an invalid condition operator", t, func() {
+		permissionsApi := setupAPI()
+
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "And", "values": ["v1"]}]}`)
+		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the response is 400 bad request, with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "invalid field values: condition operator And")
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -196,11 +215,10 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 			So(err, ShouldEqual, io.EOF)
 		})
 	})
-
 }
 
 func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
-	Convey("when a permission store fails to insert a policy to data store", t, func() {
+	Convey("When a permission store fails to insert a policy to data store", t, func() {
 
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
 			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
@@ -233,11 +251,9 @@ func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
 		})
 
 	})
-
 }
 
 func TestGetPolicyHandler(t *testing.T) {
-
 	Convey("Given a GetPolicy Handler", t, func() {
 
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
@@ -248,7 +264,7 @@ func TestGetPolicyHandler(t *testing.T) {
 						ID:         testPolicyID,
 						Entities:   []string{"e1", "e2"},
 						Role:       "r1",
-						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}, nil
+						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: models.OperatorStringEquals, Values: []string{"v1"}}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -270,19 +286,18 @@ func TestGetPolicyHandler(t *testing.T) {
 					ID:         testPolicyID,
 					Entities:   []string{"e1", "e2"},
 					Role:       "r1",
-					Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}
+					Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: models.OperatorStringEquals, Values: []string{"v1"}}}}
 
 				policy := models.Policy{}
-				payload, err := ioutil.ReadAll(responseRecorder.Body)
-				err = json.Unmarshal(payload, &policy)
-
+				payload, _ := ioutil.ReadAll(responseRecorder.Body)
+				err := json.Unmarshal(payload, &policy)
 				So(err, ShouldBeNil)
 				So(responseRecorder.Code, ShouldEqual, http.StatusOK)
 				So(policy, ShouldResemble, expectedPolicy)
 			})
 		})
 
-		Convey("When a non existing policy id  is requested a Not Found response with 404 status code is returned", func() {
+		Convey("When a non existing policy id is requested a Not Found response with 404 status code is returned", func() {
 			request := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/policies/NOTFOUND", nil)
 			responseWriter := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -302,11 +317,9 @@ func TestGetPolicyHandler(t *testing.T) {
 			So(response, ShouldContainSubstring, "Something went wrong")
 		})
 	})
-
 }
 
 func TestSuccessfulUpdatePolicy(t *testing.T) {
-
 	t.Parallel()
 
 	Convey("Given a permissions store", t, func() {
@@ -325,7 +338,7 @@ func TestSuccessfulUpdatePolicy(t *testing.T) {
 		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When a PUT request is made to the update policies endpoint to update an existing policy", func() {
-			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+			reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
 			request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/existing_policy", reader)
 			responseWriter := httptest.NewRecorder()
 			permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -345,7 +358,7 @@ func TestSuccessfulUpdatePolicy(t *testing.T) {
 			})
 		})
 
-		Convey("When a PUT request is made to the update policies endpoint with an non-existing policy id", func() {
+		Convey("When a PUT request is made to the update policies endpoint with a non-existing policy id", func() {
 			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
 			request, _ := http.NewRequest("PUT", "http://localhost:25400/v1/policies/new_policy", reader)
 			responseWriter := httptest.NewRecorder()
@@ -413,7 +426,7 @@ func TestFailedUpdatePoliciesWithBadJson(t *testing.T) {
 }
 
 func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
-	Convey("when a permission store fails to insert a policy to data store", t, func() {
+	Convey("When a permission store fails to insert a policy to data store", t, func() {
 
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
 			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
@@ -446,11 +459,9 @@ func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
 		})
 
 	})
-
 }
 
 func TestDeletePolicyHandler(t *testing.T) {
-
 	Convey("Given a DeletePolicy Handler", t, func() {
 
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
@@ -471,7 +482,7 @@ func TestDeletePolicyHandler(t *testing.T) {
 						ID:         testPolicyID,
 						Entities:   []string{"e1", "e2"},
 						Role:       "r1",
-						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: "And", Values: []string{"v1"}}}}, nil
+						Conditions: []models.Condition{{Attributes: []string{"al"}, Operator: models.OperatorStringEquals, Values: []string{"v1"}}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -517,5 +528,4 @@ func TestDeletePolicyHandler(t *testing.T) {
 			So(response, ShouldContainSubstring, "Something went wrong")
 		})
 	})
-
 }

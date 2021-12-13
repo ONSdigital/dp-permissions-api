@@ -3,11 +3,12 @@ package permissions_test
 import (
 	"context"
 	"errors"
+	"testing"
+
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/permissions"
 	"github.com/ONSdigital/dp-permissions-api/permissions/mock"
 	. "github.com/smartystreets/goconvey/convey"
-	"testing"
 )
 
 func TestBundler_Get(t *testing.T) {
@@ -37,7 +38,7 @@ func TestBundler_Get(t *testing.T) {
 		Conditions: []models.Condition{
 			{
 				Attributes: []string{"collection-id"},
-				Operator:   "=",
+				Operator:   models.OperatorStringEquals,
 				Values:     []string{"collection-765"},
 			},
 		},

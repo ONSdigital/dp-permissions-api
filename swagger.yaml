@@ -336,7 +336,8 @@ definitions:
       operator:
         description: "operator of the condition"
         type: string
-        example: "equals"
+        enum: [StringEquals, StartsWith]
+        example: "StringEquals"
       values:
         description: "List of truth condition values"
         type: array
@@ -427,7 +428,7 @@ definitions:
             conditions:
               - attributes:
                   - collection-id
-                operator: '='
+                operator: 'StringEquals'
                 values:
                   - collection-765
 

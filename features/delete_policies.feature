@@ -29,7 +29,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               ],
               "conditions": [
                   {
-                      "operator": "=",
+                      "operator": "StringEquals",
                       "attributes": [
                         "collection-id"
                       ],
