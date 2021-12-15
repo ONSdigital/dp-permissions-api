@@ -17,7 +17,7 @@ func (f reader) Read(bytes []byte) (int, error) {
 
 func TestCreateNewPolicyWithValidJson(t *testing.T) {
 	Convey("When a policy has a valid json body, a new policy is returned", t, func() {
-		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`)
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
 
 		policy, err := CreatePolicy(reader)
 
@@ -25,7 +25,7 @@ func TestCreateNewPolicyWithValidJson(t *testing.T) {
 		So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
 		So(policy.Role, ShouldResemble, "r1")
 		So(policy.Conditions, ShouldResemble, []Condition{
-			{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: "and"}},
+			{Attributes: []string{"a1"}, Values: []string{"v1"}, Operator: OperatorStringEquals}},
 		)
 	})
 }
@@ -43,7 +43,7 @@ func TestCreateNewPolicyWithNoBody(t *testing.T) {
 
 func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 	Convey("When a policy message is missing entities or roles fields, an error is returned", t, func() {
-		policy, err := CreatePolicy(strings.NewReader(`{"conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
+		policy, err := CreatePolicy(strings.NewReader(`{"conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`))
 		So(err, ShouldBeNil)
 
 		err = policy.ValidatePolicy()
@@ -52,11 +52,20 @@ func TestCreateNewPolicyWithInvalidJson(t *testing.T) {
 	})
 
 	Convey("When a policy message has empty entities fields, an error is returned", t, func() {
-		policy, err := CreatePolicy(strings.NewReader(`{"entities": [], "role": "", "conditions": [{"attributes": ["a1"], "operator": "and", "values": ["v1"]}]}`))
+		policy, err := CreatePolicy(strings.NewReader(`{"entities": [], "role": "", "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`))
 		So(err, ShouldBeNil)
 
 		err = policy.ValidatePolicy()
 		So(err, ShouldNotBeNil)
 		So(err, ShouldResemble, fmt.Errorf("missing mandatory fields: entities, role"))
+	})
+
+	Convey("When a policy message has an invalid condition operator, an error is returned", t, func() {
+		policy, err := CreatePolicy(strings.NewReader(`{"entities": ["e1", "e2"], "role": "r1", "conditions": [{"attributes": ["a1"], "operator": "And", "values": ["v1"]}]}`))
+		So(err, ShouldBeNil)
+
+		err = policy.ValidatePolicy()
+		So(err, ShouldNotBeNil)
+		So(err, ShouldResemble, fmt.Errorf("invalid field values: condition operator And"))
 	})
 }

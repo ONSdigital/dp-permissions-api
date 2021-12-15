@@ -15,7 +15,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
@@ -51,7 +51,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
@@ -77,7 +77,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
@@ -106,7 +106,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
@@ -133,7 +133,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
@@ -159,7 +159,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
               "attributes": [
                 "a1"
               ],
-              "operator": "and",
+              "operator": "StringEquals",
               "values": [
                 "v1"
               ]
