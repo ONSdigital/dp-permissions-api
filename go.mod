@@ -5,7 +5,7 @@ go 1.17
 replace github.com/spf13/viper => github.com/spf13/viper v1.9.0
 
 require (
-	github.com/ONSdigital/dp-authorisation/v2 v2.11.0
+	github.com/ONSdigital/dp-authorisation/v2 v2.15.0
 	github.com/ONSdigital/dp-component-test v0.6.3
 	github.com/ONSdigital/dp-healthcheck v1.2.1
 	github.com/ONSdigital/dp-mongodb/v3 v3.0.0-beta.5
@@ -21,16 +21,17 @@ require (
 )
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.42.0 // indirect
+	github.com/ONSdigital/dp-api-clients-go v1.43.0 // indirect
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.4.7 // indirect
 	github.com/ONSdigital/dp-mongodb-in-memory v1.1.0 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
-	github.com/ONSdigital/go-ns v0.0.0-20191104121206-f144c4ec2e58 // indirect
+	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.0.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20210803090616-8f023c250c89 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
@@ -54,9 +55,9 @@ require (
 	github.com/xdg-go/stringprep v1.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871 // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
+	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
+	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
