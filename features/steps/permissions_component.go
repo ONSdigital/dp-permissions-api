@@ -147,14 +147,16 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	f.Config.AuthorisationConfig.JWTVerificationPublicKeys = rsaJWKS
 	f.Config.AuthorisationConfig.PermissionsAPIURL = fakePermissionsAPI.URL()
 
-	return f, nil	
+	return f, nil
 }
 
 func createCredsInDB(getMongoURI string, databaseName string) (string, string, error) {
 	username := "admin"
 	password, _ := uuid.NewV4()
 	mongoConnectionConfig := &dpMongoDriver.MongoConnectionConfig{
-		IsSSL:                   false,
+		TLSConnectionConfig: dpMongoDriver.TLSConnectionConfig{
+			IsSSL: false,
+		},
 		ConnectTimeoutInSeconds: 15,
 		QueryTimeoutInSeconds:   15,
 
@@ -167,23 +169,21 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string, e
 	if err != nil {
 		return username, password.String(), errors.New(fmt.Sprintf("expected db connection to be opened: %+v", err))
 	}
-	mongoDatabaseSelection := mongoConnection.
-		GetMongoCollection().
-		Database()
-	createCollectionResponse := mongoDatabaseSelection.RunCommand(context.TODO(), bson.D{
-		{"create", "test"},
+
+	createCollectionResponse := mongoConnection.RunCommand(context.TODO(), bson.D{
+		{Key: "create", Value: "test"},
 	})
-	if createCollectionResponse.Err() != nil {
+	if createCollectionResponse != nil {
 		return username, password.String(), errors.New(fmt.Sprintf("expected database creation to go through: %+v", err))
 	}
-	userCreationResponse := mongoDatabaseSelection.RunCommand(context.TODO(), bson.D{
-		{"createUser", username},
-		{"pwd", password.String()},
-		{"roles", []bson.M{
+	userCreationResponse := mongoConnection.RunCommand(context.TODO(), bson.D{
+		{Key: "createUser", Value: username},
+		{Key: "pwd", Value: password.String()},
+		{Key: "roles", Value: []bson.M{
 			{"role": "root", "db": "admin"},
 		}},
 	})
-	if userCreationResponse.Err() != nil {
+	if userCreationResponse != nil {
 		return username, password.String(), errors.New(fmt.Sprintf("expected user creation to go through: %+v", err))
 	}
 	return username, password.String(), nil
@@ -216,9 +216,9 @@ func (f *PermissionsComponent) Close() error {
 
 func (f *PermissionsComponent) InitialiseService() (http.Handler, error) {
 	initMock := &serviceMock.InitialiserMock{
-		DoGetMongoDBFunc:     f.DoGetMongoDB,
-		DoGetHealthCheckFunc: f.DoGetHealthcheckOk,
-		DoGetHTTPServerFunc:  f.DoGetHTTPServer,
+		DoGetMongoDBFunc:                 f.DoGetMongoDB,
+		DoGetHealthCheckFunc:             f.DoGetHealthcheckOk,
+		DoGetHTTPServerFunc:              f.DoGetHTTPServer,
 		DoGetAuthorisationMiddlewareFunc: f.DoGetAuthorisationMiddleware,
 	}
 

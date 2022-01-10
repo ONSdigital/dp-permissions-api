@@ -31,7 +31,9 @@ type Mongo struct {
 
 func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
 	return &dpMongodb.MongoConnectionConfig{
-		IsSSL:                   mongoConf.IsSSL,
+		TLSConnectionConfig: dpMongodb.TLSConnectionConfig{
+			IsSSL: mongoConf.IsSSL,
+		},
 		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
 		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
 
@@ -66,12 +68,7 @@ func (m *Mongo) Init(mongoConf config.MongoDB) error {
 		(dpMongoHealth.Collection)(m.PoliciesCollection),
 	}
 
-	client := dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
-
-	m.healthClient = &dpMongoHealth.CheckMongoClient{
-		Client:      *client,
-		Healthcheck: client.Healthcheck,
-	}
+	m.healthClient = dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
 
 	return nil
 }
