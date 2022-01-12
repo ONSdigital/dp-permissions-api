@@ -77,7 +77,7 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 // DoGetMongoDB returns a MongoDB
 func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error) {
 	mongodb := &mongo.Mongo{}
-	if err := mongodb.Init(cfg.MongoConfig); err != nil {
+	if err := mongodb.Init(cfg.MongoDB); err != nil {
 		return nil, err
 	}
 	return mongodb, nil

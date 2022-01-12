@@ -15,60 +15,30 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const (
-	connectTimeoutInSeconds = 5
-	queryTimeoutInSeconds   = 15
-)
-
-//Mongo represents a simplistic MongoDB configuration, with session and health client
 type Mongo struct {
-	Database           string
-	RolesCollection    string
+	dpMongodb.MongoConnectionConfig
 	PoliciesCollection string
-	Connection         *dpMongodb.MongoConnection
-	healthClient       *dpMongoHealth.CheckMongoClient
-}
 
-func (m *Mongo) getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
-	return &dpMongodb.MongoConnectionConfig{
-		TLSConnectionConfig: dpMongodb.TLSConnectionConfig{
-			IsSSL: mongoConf.IsSSL,
-		},
-		ConnectTimeoutInSeconds: connectTimeoutInSeconds,
-		QueryTimeoutInSeconds:   queryTimeoutInSeconds,
-
-		Username:                      mongoConf.Username,
-		Password:                      mongoConf.Password,
-		ClusterEndpoint:               mongoConf.BindAddr,
-		Database:                      mongoConf.Database,
-		Collection:                    mongoConf.RolesCollection,
-		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
-		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
-	}
+	Connection   *dpMongodb.MongoConnection
+	healthClient *dpMongoHealth.CheckMongoClient
 }
 
 //Init creates a new mongoConnection with a strong consistency and a write mode of "majority"
-func (m *Mongo) Init(mongoConf config.MongoDB) error {
-	if m.Connection != nil {
-		return errors.New("datastore connection already exists")
-	}
-
-	mongoConnection, err := dpMongodb.Open(m.getConnectionConfig(mongoConf))
+func (m *Mongo) Init(mongoConf config.MongoDB) (err error) {
+	m.MongoConnectionConfig = mongoConf.MongoConnectionConfig
+	m.PoliciesCollection = mongoConf.PoliciesCollection
+	m.Connection, err = dpMongodb.Open(&m.MongoConnectionConfig)
 	if err != nil {
 		return err
 	}
 
-	m.Database = mongoConf.Database
-	m.RolesCollection = mongoConf.RolesCollection
-	m.PoliciesCollection = mongoConf.PoliciesCollection
-	m.Connection = mongoConnection
-	databaseCollectionBuilder := make(map[dpMongoHealth.Database][]dpMongoHealth.Collection)
-	databaseCollectionBuilder[(dpMongoHealth.Database)(m.Database)] = []dpMongoHealth.Collection{
-		(dpMongoHealth.Collection)(m.RolesCollection),
-		(dpMongoHealth.Collection)(m.PoliciesCollection),
+	databaseCollectionBuilder := map[dpMongoHealth.Database][]dpMongoHealth.Collection{
+		(dpMongoHealth.Database)(m.Database): {
+			(dpMongoHealth.Collection)(m.Collection),
+			(dpMongoHealth.Collection)(m.PoliciesCollection),
+		},
 	}
-
-	m.healthClient = dpMongoHealth.NewClientWithCollections(mongoConnection, databaseCollectionBuilder)
+	m.healthClient = dpMongoHealth.NewClientWithCollections(m.Connection, databaseCollectionBuilder)
 
 	return nil
 }

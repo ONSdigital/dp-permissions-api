@@ -31,11 +31,11 @@ func TestConfig(t *testing.T) {
 				So(configuration.HealthCheckInterval, ShouldEqual, 30*time.Second)
 				So(configuration.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 
-				So(configuration.MongoConfig.BindAddr, ShouldEqual, "localhost:27017")
-				So(configuration.MongoConfig.Database, ShouldEqual, "permissions")
-				So(configuration.MongoConfig.RolesCollection, ShouldEqual, "roles")
-				So(configuration.MongoConfig.PoliciesCollection, ShouldEqual, "policies")
-				
+				So(configuration.MongoDB.ClusterEndpoint, ShouldEqual, "localhost:27017")
+				So(configuration.MongoDB.Database, ShouldEqual, "permissions")
+				So(configuration.MongoDB.Collection, ShouldEqual, "roles")
+				So(configuration.MongoDB.PoliciesCollection, ShouldEqual, "policies")
+
 				So(configuration.AuthorisationConfig, ShouldResemble, authorisation.NewDefaultConfig())
 			})
 

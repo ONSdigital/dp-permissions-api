@@ -26,7 +26,7 @@ func main() {
 
 	log.Info(ctx, "loaded config", log.Data{"config": cfg})
 
-	mongoConnection, err := dpMongodb.Open(getConnectionConfig(cfg.MongoConfig))
+	mongoConnection, err := dpMongodb.Open(&cfg.MongoDB.MongoConnectionConfig)
 	if err != nil {
 		log.Error(ctx, "error initialising mongo", err)
 		os.Exit(1)
@@ -34,24 +34,6 @@ func main() {
 
 	importRoles(ctx, mongoConnection)
 	importPolicies(ctx, mongoConnection)
-}
-
-func getConnectionConfig(mongoConf config.MongoDB) *dpMongodb.MongoConnectionConfig {
-	return &dpMongodb.MongoConnectionConfig{
-		TLSConnectionConfig: dpMongodb.TLSConnectionConfig{
-			IsSSL: mongoConf.IsSSL,
-		},
-		ConnectTimeoutInSeconds: 5,
-		QueryTimeoutInSeconds:   15,
-
-		Username:                      mongoConf.Username,
-		Password:                      mongoConf.Password,
-		ClusterEndpoint:               mongoConf.BindAddr,
-		Database:                      mongoConf.Database,
-		Collection:                    mongoConf.RolesCollection,
-		IsWriteConcernMajorityEnabled: mongoConf.EnableWriteConcern,
-		IsStrongReadConcernEnabled:    mongoConf.EnableReadConcern,
-	}
 }
 
 func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection) {

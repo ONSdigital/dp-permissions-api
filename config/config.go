@@ -6,6 +6,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	"github.com/ONSdigital/dp-mongodb/v3/mongodb"
 )
 
 // Config represents service configuration for dp-permissions-api
@@ -17,23 +18,14 @@ type Config struct {
 	DefaultLimit               int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultOffset              int           `envconfig:"DEFAULT_OFFSET"`
 	MaximumDefaultLimit        int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
-	MongoConfig                MongoDB
 	AuthorisationConfig        *authorisation.Config
+	MongoDB
 }
 
-// MongoDB contains the config required to connect to MongoDB.
 type MongoDB struct {
-	BindAddr                string        `envconfig:"MONGODB_BIND_ADDR"               json:"-"`
-	Database                string        `envconfig:"MONGODB_PERMISSIONS_DATABASE"`
-	RolesCollection         string        `envconfig:"MONGODB_ROLES_COLLECTION"`
-	PoliciesCollection      string        `envconfig:"MONGODB_POLICIES_COLLECTION"`
-	Username                string        `envconfig:"MONGODB_USERNAME"    json:"-"`
-	Password                string        `envconfig:"MONGODB_PASSWORD"    json:"-"`
-	IsSSL                   bool          `envconfig:"MONGODB_IS_SSL"`
-	EnableReadConcern       bool          `envconfig:"MONGODB_ENABLE_READ_CONCERN"`
-	EnableWriteConcern      bool          `envconfig:"MONGODB_ENABLE_WRITE_CONCERN"`
-	ConnectTimeoutInSeconds time.Duration `envconfig:"MONGODB_CONNECT_TIMEOUT"`
-	QueryTimeoutInSeconds   time.Duration `envconfig:"MONGODB_QUERY_TIMEOUT"`
+	mongodb.MongoConnectionConfig
+
+	PoliciesCollection string `envconfig:"MONGODB_POLICIES_COLLECTION"`
 }
 
 var cfg *Config
@@ -50,18 +42,23 @@ func Get() (*Config, error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		MongoConfig: MongoDB{
-			BindAddr:                "localhost:27017",
-			Database:                "permissions",
-			RolesCollection:         "roles",
-			PoliciesCollection:      "policies",
-			Username:                "",
-			Password:                "",
-			IsSSL:                   false,
-			EnableReadConcern:       false,
-			EnableWriteConcern:      true,
-			ConnectTimeoutInSeconds: 5 * time.Second,
-			QueryTimeoutInSeconds:   15 * time.Second,
+		MongoDB: MongoDB{
+			MongoConnectionConfig: mongodb.MongoConnectionConfig{
+				ClusterEndpoint:               "localhost:27017",
+				Username:                      "",
+				Password:                      "",
+				Database:                      "permissions",
+				Collection:                    "roles",
+				ReplicaSet:                    "",
+				IsStrongReadConcernEnabled:    false,
+				IsWriteConcernMajorityEnabled: true,
+				ConnectTimeoutInSeconds:       5 * time.Second,
+				QueryTimeoutInSeconds:         15 * time.Second,
+				TLSConnectionConfig: mongodb.TLSConnectionConfig{
+					IsSSL: false,
+				},
+			},
+			PoliciesCollection: "policies",
 		},
 		DefaultLimit:        20,
 		DefaultOffset:       0,

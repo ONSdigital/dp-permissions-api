@@ -121,16 +121,16 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	getMongoURI := fmt.Sprintf("localhost:%d", mongoFeature.Server.Port())
 	databaseName := utils.RandomDatabase()
 
-	f.Config.MongoConfig.Database = databaseName
-	f.Config.MongoConfig.BindAddr = getMongoURI
-	f.Config.MongoConfig.Username, f.Config.MongoConfig.Password, err = createCredsInDB(getMongoURI, databaseName)
+	f.Config.MongoDB.Database = databaseName
+	f.Config.MongoDB.ClusterEndpoint = getMongoURI
+	f.Config.MongoDB.Username, f.Config.Password, err = createCredsInDB(getMongoURI, databaseName)
 	if err != nil {
 		return nil, err
 	}
 
 	mongodb := &mongo.Mongo{}
 
-	if err := mongodb.Init(f.Config.MongoConfig); err != nil {
+	if err := mongodb.Init(f.Config.MongoDB); err != nil {
 		return nil, err
 	}
 
@@ -201,7 +201,7 @@ func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 
 func (f *PermissionsComponent) Reset() *PermissionsComponent {
 	f.MongoClient.Database = utils.RandomDatabase()
-	f.MongoClient.Init(f.Config.MongoConfig)
+	f.MongoClient.Init(f.Config.MongoDB)
 	f.ApiFeature.Reset()
 	return f
 }
