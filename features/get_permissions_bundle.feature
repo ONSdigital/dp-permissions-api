@@ -1,7 +1,7 @@
 Feature: GET /v1/permissions-bundle endpoint
 
   Background:
-    Given I have this roles:
+    Given I have these roles:
             """
             [
                 {

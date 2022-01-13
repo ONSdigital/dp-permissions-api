@@ -2,7 +2,7 @@ Feature: Behaviour of application when doing the GET /v1/roles endpoint, using a
 
     # A Background applies to all scenarios in this Feature
   Background:
-    Given I have this roles:
+    Given I have these roles:
       """
       [
           {

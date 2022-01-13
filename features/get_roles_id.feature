@@ -1,7 +1,7 @@
 Feature: Behaviour of application when doing the GET /v1/roles/{id} endpoint, using a stripped down version of the database
 
   Scenario: [Test #1] GET /v1/roles/admin
-    Given I have this roles:
+    Given I have these roles:
       """
       [
           {
@@ -41,7 +41,7 @@ Feature: Behaviour of application when doing the GET /v1/roles/{id} endpoint, us
       """
 
   Scenario: [Test #2] Receive not found when doing a GET for a non existant role
-    Given I have this roles:
+    Given I have these roles:
       """
       [ ]
       """

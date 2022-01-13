@@ -190,7 +190,7 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string, e
 }
 
 func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
-	ctx.Step(`^I have this roles:$`, f.iHaveTheseRoles)
+	ctx.Step(`^I have these roles:$`, f.iHaveTheseRoles)
 	ctx.Step(`^I have these policies:$`, f.iHaveThesePolicies)
 	ctx.Step(`^I am an admin user$`, f.adminJWTToken)
 	ctx.Step(`^I am a publisher user$`, f.publisherJWTToken)
@@ -222,16 +222,16 @@ func (f *PermissionsComponent) InitialiseService() (http.Handler, error) {
 		DoGetAuthorisationMiddlewareFunc: f.DoGetAuthorisationMiddleware,
 	}
 
-	if service, err := service.Run(context.Background(), f.Config, service.NewServiceList(initMock), "1", "", "", f.errorChan); err != nil {
+	if svc, err := service.Run(context.Background(), f.Config, service.NewServiceList(initMock), "1", "", "", f.errorChan); err != nil {
 		return nil, err
 	} else {
-		f.svc = service
+		f.svc = svc
 	}
 	f.ServiceRunning = true
 	return f.HTTPServer.Handler, nil
 }
 
-func (f *PermissionsComponent) DoGetHealthcheckOk(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
+func (f *PermissionsComponent) DoGetHealthcheckOk(_ *config.Config, _ string, _ string, _ string) (service.HealthChecker, error) {
 	return &serviceMock.HealthCheckerMock{
 		AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
 		StartFunc:    func(ctx context.Context) {},
@@ -246,7 +246,7 @@ func (f *PermissionsComponent) DoGetHTTPServer(bindAddr string, router http.Hand
 }
 
 // DoGetMongoDB returns a MongoDB
-func (f *PermissionsComponent) DoGetMongoDB(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
+func (f *PermissionsComponent) DoGetMongoDB(_ context.Context, _ *config.Config) (service.PermissionsStore, error) {
 	return f.MongoClient, nil
 }
 

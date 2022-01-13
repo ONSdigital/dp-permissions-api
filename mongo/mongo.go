@@ -84,15 +84,14 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 	roles := m.Connection.GetConfiguredCollection().Find(bson.D{})
 	totalCount, err := roles.Count(ctx)
 	if err != nil {
-		if dpMongodb.IsErrNoDocumentFound(err) {
-			return nil, apierrors.ErrRoleNotFound
-		}
 		return nil, err
+	}
+	if totalCount == 0 {
+		return nil, apierrors.ErrRoleNotFound
 	}
 
 	results := []models.Role{}
-	iter := roles.Skip(offset).Limit(limit).Iter()
-	if err := iter.All(ctx, &results); err != nil {
+	if err := roles.Skip(offset).Limit(limit).Iter().All(ctx, &results); err != nil {
 		return nil, err
 	}
 
@@ -107,10 +106,8 @@ func (m *Mongo) GetRoles(ctx context.Context, offset, limit int) (*models.Roles,
 
 // GetAllRoles returns all role documents, without pagination
 func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
-	query := m.Connection.GetConfiguredCollection().Find(bson.D{})
-
 	var roles []*models.Role
-	if err := query.IterAll(ctx, &roles); err != nil {
+	if err := m.Connection.GetConfiguredCollection().Find(bson.D{}).IterAll(ctx, &roles); err != nil {
 		return nil, err
 	}
 
@@ -119,25 +116,20 @@ func (m *Mongo) GetAllRoles(ctx context.Context) ([]*models.Role, error) {
 
 // GetAllBundlePolicies returns all policy documents for a permissions bundle, without pagination
 func (m *Mongo) GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error) {
-
-	query := m.Connection.C(m.PoliciesCollection).Find(bson.D{})
-
 	var policies []*models.BundlePolicy
-	if err := query.IterAll(ctx, &policies); err != nil {
+	if err := m.Connection.C(m.PoliciesCollection).Find(bson.D{}).IterAll(ctx, &policies); err != nil {
 		return nil, err
 	}
 
 	return policies, nil
 }
 
-//AddPolicy inserts new policy to data store
+// AddPolicy inserts new policy to data store
 func (m *Mongo) AddPolicy(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
-
-	var documents []interface{}
-	documents = append(documents, policy)
-	if _, err := m.Connection.C(m.PoliciesCollection).InsertMany(ctx, documents); err != nil {
+	if _, err := m.Connection.C(m.PoliciesCollection).Insert(ctx, policy); err != nil {
 		return nil, err
 	}
+
 	return policy, nil
 }
 
@@ -170,8 +162,8 @@ func (m *Mongo) UpdatePolicy(ctx context.Context, policy *models.Policy) (*model
 	if err != nil {
 		return nil, err
 	}
-	return &models.UpdateResult{ModifiedCount: upsertResult.ModifiedCount, UpsertedCount: upsertResult.UpsertedCount}, nil
 
+	return &models.UpdateResult{ModifiedCount: upsertResult.ModifiedCount, UpsertedCount: upsertResult.UpsertedCount}, nil
 }
 
 func (m *Mongo) DeletePolicy(ctx context.Context, id string) error {
