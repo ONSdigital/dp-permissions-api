@@ -76,11 +76,12 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 
 // DoGetMongoDB returns a MongoDB
 func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error) {
-	mongodb := &mongo.Mongo{}
-	if err := mongodb.Init(cfg.MongoDB); err != nil {
+	mongoDB, err := mongo.NewMongoStore(ctx, cfg.MongoDB)
+	if err != nil {
 		return nil, err
 	}
-	return mongodb, nil
+
+	return mongoDB, nil
 }
 
 // DoGetAuthorisationMiddleware creates authorisation middleware for the given config

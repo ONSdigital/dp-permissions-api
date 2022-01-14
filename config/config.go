@@ -9,6 +9,8 @@ import (
 	"github.com/ONSdigital/dp-mongodb/v3/mongodb"
 )
 
+type MongoDB = mongodb.MongoDriverConfig
+
 // Config represents service configuration for dp-permissions-api
 type Config struct {
 	BindAddr                   string        `envconfig:"BIND_ADDR"`
@@ -22,13 +24,12 @@ type Config struct {
 	MongoDB
 }
 
-type MongoDB struct {
-	mongodb.MongoConnectionConfig
-
-	PoliciesCollection string `envconfig:"MONGODB_POLICIES_COLLECTION"`
-}
-
 var cfg *Config
+
+const (
+	RolesCollection    = "RolesCollection"
+	PoliciesCollection = "PoliciesCollection"
+)
 
 // Get returns the default config with any modifications through environment
 // variables
@@ -42,23 +43,20 @@ func Get() (*Config, error) {
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		MongoDB: MongoDB{
-			MongoConnectionConfig: mongodb.MongoConnectionConfig{
-				ClusterEndpoint:               "localhost:27017",
-				Username:                      "",
-				Password:                      "",
-				Database:                      "permissions",
-				Collection:                    "roles",
-				ReplicaSet:                    "",
-				IsStrongReadConcernEnabled:    false,
-				IsWriteConcernMajorityEnabled: true,
-				ConnectTimeoutInSeconds:       5 * time.Second,
-				QueryTimeoutInSeconds:         15 * time.Second,
-				TLSConnectionConfig: mongodb.TLSConnectionConfig{
-					IsSSL: false,
-				},
+		MongoDB: mongodb.MongoDriverConfig{
+			ClusterEndpoint:               "localhost:27017",
+			Username:                      "",
+			Password:                      "",
+			Database:                      "permissions",
+			Collections:                   map[string]string{RolesCollection: "roles", PoliciesCollection: "policies"},
+			ReplicaSet:                    "",
+			IsStrongReadConcernEnabled:    false,
+			IsWriteConcernMajorityEnabled: true,
+			ConnectTimeout:                5 * time.Second,
+			QueryTimeout:                  15 * time.Second,
+			TLSConnectionConfig: mongodb.TLSConnectionConfig{
+				IsSSL: false,
 			},
-			PoliciesCollection: "policies",
 		},
 		DefaultLimit:        20,
 		DefaultOffset:       0,

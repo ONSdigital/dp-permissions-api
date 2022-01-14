@@ -33,8 +33,11 @@ func TestConfig(t *testing.T) {
 
 				So(configuration.MongoDB.ClusterEndpoint, ShouldEqual, "localhost:27017")
 				So(configuration.MongoDB.Database, ShouldEqual, "permissions")
-				So(configuration.MongoDB.Collection, ShouldEqual, "roles")
-				So(configuration.MongoDB.PoliciesCollection, ShouldEqual, "policies")
+				So(configuration.MongoDB.Collections, ShouldResemble, map[string]string{RolesCollection: "roles", PoliciesCollection: "policies"})
+				So(configuration.MongoDB.IsStrongReadConcernEnabled, ShouldEqual, false)
+				So(configuration.MongoDB.IsWriteConcernMajorityEnabled, ShouldEqual, true)
+				So(configuration.MongoDB.ConnectTimeout, ShouldEqual, 5*time.Second)
+				So(configuration.MongoDB.QueryTimeout, ShouldEqual, 15*time.Second)
 
 				So(configuration.AuthorisationConfig, ShouldResemble, authorisation.NewDefaultConfig())
 			})

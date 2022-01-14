@@ -31,11 +31,6 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 		panic(err)
 	}
 
-	ctx.BeforeScenario(func(*godog.Scenario) {
-		component.Reset()
-		authorizationFeature.Reset()
-	})
-
 	ctx.AfterScenario(func(*godog.Scenario, error) {
 		if err = component.Close(); err != nil {
 			log.Warn(context.Background(), "error closing identity component", log.FormatErrors([]error{err}))
@@ -57,7 +52,7 @@ func (f *ComponentTest) InitializeTestSuite(ctx *godog.TestSuiteContext) {
 	})
 }
 
-func TestMain(t *testing.T) {
+func TestComponent(t *testing.T) {
 	flag.Parse()
 	// *componentFlag = true // put this line in if you want to "debug test" this function in vscode IDE
 	if *componentFlag {

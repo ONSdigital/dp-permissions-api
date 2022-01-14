@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
@@ -128,9 +129,8 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 		return nil, err
 	}
 
-	mongodb := &mongo.Mongo{}
-
-	if err := mongodb.Init(f.Config.MongoDB); err != nil {
+	mongodb, err := mongo.NewMongoStore(context.Background(), f.Config.MongoDB)
+	if err != nil {
 		return nil, err
 	}
 
@@ -153,12 +153,12 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 func createCredsInDB(getMongoURI string, databaseName string) (string, string, error) {
 	username := "admin"
 	password, _ := uuid.NewV4()
-	mongoConnectionConfig := &dpMongoDriver.MongoConnectionConfig{
+	mongoConnectionConfig := &dpMongoDriver.MongoDriverConfig{
 		TLSConnectionConfig: dpMongoDriver.TLSConnectionConfig{
 			IsSSL: false,
 		},
-		ConnectTimeoutInSeconds: 15,
-		QueryTimeoutInSeconds:   15,
+		ConnectTimeout: 15 * time.Second,
+		QueryTimeout:   15 * time.Second,
 
 		Username:        "",
 		Password:        "",
@@ -200,9 +200,14 @@ func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 }
 
 func (f *PermissionsComponent) Reset() *PermissionsComponent {
-	f.MongoClient.Database = utils.RandomDatabase()
-	f.MongoClient.Init(f.Config.MongoDB)
+	f.Config.MongoDB.Database = utils.RandomDatabase()
+	mongodb, err := mongo.NewMongoStore(context.Background(), f.Config.MongoDB)
+	if err != nil {
+		panic("couldn't reset mongo")
+	}
+	f.MongoClient = mongodb
 	f.ApiFeature.Reset()
+
 	return f
 }
 

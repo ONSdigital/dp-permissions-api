@@ -6,6 +6,7 @@ import (
 	"time"
 
 	dpMongoDriver "github.com/ONSdigital/dp-mongodb/v3/mongodb"
+	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 
 	"github.com/cucumber/godog"
@@ -39,7 +40,7 @@ func (f *PermissionsComponent) iHaveTheseRoles(rolesWriteJson *godog.DocString) 
 	}
 
 	for _, roleDoc := range roles {
-		if err := f.putRolesInDatabase(ctx, m.Connection, roleDoc); err != nil {
+		if err := f.putRolesInDatabase(ctx, m.Connection.Collection(m.ActualCollectionName(config.RolesCollection)), roleDoc); err != nil {
 			return err
 		}
 	}
@@ -47,14 +48,14 @@ func (f *PermissionsComponent) iHaveTheseRoles(rolesWriteJson *godog.DocString) 
 	return nil
 }
 
-func (f *PermissionsComponent) putRolesInDatabase(ctx context.Context, mongoConnection *dpMongoDriver.MongoConnection, roleDoc models.Role) error {
+func (f *PermissionsComponent) putRolesInDatabase(ctx context.Context, mongoCollection *dpMongoDriver.Collection, roleDoc models.Role) error {
 	update := bson.M{
 		"$set": roleDoc,
 		"$setOnInsert": bson.M{
 			"last_updated": time.Now(),
 		},
 	}
-	_, err := mongoConnection.GetConfiguredCollection().UpsertById(ctx, roleDoc.ID, update)
+	_, err := mongoCollection.UpsertById(ctx, roleDoc.ID, update)
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (f *PermissionsComponent) iHaveThesePolicies(jsonInput *godog.DocString) er
 	}
 
 	for _, policy := range policies {
-		if err := f.putPolicyInDatabase(ctx, m.Connection, policy, f.Config.MongoDB.PoliciesCollection); err != nil {
+		if err := f.putPolicyInDatabase(ctx, m.Connection, policy, m.ActualCollectionName(config.PoliciesCollection)); err != nil {
 			return err
 		}
 	}
@@ -92,7 +93,7 @@ func (f *PermissionsComponent) putPolicyInDatabase(
 			"last_updated": time.Now(),
 		},
 	}
-	_, err := mongoConnection.C(collection).UpsertById(ctx, policy.ID, update)
+	_, err := mongoConnection.Collection(collection).UpsertById(ctx, policy.ID, update)
 	if err != nil {
 		return err
 	}

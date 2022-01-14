@@ -26,17 +26,17 @@ func main() {
 
 	log.Info(ctx, "loaded config", log.Data{"config": cfg})
 
-	mongoConnection, err := dpMongodb.Open(&cfg.MongoDB.MongoConnectionConfig)
+	mongoConnection, err := dpMongodb.Open(&cfg.MongoDB)
 	if err != nil {
 		log.Error(ctx, "error initialising mongo", err)
 		os.Exit(1)
 	}
 
-	importRoles(ctx, mongoConnection)
-	importPolicies(ctx, mongoConnection)
+	importRoles(ctx, mongoConnection.Collection(cfg.Collections[config.RolesCollection]))
+	importPolicies(ctx, mongoConnection.Collection(cfg.Collections[config.PoliciesCollection]))
 }
 
-func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection) {
+func importRoles(ctx context.Context, mongoCollection *dpMongodb.Collection) {
 	filename := "roles.json"
 	fileLocation := "./" + filename
 	f, err := os.Open(fileLocation)
@@ -63,7 +63,7 @@ func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection
 		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
-		_, err = mongoConnection.C("roles").UpsertById(ctx, role.ID, bson.M{"$set": role})
+		_, err = mongoCollection.UpsertById(ctx, role.ID, bson.M{"$set": role})
 		if err != nil {
 			log.Error(ctx, "failed to upsert role document", err, logData)
 			os.Exit(1)
@@ -73,7 +73,7 @@ func importRoles(ctx context.Context, mongoConnection *dpMongodb.MongoConnection
 	}
 }
 
-func importPolicies(ctx context.Context, mongoConnection *dpMongodb.MongoConnection) {
+func importPolicies(ctx context.Context, mongoCollection *dpMongodb.Collection) {
 	filename := "policies.json"
 	fileLocation := "./" + filename
 	f, err := os.Open(fileLocation)
@@ -98,7 +98,7 @@ func importPolicies(ctx context.Context, mongoConnection *dpMongodb.MongoConnect
 	for _, policy := range res {
 		logData := log.Data{"role": policy}
 
-		_, err = mongoConnection.C("policies").UpsertById(ctx, policy.ID, bson.M{"$set": policy})
+		_, err = mongoCollection.UpsertById(ctx, policy.ID, bson.M{"$set": policy})
 		if err != nil {
 			log.Error(ctx, "failed to upsert policy document", err, logData)
 			os.Exit(1)
