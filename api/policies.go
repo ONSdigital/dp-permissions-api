@@ -13,105 +13,102 @@ import (
 )
 
 //GetPolicyHandler is a handler that gets policy by its ID from DB
-func (api *API) GetPolicyHandler(writer http.ResponseWriter, request *http.Request) {
+func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 
-	ctx := request.Context()
-	vars := mux.Vars(request)
+	vars := mux.Vars(req)
 	policyId := vars["id"]
-	logData := log.Data{"policy_id": policyId}
+	// logData := log.Data{"policy_id": policyId} // TODO: add to error logs
 
 	policy, err := api.permissionsStore.GetPolicy(ctx, policyId)
 	if err != nil {
-		log.Error(ctx, "getPolicy Handler: retrieving policy from DB returned an error", err, logData)
-		if err == apierrors.ErrPolicyNotFound {
-			http.Error(writer, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleGetPolicyError(ctx, err) // TODO: add logData
 	}
 
 	b, err := json.Marshal(policy)
 	if err != nil {
-		log.Error(ctx, "getPolicy Handler: failed to marshal policy resource into bytes", err, logData)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleBodyMarshalError(ctx, err) // TODO: add logData; log message is no longer policy specific
 	}
 
-	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil // TODO: add logData to error logs
 
-	if _, err := writer.Write(b); err != nil {
-		log.Error(ctx, "getPolicy Handler: error writing bytes to response", err, logData)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+	// log.Info(ctx, "getPolicy Handler: Successfully retrieved policy", logData)  // TODO: no longer log happy-path success?
+}
+
+func handleGetPolicyError(ctx context.Context, err error) *models.ErrorResponse {
+	if err == apierrors.ErrPolicyNotFound {
+		return models.NewErrorResponse(http.StatusNotFound,
+			nil,
+			models.NewError(ctx, err, models.PolicyNotFoundError, models.PolicyNotFoundDescription),
+		)
 	}
-	log.Info(ctx, "getPolicy Handler: Successfully retrieved policy", logData)
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.GetPolicyError, models.GetPolicyErrorDescription),
+	)
 }
 
 //DeletePolicyHandler is a handler that deletes policy by its ID from DB
-func (api *API) DeletePolicyHandler(writer http.ResponseWriter, request *http.Request) {
+func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 
-	ctx := request.Context()
-	vars := mux.Vars(request)
+	vars := mux.Vars(req)
 	policyId := vars["id"]
-	logData := log.Data{"policy_id": policyId}
+	// logData := log.Data{"policy_id": policyId}  // TODO: add to logging
 
 	err := api.permissionsStore.DeletePolicy(ctx, policyId)
 	if err != nil {
-		log.Error(ctx, "deletePolicy Handler: deleting policy in DB returned an error", err, logData)
-		if err == apierrors.ErrPolicyNotFound {
-			http.Error(writer, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleDeletePolicyError(ctx, err) // TODO: add logData to logging
 	}
 
-	writer.WriteHeader(http.StatusNoContent)
-	log.Info(ctx, "deletePolicy Handler: Successfully deleted policy", logData)
+	return models.NewSuccessResponse(nil, http.StatusNoContent, nil), nil // TODO: logged errors are not policy specific
+	// log.Info(ctx, "deletePolicy Handler: Successfully deleted policy", logData)  // TODO: remove happy-path success logging?
+}
+
+func handleDeletePolicyError(ctx context.Context, err error) *models.ErrorResponse {
+	if err == apierrors.ErrPolicyNotFound {
+		return models.NewErrorResponse(http.StatusNotFound,
+			nil,
+			models.NewError(ctx, err, models.PolicyNotFoundError, models.PolicyNotFoundDescription), // TODO: models.PolicyNotFoundDescription duplicates apierrors.ErrPolicyNotFound, just use the apierror?
+		)
+	}
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.DeletePolicyError, models.DeletePolicyErrorDescription),
+	)
 }
 
 //PostPolicyHandler is a handler that creates a new policies in DB
-func (api *API) PostPolicyHandler(writer http.ResponseWriter, request *http.Request) {
+func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 
-	ctx := request.Context()
-	policy, err := models.CreatePolicy(request.Body)
+	policy, err := models.CreatePolicy(req.Body)
 	if err != nil {
-		log.Error(ctx, "unable to unmarshal request body", err)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		return nil, handleBodyUnmarshalError(ctx, err)
 	}
 
 	if err := policy.ValidatePolicy(); err != nil {
-		logData := log.Data{}
-		logData["policies_parameters"] = policy
-		log.Error(ctx, "policies parameters failed validation", err, logData)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		// logData := log.Data{}				// TODO: add logData to logs
+		// logData["policies_parameters"] = policy
+		return nil, handleValidatePolicyError(ctx, err)
 	}
 
 	newPolicy, err := api.createNewPolicy(ctx, policy)
 	if err != nil {
-		log.Error(ctx, "failed to create new policy", err)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleCreateNewPolicyError(ctx, err)
 	}
 
-	bytes, err := json.Marshal(newPolicy)
+	b, err := json.Marshal(newPolicy)
 	if err != nil {
-		log.Error(ctx, "failed to marshal new policy", err)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleBodyMarshalError(ctx, err) // TODO: error description no longer policy specific
 	}
 
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusCreated)
-	_, err = writer.Write(bytes)
-	if err != nil {
-		log.Error(ctx, "failed to write bytes for http response", err)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
+	// TODO: inconsistent happy-path success logging (not included here)
+}
+
+func handleValidatePolicyError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusBadRequest,
+		nil,
+		models.NewError(ctx, err, models.InvalidPolicyError, models.InvalidPolicyDescription+err.Error()), // TODO: is this the best error description?
+	)
 }
 
 func (api *API) createNewPolicy(ctx context.Context, policy *models.PolicyInfo) (*models.Policy, error) {
@@ -128,44 +125,51 @@ func (api *API) createNewPolicy(ctx context.Context, policy *models.PolicyInfo) 
 	return newPolicy, nil
 }
 
+func handleCreateNewPolicyError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.CreateNewPolicyError, models.CreateNewPolicyErrorDescription),
+	)
+}
+
 //UpdatePolicyHandler is a handler that updates policy by its ID from DB
-func (api *API) UpdatePolicyHandler(writer http.ResponseWriter, request *http.Request) {
+func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 
-	ctx := request.Context()
-	vars := mux.Vars(request)
+	vars := mux.Vars(req)
 	policyId := vars["id"]
-	logData := log.Data{"policy_id": policyId}
+	// logData := log.Data{"policy_id": policyId} // TODO: re-add log data
 
-	updatePolicy, err := models.CreatePolicy(request.Body)
+	updatePolicy, err := models.CreatePolicy(req.Body)
 	if err != nil {
-		log.Error(ctx, "unable to unmarshal request body", err)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		return nil, handleBodyUnmarshalError(ctx, err)
 	}
 
 	if err := updatePolicy.ValidatePolicy(); err != nil {
-		logData := log.Data{}
-		logData["policies_parameters"] = updatePolicy
-		log.Error(ctx, "policies parameters failed validation", err, logData)
-		http.Error(writer, err.Error(), http.StatusBadRequest)
-		return
+		// logData := log.Data{}
+		// logData["policies_parameters"] = updatePolicy
+		return nil, handleValidatePolicyError(ctx, err) // TODO: add log data
 	}
 
 	updateResult, err := api.permissionsStore.UpdatePolicy(ctx, updatePolicy.GetPolicy(policyId))
-	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// writer.Header().Set("Content-Type", "application/json; charset=utf-8")  // TODO: delete this, bug?
 	if err != nil {
-		log.Error(ctx, "failed to update policy", err, logData)
-		http.Error(writer, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleUpdatePolicyError(ctx, err) // TODO: add logData to log
 	}
 
 	if updateResult.ModifiedCount > 0 {
-		log.Info(ctx, "Updated policy", logData)
-		writer.WriteHeader(http.StatusOK)
+		// log.Info(ctx, "Updated policy", logData) // TODO: remove happy-path success log?
+		return models.NewSuccessResponse(nil, http.StatusOK, nil), nil
 	} else {
-		log.Info(ctx, "Created new policy", logData)
-		writer.WriteHeader(http.StatusCreated)
+		// log.Info(ctx, "Created new policy", logData) // TODO: remove happy-path success log?
+		return models.NewSuccessResponse(nil, http.StatusCreated, nil), nil
 	}
 
-	log.Info(ctx, "UpdatePolicy Handler: Successfully upserted policy", logData)
+	// log.Info(ctx, "UpdatePolicy Handler: Successfully upserted policy", logData)  // TODO: remove happy path success log?
+}
+
+func handleUpdatePolicyError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.UpdatePolicyError, models.UpdatePolicyErrorDescription),
+	)
 }

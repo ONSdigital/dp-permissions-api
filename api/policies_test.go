@@ -207,7 +207,7 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "failed to parse json body")
+			So(response, ShouldContainSubstring, models.UnmarshalFailedDescription)
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -241,7 +241,7 @@ func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
 
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.CreateNewPolicyErrorDescription)
 		})
 
 		Convey("Then the request body has been drained", func() {
@@ -304,7 +304,7 @@ func TestGetPolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
-			So(response, ShouldContainSubstring, "policy not found")
+			So(response, ShouldContainSubstring, models.PolicyNotFoundDescription)
 		})
 
 		Convey("When a failed to fetch the policy from DB should return a status code of 500", func() {
@@ -314,7 +314,7 @@ func TestGetPolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.GetPolicyErrorDescription)
 		})
 	})
 }
@@ -415,7 +415,7 @@ func TestFailedUpdatePoliciesWithBadJson(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "failed to parse json body")
+			So(response, ShouldContainSubstring, models.UnmarshalFailedDescription)
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -449,7 +449,7 @@ func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
 
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.UpdatePolicyErrorDescription)
 		})
 
 		Convey("Then the request body has been drained", func() {
@@ -515,7 +515,7 @@ func TestDeletePolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
-			So(response, ShouldContainSubstring, "policy not found")
+			So(response, ShouldContainSubstring, models.PolicyNotFoundDescription)
 		})
 
 		Convey("When a failed DELETE request to the policy from the DB should return a status code of 500", func() {
@@ -525,7 +525,7 @@ func TestDeletePolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.DeletePolicyErrorDescription)
 		})
 	})
 }

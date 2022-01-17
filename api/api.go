@@ -52,13 +52,13 @@ func Setup(
 		bundler:             bundler,
 	}
 
-	r.HandleFunc("/v1/roles", auth.Require(models.RolesRead, api.GetRolesHandler)).Methods(http.MethodGet)
-	r.HandleFunc("/v1/roles/{id}", auth.Require(models.RolesRead, api.GetRoleHandler)).Methods(http.MethodGet)
-	r.HandleFunc("/v1/policies", auth.Require(models.PoliciesCreate, api.PostPolicyHandler)).Methods(http.MethodPost)
-	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesRead, api.GetPolicyHandler)).Methods(http.MethodGet)
-	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesUpdate, api.UpdatePolicyHandler)).Methods(http.MethodPut)
-	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesDelete, api.DeletePolicyHandler)).Methods(http.MethodDelete)
-	r.HandleFunc("/v1/permissions-bundle", api.GetPermissionsBundleHandler).Methods(http.MethodGet)
+	r.HandleFunc("/v1/roles", auth.Require(models.RolesRead, contextAndErrors(api.GetRolesHandler))).Methods(http.MethodGet)
+	r.HandleFunc("/v1/roles/{id}", auth.Require(models.RolesRead, contextAndErrors(api.GetRoleHandler))).Methods(http.MethodGet)
+	r.HandleFunc("/v1/policies", auth.Require(models.PoliciesCreate, contextAndErrors(api.PostPolicyHandler))).Methods(http.MethodPost)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesRead, contextAndErrors(api.GetPolicyHandler))).Methods(http.MethodGet)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesUpdate, contextAndErrors(api.UpdatePolicyHandler))).Methods(http.MethodPut)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesDelete, contextAndErrors(api.DeletePolicyHandler))).Methods(http.MethodDelete)
+	r.HandleFunc("/v1/permissions-bundle", contextAndErrors(api.GetPermissionsBundleHandler)).Methods(http.MethodGet)
 
 	return api
 }
@@ -66,10 +66,8 @@ func Setup(
 func writeErrorResponse(ctx context.Context, w http.ResponseWriter, errorResponse *models.ErrorResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	// process custom headers
-	if errorResponse.Headers != nil {
-		for key := range errorResponse.Headers {
-			w.Header().Set(key, errorResponse.Headers[key])
-		}
+	for key, value := range errorResponse.Headers {
+		w.Header().Set(key, value)
 	}
 	w.WriteHeader(errorResponse.Status)
 
@@ -91,10 +89,8 @@ func writeErrorResponse(ctx context.Context, w http.ResponseWriter, errorRespons
 func writeSuccessResponse(ctx context.Context, w http.ResponseWriter, successResponse *models.SuccessResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	// process custom headers
-	if successResponse.Headers != nil {
-		for key := range successResponse.Headers {
-			w.Header().Set(key, successResponse.Headers[key])
-		}
+	for key, value := range successResponse.Headers {
+		w.Header().Set(key, value)
 	}
 	w.WriteHeader(successResponse.Status)
 
@@ -104,4 +100,25 @@ func writeSuccessResponse(ctx context.Context, w http.ResponseWriter, successRes
 		http.Error(w, responseErr.Description, http.StatusInternalServerError)
 		return
 	}
+}
+
+func handleInvalidQueryParameterError(queryParameter string, ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusBadRequest,
+		nil,
+		models.NewError(ctx, err, models.InvalidQueryParameterError, models.InvalidQueryParameterDescription+queryParameter),
+	)
+}
+
+func handleBodyMarshalError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.JSONMarshalError, models.MarshalFailedDescription),
+	)
+}
+
+func handleBodyUnmarshalError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusBadRequest,
+		nil,
+		models.NewError(ctx, err, models.JSONUnmarshalError, models.UnmarshalFailedDescription),
+	)
 }
