@@ -2,10 +2,7 @@ package steps
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
-	"time"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
@@ -16,13 +13,15 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
-	"github.com/cucumber/godog"
-	"github.com/gofrs/uuid"
-	"go.mongodb.org/mongo-driver/bson"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
 	"github.com/ONSdigital/dp-authorisation/v2/permissions"
+
+	"github.com/cucumber/godog"
+	"github.com/gofrs/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
@@ -104,8 +103,8 @@ func getPermissionsBundle() *permissions.Bundle {
 	}
 }
 
-// NewPermissionsComponent initializes mock server and inmemory mongodb used for running component tests.
-func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*PermissionsComponent, error) {
+// NewPermissionsComponent initializes mock server and in-memory mongodb used for running component tests.
+func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	f := &PermissionsComponent{
 		HTTPServer:     &http.Server{},
 		errorChan:      make(chan error),
@@ -113,35 +112,20 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	}
 
 	var err error
-
 	f.Config, err = config.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	getMongoURI := fmt.Sprintf("localhost:%d", mongoFeature.Server.Port())
-	databaseName := utils.RandomDatabase()
+	f.Config.MongoDB.ClusterEndpoint = mongoURI
+	f.Config.MongoDB.Database = utils.RandomDatabase()
+	f.Config.MongoDB.Username, f.Config.Password = createCredsInDB(&f.Config.MongoDB)
 
-	f.Config.MongoDB.Database = databaseName
-	f.Config.MongoDB.ClusterEndpoint = getMongoURI
-	f.Config.MongoDB.Username, f.Config.Password, err = createCredsInDB(getMongoURI, databaseName)
-	if err != nil {
+	if f.MongoClient, err = mongo.NewMongoStore(context.Background(), f.Config.MongoDB); err != nil {
 		return nil, err
 	}
-
-	mongodb, err := mongo.NewMongoStore(context.Background(), f.Config.MongoDB)
-	if err != nil {
-		return nil, err
-	}
-
-	f.MongoClient = mongodb
 
 	f.ApiFeature = componenttest.NewAPIFeature(f.InitialiseService)
-
-	f.Config, err = config.Get()
-	if err != nil {
-		return nil, err
-	}
 
 	fakePermissionsAPI := setupFakePermissionsAPI()
 	f.Config.AuthorisationConfig.JWTVerificationPublicKeys = rsaJWKS
@@ -150,31 +134,20 @@ func NewPermissionsComponent(mongoFeature *componenttest.MongoFeature) (*Permiss
 	return f, nil
 }
 
-func createCredsInDB(getMongoURI string, databaseName string) (string, string, error) {
+func createCredsInDB(mongoConfig *dpMongoDriver.MongoDriverConfig) (string, string) {
+	mongoConfig.Username, mongoConfig.Password = "", ""
+	mongoConnection, err := dpMongoDriver.Open(mongoConfig)
+	if err != nil {
+		panic("expected db connection to be opened")
+	}
+
 	username := "admin"
 	password, _ := uuid.NewV4()
-	mongoConnectionConfig := &dpMongoDriver.MongoDriverConfig{
-		TLSConnectionConfig: dpMongoDriver.TLSConnectionConfig{
-			IsSSL: false,
-		},
-		ConnectTimeout: 15 * time.Second,
-		QueryTimeout:   15 * time.Second,
-
-		Username:        "",
-		Password:        "",
-		ClusterEndpoint: getMongoURI,
-		Database:        databaseName,
-	}
-	mongoConnection, err := dpMongoDriver.Open(mongoConnectionConfig)
-	if err != nil {
-		return username, password.String(), errors.New(fmt.Sprintf("expected db connection to be opened: %+v", err))
-	}
-
 	createCollectionResponse := mongoConnection.RunCommand(context.TODO(), bson.D{
 		{Key: "create", Value: "test"},
 	})
 	if createCollectionResponse != nil {
-		return username, password.String(), errors.New(fmt.Sprintf("expected database creation to go through: %+v", err))
+		panic("expected test collection to be created")
 	}
 	userCreationResponse := mongoConnection.RunCommand(context.TODO(), bson.D{
 		{Key: "createUser", Value: username},
@@ -184,9 +157,10 @@ func createCredsInDB(getMongoURI string, databaseName string) (string, string, e
 		}},
 	})
 	if userCreationResponse != nil {
-		return username, password.String(), errors.New(fmt.Sprintf("expected user creation to go through: %+v", err))
+		panic("expected admin user to be created")
 	}
-	return username, password.String(), nil
+
+	return username, password.String()
 }
 
 func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
@@ -199,23 +173,20 @@ func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I am a publisher user with invalid auth token$`, f.publisherWithNoJWTToken)
 }
 
-func (f *PermissionsComponent) Reset() *PermissionsComponent {
-	f.Config.MongoDB.Database = utils.RandomDatabase()
-	mongodb, err := mongo.NewMongoStore(context.Background(), f.Config.MongoDB)
-	if err != nil {
-		panic("couldn't reset mongo")
-	}
-	f.MongoClient = mongodb
-	f.ApiFeature.Reset()
-
-	return f
-}
-
 func (f *PermissionsComponent) Close() error {
+	ctx := context.Background()
+	err := f.MongoClient.Connection.DropDatabase(ctx)
+	if err != nil {
+		log.Warn(ctx, "error dropping database on Close()", log.Data{"err": err.Error()})
+	}
 	if f.svc != nil && f.ServiceRunning {
-		f.svc.Close(context.Background())
+		err = f.svc.Close(ctx)
+		if err != nil {
+			log.Warn(ctx, "error closing service on Close()", log.Data{"err": err.Error()})
+		}
 		f.ServiceRunning = false
 	}
+
 	return nil
 }
 
@@ -233,6 +204,7 @@ func (f *PermissionsComponent) InitialiseService() (http.Handler, error) {
 		f.svc = svc
 	}
 	f.ServiceRunning = true
+
 	return f.HTTPServer.Handler, nil
 }
 
