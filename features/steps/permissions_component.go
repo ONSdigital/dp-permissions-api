@@ -119,7 +119,10 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 
 	f.Config.MongoDB.ClusterEndpoint = mongoURI
 	f.Config.MongoDB.Database = utils.RandomDatabase()
-	f.Config.MongoDB.Username, f.Config.Password = createCredsInDB(&f.Config.MongoDB)
+	// The following is to reset the Username and Password that have been set is Config from the previous
+	// config.Get()
+	f.Config.Username, f.Config.Password = "", ""
+	f.Config.MongoDB.Username, f.Config.Password = createCredsInDB(f.Config.MongoDB)
 
 	if f.MongoClient, err = mongo.NewMongoStore(context.Background(), f.Config.MongoDB); err != nil {
 		return nil, err
@@ -134,9 +137,8 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	return f, nil
 }
 
-func createCredsInDB(mongoConfig *dpMongoDriver.MongoDriverConfig) (string, string) {
-	mongoConfig.Username, mongoConfig.Password = "", ""
-	mongoConnection, err := dpMongoDriver.Open(mongoConfig)
+func createCredsInDB(mongoConfig dpMongoDriver.MongoDriverConfig) (string, string) {
+	mongoConnection, err := dpMongoDriver.Open(&mongoConfig)
 	if err != nil {
 		panic("expected db connection to be opened")
 	}
