@@ -18,18 +18,15 @@ func (api *API) GetPermissionsBundleHandler(ctx context.Context, w http.Response
 
 	b, err := json.Marshal(bundle)
 	if err != nil {
-		return nil, handleBodyMarshalError(ctx, err) // TODO: log message is no longer specific to permissions bundle
+		return nil, handleBodyMarshalError(ctx, err, "bundle", bundle)
 	}
 
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
-	// TODO: errors during success response write is no longer specific to permissions bundle
-
-	// log.Info(ctx, "successfully retrieved permissions bundle")  // TODO: happy-path success is no longer logged
 }
 
 func handleGetPermissionsBundleError(ctx context.Context, err error) *models.ErrorResponse {
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
-		models.NewError(ctx, err, models.GetPermissionBundleError, models.GetPermissionBundleErrorDescription),
+		models.NewError(ctx, err, models.GetPermissionBundleError, models.GetPermissionBundleErrorDescription, nil),
 	)
 }

@@ -16,41 +16,37 @@ import (
 func (api *API) GetRoleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	roleID := vars["id"]
-	// logdata := log.Data{"role-id": roleID} TODO: add back in
 
 	//get role from mongoDB by id
 	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
-		return nil, handleGetRoleError(ctx, err) // TODO: add logdata
+		return nil, handleGetRoleError(ctx, err, roleID)
 	}
 
 	b, err := json.Marshal(role)
 	if err != nil {
-		return nil, handleBodyMarshalError(ctx, err) // TODO: add logdata; error message is no longer role specific
+		return nil, handleBodyMarshalError(ctx, err, "role", role)
 	}
 
-	return models.NewSuccessResponse(b, http.StatusOK, nil), nil // TODO: logdata is not passed to writeErrorResponse; error message is no longer role specific
-
-	// log.Info(ctx, "getRole Handler: Successfully retrieved role", logdata)  // TODO: happy-path success is no longer logged
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
-func handleGetRoleError(ctx context.Context, err error) *models.ErrorResponse {
+func handleGetRoleError(ctx context.Context, err error, roleID string) *models.ErrorResponse {
+	logData := log.Data{"role_id": roleID}
 	if err == apierrors.ErrRoleNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
-			models.NewError(ctx, err, models.RoleNotFoundError, models.RoleNotFoundDescription), // TODO: models.RoleNotFoundDescription duplicates apierrors.ErrRoleNotFound - use apierrors instead?
+			models.NewError(ctx, err, models.RoleNotFoundError, models.RoleNotFoundDescription, logData),
 		)
 	}
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
-		models.NewError(ctx, err, models.GetRoleError, models.GetRoleErrorDescription),
+		models.NewError(ctx, err, models.GetRoleError, models.GetRoleErrorDescription, logData),
 	)
 }
 
 //GetRolesHandler is a handler that gets all roles from MongoDB
 func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
-	logData := log.Data{}
-
 	offsetParameter := req.URL.Query().Get("offset")
 	limitParameter := req.URL.Query().Get("limit")
 
@@ -59,25 +55,22 @@ func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req 
 	var err error
 
 	if limitParameter != "" {
-		logData["limit"] = limitParameter
 		limit, err = utils.ValidatePositiveInteger(limitParameter)
 		if err != nil {
-			return nil, handleInvalidQueryParameterError("limit", ctx, err)
+			return nil, handleInvalidQueryParameterError(ctx, err, "limit", limitParameter)
 		}
 	}
 
 	if offsetParameter != "" {
-		logData["offset"] = offsetParameter
 		offset, err = utils.ValidatePositiveInteger(offsetParameter)
 		if err != nil {
-			return nil, handleInvalidQueryParameterError("offset", ctx, err) // TODO: parameterised error ok?
+			return nil, handleInvalidQueryParameterError(ctx, err, "offset", offsetParameter)
 		}
 	}
 
 	if limit > api.maximumDefaultLimit {
-		logData["max_limit"] = api.maximumDefaultLimit
 		err = apierrors.ErrorMaximumLimitReached(api.maximumDefaultLimit)
-		return nil, handleInvalidLimitQueryParameterMaxExceededError(ctx, err) // TODO: use handleInvalidQueryParameterError() instead?
+		return nil, handleInvalidLimitQueryParameterMaxExceededError(ctx, err, limit, api.maximumDefaultLimit)
 	}
 
 	// get roles from MongoDB
@@ -88,27 +81,26 @@ func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req 
 
 	b, err := json.Marshal(listOfRoles)
 	if err != nil {
-		return nil, handleBodyMarshalError(ctx, err) // TODO: error is no longer roles specific
+		return nil, handleBodyMarshalError(ctx, err, "list_of_roles", listOfRoles)
 	}
 
-	//Set headers
-	// w.Header().Set("Content-Type", "application/json; charset=utf-8")	// TODO: now handled by writeSuccessResponse but charset is missing there
-
-	return models.NewSuccessResponse(b, http.StatusOK, nil), nil // TODO: errors are no longer role specific
-
-	// log.Info(ctx, "getRoles Handler: Successfully retrieved roles") // TODO: there's no happy-path success logging in dp-identity-api; it's inconsistently applied in this service - remove?
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
-func handleInvalidLimitQueryParameterMaxExceededError(ctx context.Context, err error) *models.ErrorResponse {
+func handleInvalidLimitQueryParameterMaxExceededError(ctx context.Context, err error, value int, max int) *models.ErrorResponse {
+	logData := log.Data{
+		"limit":     value,
+		"max_limit": max,
+	}
 	return models.NewErrorResponse(http.StatusBadRequest,
 		nil,
-		models.NewError(ctx, err, models.InvalidLimitQueryParameterMaxExceededError, models.InvalidLimitQueryParameterMaxExceededDescription),
+		models.NewError(ctx, err, models.InvalidLimitQueryParameterMaxExceededError, models.InvalidLimitQueryParameterMaxExceededDescription, logData),
 	)
 }
 
 func handleGetRolesError(ctx context.Context, err error) *models.ErrorResponse {
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
-		models.NewError(ctx, err, models.GetRolesError, models.GetRolesErrorDescription),
+		models.NewError(ctx, err, models.GetRolesError, models.GetRolesErrorDescription, nil),
 	)
 }

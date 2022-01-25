@@ -19,12 +19,12 @@ func (e *Error) Error() string {
 	return e.Code + ": " + e.Description
 }
 
-func NewError(ctx context.Context, cause error, code string, description string) *Error {
+func NewError(ctx context.Context, cause error, code string, description string, logData log.Data) *Error {
 	err := &Error{
 		Cause:       cause,
 		Code:        code,
 		Description: description,
 	}
-	log.Error(ctx, description, err)
+	log.Error(ctx, description, err, logData)
 	return err
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
@@ -64,30 +65,37 @@ func Setup(
 }
 
 func writeErrorResponse(ctx context.Context, w http.ResponseWriter, errorResponse *models.ErrorResponse) {
-	w.Header().Set("Content-Type", "application/json")
+	// override internal server error response to prevent leaking sensitive data
+	if errorResponse.Status == http.StatusInternalServerError {
+		http.Error(w, models.InternalServerErrorDescription, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// process custom headers
 	for key, value := range errorResponse.Headers {
 		w.Header().Set(key, value)
 	}
+
 	w.WriteHeader(errorResponse.Status)
 
 	jsonResponse, err := json.Marshal(errorResponse)
 	if err != nil {
-		responseErr := models.NewError(ctx, err, models.JSONMarshalError, models.ErrorMarshalFailedDescription)
+		responseErr := models.NewError(ctx, err, models.JSONMarshalError, models.ErrorMarshalFailedDescription, nil)
 		http.Error(w, responseErr.Description, http.StatusInternalServerError)
 		return
 	}
 
 	_, err = w.Write(jsonResponse)
 	if err != nil {
-		responseErr := models.NewError(ctx, err, models.WriteResponseError, models.WriteResponseFailedDescription)
+		responseErr := models.NewError(ctx, err, models.WriteResponseError, models.WriteResponseFailedDescription, nil)
 		http.Error(w, responseErr.Description, http.StatusInternalServerError)
 		return
 	}
 }
 
 func writeSuccessResponse(ctx context.Context, w http.ResponseWriter, successResponse *models.SuccessResponse) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	// process custom headers
 	for key, value := range successResponse.Headers {
 		w.Header().Set(key, value)
@@ -96,29 +104,31 @@ func writeSuccessResponse(ctx context.Context, w http.ResponseWriter, successRes
 
 	_, err := w.Write(successResponse.Body)
 	if err != nil {
-		responseErr := models.NewError(ctx, err, models.WriteResponseError, models.WriteResponseFailedDescription)
+		responseErr := models.NewError(ctx, err, models.WriteResponseError, models.WriteResponseFailedDescription, nil)
 		http.Error(w, responseErr.Description, http.StatusInternalServerError)
 		return
 	}
 }
 
-func handleInvalidQueryParameterError(queryParameter string, ctx context.Context, err error) *models.ErrorResponse {
+func handleInvalidQueryParameterError(ctx context.Context, err error, name string, value string) *models.ErrorResponse {
+	logData := log.Data{name: value}
 	return models.NewErrorResponse(http.StatusBadRequest,
 		nil,
-		models.NewError(ctx, err, models.InvalidQueryParameterError, models.InvalidQueryParameterDescription+queryParameter),
+		models.NewError(ctx, err, models.InvalidQueryParameterError, models.InvalidQueryParameterDescription, logData),
 	)
 }
 
-func handleBodyMarshalError(ctx context.Context, err error) *models.ErrorResponse {
+func handleBodyMarshalError(ctx context.Context, err error, name string, value interface{}) *models.ErrorResponse {
+	logData := log.Data{name: value}
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
-		models.NewError(ctx, err, models.JSONMarshalError, models.MarshalFailedDescription),
+		models.NewError(ctx, err, models.JSONMarshalError, models.MarshalFailedDescription, logData),
 	)
 }
 
 func handleBodyUnmarshalError(ctx context.Context, err error) *models.ErrorResponse {
 	return models.NewErrorResponse(http.StatusBadRequest,
 		nil,
-		models.NewError(ctx, err, models.JSONUnmarshalError, models.UnmarshalFailedDescription),
+		models.NewError(ctx, err, models.JSONUnmarshalError, models.UnmarshalFailedDescription, nil),
 	)
 }
