@@ -112,6 +112,26 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 func TestFailedAddPoliciesWithInvalidPolicy(t *testing.T) {
 	t.Parallel()
 
+	Convey("When a POST request is made to the policies endpoint without entities", t, func() {
+		permissionsApi := setupAPI()
+
+		reader := strings.NewReader(`{"role": "r1"}`)
+		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the response is 400 bad request, with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "missing mandatory fields: entities")
+		})
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+	})
+
 	Convey("When a POST request is made to the policies endpoint with empty entities", t, func() {
 		permissionsApi := setupAPI()
 
@@ -136,6 +156,26 @@ func TestFailedAddPoliciesWithInvalidPolicy(t *testing.T) {
 		permissionsApi := setupAPI()
 
 		reader := strings.NewReader(`{"entities": ["e1", "e2"], "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
+		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
+		responseWriter := httptest.NewRecorder()
+		permissionsApi.Router.ServeHTTP(responseWriter, request)
+
+		Convey("Then the response is 400 bad request, with the expected response body", func() {
+			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
+			response := responseWriter.Body.String()
+			So(response, ShouldContainSubstring, "missing mandatory fields: role")
+		})
+		Convey("Then the request body has been drained", func() {
+			bytesRead, err := request.Body.Read(make([]byte, 1))
+			So(bytesRead, ShouldEqual, 0)
+			So(err, ShouldEqual, io.EOF)
+		})
+	})
+
+	Convey("When a POST request is made to the policies with empty role", t, func() {
+		permissionsApi := setupAPI()
+
+		reader := strings.NewReader(`{"entities": ["e1", "e2"], "role": "", "conditions": [{"attributes": ["a1"], "operator": "StringEquals", "values": ["v1"]}]}`)
 		request, _ := http.NewRequest("POST", "http://localhost:25400/v1/policies", reader)
 		responseWriter := httptest.NewRecorder()
 		permissionsApi.Router.ServeHTTP(responseWriter, request)
@@ -207,7 +247,7 @@ func TestFailedAddPoliciesWithBadJson(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "failed to parse json body")
+			So(response, ShouldContainSubstring, models.UnmarshalFailedDescription)
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -241,7 +281,7 @@ func TestFailedAddPoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
 
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.InternalServerErrorDescription)
 		})
 
 		Convey("Then the request body has been drained", func() {
@@ -304,7 +344,7 @@ func TestGetPolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
-			So(response, ShouldContainSubstring, "policy not found")
+			So(response, ShouldContainSubstring, models.PolicyNotFoundDescription)
 		})
 
 		Convey("When a failed to fetch the policy from DB should return a status code of 500", func() {
@@ -314,7 +354,7 @@ func TestGetPolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.InternalServerErrorDescription)
 		})
 	})
 }
@@ -415,7 +455,7 @@ func TestFailedUpdatePoliciesWithBadJson(t *testing.T) {
 		Convey("Then the response is 400 bad request, with the expected response body", func() {
 			So(responseWriter.Code, ShouldEqual, http.StatusBadRequest)
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "failed to parse json body")
+			So(response, ShouldContainSubstring, models.UnmarshalFailedDescription)
 		})
 		Convey("Then the request body has been drained", func() {
 			bytesRead, err := request.Body.Read(make([]byte, 1))
@@ -449,7 +489,7 @@ func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
 
 			response := responseWriter.Body.String()
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.InternalServerErrorDescription)
 		})
 
 		Convey("Then the request body has been drained", func() {
@@ -457,7 +497,6 @@ func TestFailedUpdatePoliciesWhenPermissionStoreFails(t *testing.T) {
 			So(bytesRead, ShouldEqual, 0)
 			So(err, ShouldEqual, io.EOF)
 		})
-
 	})
 }
 
@@ -515,7 +554,7 @@ func TestDeletePolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusNotFound)
-			So(response, ShouldContainSubstring, "policy not found")
+			So(response, ShouldContainSubstring, models.PolicyNotFoundDescription)
 		})
 
 		Convey("When a failed DELETE request to the policy from the DB should return a status code of 500", func() {
@@ -525,7 +564,7 @@ func TestDeletePolicyHandler(t *testing.T) {
 			response := responseWriter.Body.String()
 
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
-			So(response, ShouldContainSubstring, "Something went wrong")
+			So(response, ShouldContainSubstring, models.InternalServerErrorDescription)
 		})
 	})
 }

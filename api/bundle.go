@@ -1,35 +1,32 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/ONSdigital/log.go/v2/log"
 	"net/http"
+
+	"github.com/ONSdigital/dp-permissions-api/models"
 )
 
 // GetPermissionsBundleHandler gets and returns the permissions bundle as JSON in the HTTP response body.
-func (api *API) GetPermissionsBundleHandler(w http.ResponseWriter, req *http.Request) {
-	ctx := req.Context()
+func (api *API) GetPermissionsBundleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 
 	bundle, err := api.bundler.Get(ctx)
 	if err != nil {
-		log.Error(ctx, "failed to get permissions bundle", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleGetPermissionsBundleError(ctx, err)
 	}
 
 	b, err := json.Marshal(bundle)
 	if err != nil {
-		log.Error(ctx, "failed to marshal permissions bundle to json", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleBodyMarshalError(ctx, err, "bundle", bundle)
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
+}
 
-	if _, err := w.Write(b); err != nil {
-		log.Error(ctx, "error writing permissions bundle response", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	log.Info(ctx, "successfully retrieved permissions bundle")
+func handleGetPermissionsBundleError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.GetPermissionBundleError, models.GetPermissionBundleErrorDescription, nil),
+	)
 }

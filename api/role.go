@@ -1,58 +1,52 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
+	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/utils"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
 //GetRoleHandler is a handler that gets a role by its ID from MongoDB
-func (api *API) GetRoleHandler(w http.ResponseWriter, req *http.Request) {
-	ctx := req.Context()
+func (api *API) GetRoleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	roleID := vars["id"]
-	logdata := log.Data{"role-id": roleID}
 
 	//get role from mongoDB by id
 	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
-		log.Error(ctx, "getRole Handler: retrieving role from mongoDB returned an error", err, logdata)
-		if err == apierrors.ErrRoleNotFound {
-			http.Error(w, err.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleGetRoleError(ctx, err, roleID)
 	}
 
 	b, err := json.Marshal(role)
 	if err != nil {
-		log.Error(ctx, "getRole Handler: failed to marshal role resource into bytes", err, logdata)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleBodyMarshalError(ctx, err, "role", role)
 	}
 
-	//Set headers
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
+}
 
-	if _, err := w.Write(b); err != nil {
-		log.Error(ctx, "getRole Handler: error writing bytes to response", err, logdata)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func handleGetRoleError(ctx context.Context, err error, roleID string) *models.ErrorResponse {
+	logData := log.Data{"role_id": roleID}
+	if err == apierrors.ErrRoleNotFound {
+		return models.NewErrorResponse(http.StatusNotFound,
+			nil,
+			models.NewError(ctx, err, models.RoleNotFoundError, models.RoleNotFoundDescription, logData),
+		)
 	}
-	log.Info(ctx, "getRole Handler: Successfully retrieved role", logdata)
-
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.GetRoleError, models.GetRoleErrorDescription, logData),
+	)
 }
 
 //GetRolesHandler is a handler that gets all roles from MongoDB
-func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
-	ctx := req.Context()
-	logData := log.Data{}
-
+func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	offsetParameter := req.URL.Query().Get("offset")
 	limitParameter := req.URL.Query().Get("limit")
 
@@ -61,57 +55,52 @@ func (api *API) GetRolesHandler(w http.ResponseWriter, req *http.Request) {
 	var err error
 
 	if limitParameter != "" {
-		logData["limit"] = limitParameter
 		limit, err = utils.ValidatePositiveInteger(limitParameter)
 		if err != nil {
-			log.Error(ctx, "invalid query parameter: limit", err, logData)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			return nil, handleInvalidQueryParameterError(ctx, err, "limit", limitParameter)
 		}
 	}
 
 	if offsetParameter != "" {
-		logData["offset"] = offsetParameter
 		offset, err = utils.ValidatePositiveInteger(offsetParameter)
 		if err != nil {
-			log.Error(ctx, "invalid query parameter: offset", err, logData)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			return nil, handleInvalidQueryParameterError(ctx, err, "offset", offsetParameter)
 		}
 	}
 
 	if limit > api.maximumDefaultLimit {
-		logData["max_limit"] = api.maximumDefaultLimit
 		err = apierrors.ErrorMaximumLimitReached(api.maximumDefaultLimit)
-		log.Error(ctx, "invalid query parameter: limit, maximum limit reached", err, logData)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, handleInvalidLimitQueryParameterMaxExceededError(ctx, err, limit, api.maximumDefaultLimit)
 	}
 
 	// get roles from MongoDB
 	listOfRoles, err := api.permissionsStore.GetRoles(ctx, offset, limit)
-
 	if err != nil {
-		log.Error(ctx, "getRoles Handler: retrieving roles from MongoDB returned an error", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleGetRolesError(ctx, err)
 	}
 
 	b, err := json.Marshal(listOfRoles)
 	if err != nil {
-		log.Error(ctx, "getRoles Handler: failed to marshal roles resource into bytes", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, handleBodyMarshalError(ctx, err, "list_of_roles", listOfRoles)
 	}
 
-	//Set headers
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
+}
 
-	if _, err := w.Write(b); err != nil {
-		log.Error(ctx, "getRoles Handler: error writing bytes to response", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func handleInvalidLimitQueryParameterMaxExceededError(ctx context.Context, err error, value int, max int) *models.ErrorResponse {
+	logData := log.Data{
+		"limit":     value,
+		"max_limit": max,
 	}
-	log.Info(ctx, "getRoles Handler: Successfully retrieved roles")
+	return models.NewErrorResponse(http.StatusBadRequest,
+		nil,
+		models.NewError(ctx, err, models.InvalidLimitQueryParameterMaxExceededError, models.InvalidLimitQueryParameterMaxExceededDescription, logData),
+	)
+}
 
+func handleGetRolesError(ctx context.Context, err error) *models.ErrorResponse {
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.GetRolesError, models.GetRolesErrorDescription, nil),
+	)
 }
