@@ -1,6 +1,6 @@
 package models
 
-// ErrorsResponse represents a slice of errors in a JSON response body.
+// ErrorResponse represents a slice of errors in a JSON response body.
 type ErrorResponse struct {
 	Errors  []error           `json:"errors"`
 	Status  int               `json:"-"`
@@ -22,7 +22,7 @@ type SuccessResponse struct {
 	Headers map[string]string `json:"-"`
 }
 
-// NewErrorResponse creates a new SuccessResponse.
+// NewSuccessResponse creates a new SuccessResponse.
 func NewSuccessResponse(jsonBody []byte, statusCode int, headers map[string]string) *SuccessResponse {
 	return &SuccessResponse{
 		Body:    jsonBody,
