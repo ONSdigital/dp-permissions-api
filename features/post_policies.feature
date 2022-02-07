@@ -25,7 +25,6 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       """
     Then the HTTP status code should be "201"
 
-
   Scenario: [Test #2] POST /v1/policies without conditions
     Given I am an admin user
     When I POST "/v1/policies"
@@ -60,10 +59,6 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       }
       """
     Then the HTTP status code should be "400"
-    And I should receive the following response:
-      """
-      missing mandatory fields: entities
-      """
 
   Scenario: [Test #4] POST /v1/policies with empty entities
     Given I am an admin user
@@ -86,11 +81,6 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       }
       """
     Then the HTTP status code should be "400"
-    And I should receive the following response:
-      """
-      missing mandatory fields: entities
-      """
-
 
   Scenario: [Test #5] POST /v1/policies without role
     Given I am an admin user
@@ -115,11 +105,6 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       }
       """
     Then the HTTP status code should be "400"
-    And I should receive the following response:
-      """
-      missing mandatory fields: role
-      """
-
 
   Scenario: [Test #6] POST /v1/policies with empty role
     Given I am an admin user
@@ -142,10 +127,6 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       }
       """
     Then the HTTP status code should be "400"
-    And I should receive the following response:
-      """
-      missing mandatory fields: role
-      """
 
   Scenario: [Test #7] POST /v1/policies without the correct permissions - the response status is 403 (forbidden)
     Given I am a viewer user

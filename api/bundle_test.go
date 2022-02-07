@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/ONSdigital/dp-permissions-api/api/mock"
-	"github.com/ONSdigital/dp-permissions-api/models"
-	. "github.com/smartystreets/goconvey/convey"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/ONSdigital/dp-permissions-api/api/mock"
+	"github.com/ONSdigital/dp-permissions-api/models"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAPI_GetPermissionsBundleHandler(t *testing.T) {

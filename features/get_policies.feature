@@ -99,8 +99,3 @@ Feature: Behaviour of application when performing requests against /v1/policies 
     Given I am a publisher user
     And I GET "/v1/policies/notFound"
     Then the HTTP status code should be "404"
-    And the response header "Content-Type" should be "text/plain; charset=utf-8"
-    And I should receive the following response:
-      """
-      policy not found
-      """"""
