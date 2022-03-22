@@ -1,9 +1,16 @@
 [
   {
+    "name": "dp-interactives-importer",
+    "permissions": [
+      "interactives:update"
+    ]
+  },
+  {
     "name": "collection-previewer",
     "permissions": [
       "legacy:read",
-      "datasets:read"
+      "datasets:read",
+      "interactives:read"
     ]
   },
   {
@@ -15,6 +22,10 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
+      "interactives:create",
+      "interactives:read",
+      "interactives:update",
+      "interactives:delete",
       "groups:read"
     ]
   },
@@ -36,6 +47,10 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
+      "interactives:create",
+      "interactives:read",
+      "interactives:update",
+      "interactives:delete",
       "groups:read",
       "policies:create",
       "policies:read",

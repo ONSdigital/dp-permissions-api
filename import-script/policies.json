@@ -16,6 +16,14 @@
     "conditions": []
   },
   {
+    "id": "dp-interactives-importer",
+    "entities": [
+      "users/dp-interactives-importer"
+    ],
+    "role": "dp-interactives-importer",
+    "conditions": []
+  },
+  {
     "id": "default-publisher-collection-policy-manager",
     "entities": [
       "groups/role-publisher"
