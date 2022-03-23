@@ -1,13 +1,5 @@
 [
   {
-    "id": "default-admin-administrator",
-    "entities": [
-      "groups/role-admin"
-    ],
-    "role": "administrator",
-    "conditions": []
-  },
-  {
     "id": "default-publisher-collection-author",
     "entities": [
       "groups/role-publisher"
@@ -40,5 +32,13 @@
         ]
       }
     ]
+  },
+  {
+    "id": "default-admin-administrator",
+    "entities": [
+      "groups/role-admin"
+    ],
+    "role": "administrator",
+    "conditions": []
   }
 ]
