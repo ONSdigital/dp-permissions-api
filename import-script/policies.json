@@ -1,18 +1,18 @@
 [
   {
+    "id": "default-admin-administrator",
+    "entities": [
+      "groups/role-admin"
+    ],
+    "role": "administrator",
+    "conditions": []
+  },
+  {
     "id": "default-publisher-collection-author",
     "entities": [
       "groups/role-publisher"
     ],
     "role": "collection-author",
-    "conditions": []
-  },
-  {
-    "id": "dp-interactives-importer",
-    "entities": [
-      "users/dp-interactives-importer"
-    ],
-    "role": "dp-interactives-importer",
     "conditions": []
   },
   {
@@ -34,11 +34,11 @@
     ]
   },
   {
-    "id": "default-admin-administrator",
+    "id": "dp-interactives-importer",
     "entities": [
-      "groups/role-admin"
+      "users/dp-interactives-importer"
     ],
-    "role": "administrator",
+    "role": "dp-interactives-importer",
     "conditions": []
   }
 ]
