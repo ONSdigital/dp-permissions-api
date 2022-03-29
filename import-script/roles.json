@@ -29,7 +29,8 @@
       "interactives:delete",
       "groups:read",
       "static-files:create",
-      "static-files:read"
+      "static-files:read",
+      "static-files:update"
     ]
   },
   {
@@ -70,7 +71,8 @@
       "users:logoutall",
       "roles:read",
       "static-files:create",
-      "static-files:read"
+      "static-files:read",
+      "static-files:update"
     ]
   }
 ]
