@@ -11,7 +11,7 @@
       "legacy:read",
       "datasets:read",
       "interactives:read",
-      "static-files:retrieve"
+      "static-files:read"
     ]
   },
   {
@@ -29,7 +29,7 @@
       "interactives:delete",
       "groups:read",
       "static-files:create",
-      "static-files:retrieve"
+      "static-files:read"
     ]
   },
   {
@@ -70,7 +70,7 @@
       "users:logoutall",
       "roles:read",
       "static-files:create",
-      "static-files:retrieve"
+      "static-files:read"
     ]
   }
 ]
