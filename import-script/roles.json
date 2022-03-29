@@ -10,7 +10,8 @@
     "permissions": [
       "legacy:read",
       "datasets:read",
-      "interactives:read"
+      "interactives:read",
+      "static-files:retrieve"
     ]
   },
   {
@@ -27,7 +28,8 @@
       "interactives:update",
       "interactives:delete",
       "groups:read",
-      "static-files:create"
+      "static-files:create",
+      "static-files:retrieve"
     ]
   },
   {
@@ -67,7 +69,8 @@
       "groups:delete",
       "users:logoutall",
       "roles:read",
-      "static-files:create"
+      "static-files:create",
+      "static-files:retrieve"
     ]
   }
 ]
