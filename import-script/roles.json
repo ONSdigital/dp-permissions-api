@@ -26,7 +26,8 @@
       "interactives:read",
       "interactives:update",
       "interactives:delete",
-      "groups:read"
+      "groups:read",
+      "static-files:create"
     ]
   },
   {
@@ -65,7 +66,8 @@
       "groups:edit",
       "groups:delete",
       "users:logoutall",
-      "roles:read"
+      "roles:read",
+      "static-files:create"
     ]
   }
 ]
