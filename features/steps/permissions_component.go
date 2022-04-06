@@ -17,11 +17,18 @@ import (
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
+
 	"github.com/ONSdigital/dp-authorisation/v2/permissions"
 
 	"github.com/cucumber/godog"
 	"github.com/gofrs/uuid"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	publicSigningkey = map[string]string{
+		"NeKb65194Jo=": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gunVTLw7onLRnrq0/IzW7yWR7QkrmBL7jTKEn5u+qKhbwKfBstIs+bMY2Zkp18gnTxKLxoS2tFczGkPLPgizskuemMghRniWaoLcyehkd3qqGElvW/VDL5AaWTg0nLVkjRo9z+40RQzuVaE8AkAFmxZzow3x+VJYKdjykkJ0iT9wCS0DRTXu269V264Vf/3jvredZiKRkgwlL9xNAwxXFg0x/XFw005UWVRIkdgcKWTjpBP2dPwVZ4WWC+9aGVd+Gyn1o0CLelf4rEjGoXbAAEgAqeGUxrcIlbjXfbcmwIDAQAB",
+	}
 )
 
 // PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
@@ -231,7 +238,8 @@ func (f *PermissionsComponent) DoGetMongoDB(_ context.Context, _ *config.Config)
 
 // DoGetAuthorisationMiddleware returns an authorisationMock.Middleware object
 func (f *PermissionsComponent) DoGetAuthorisationMiddleware(ctx context.Context, cfg *authorisation.Config) (authorisation.Middleware, error) {
-	middleware, err := authorisation.NewMiddlewareFromConfig(ctx, cfg)
+	middleware, err := authorisation.NewMiddlewareFromConfig(ctx, cfg, publicSigningkey)
+
 	if err != nil {
 		return nil, err
 	}
