@@ -4,7 +4,7 @@ API for managing access control permissions for Digital Publishing API resources
 
 ### Getting started
 
-* Load inital roles into your local mongodb using the `import-roles` utility in the import-roles folder. Follow the steps in the [README](./import-roles/README.md).
+* Load inital roles into your local mongodb using the `import-script` utility in the import-script folder. Follow the steps in the [README](./import-script/README.md).
 * Run `make debug`
 
 ### Dependencies

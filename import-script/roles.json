@@ -1,9 +1,17 @@
 [
   {
+    "name": "dp-interactives-importer",
+    "permissions": [
+      "interactives:update"
+    ]
+  },
+  {
     "name": "collection-previewer",
     "permissions": [
       "legacy:read",
-      "datasets:read"
+      "datasets:read",
+      "interactives:read",
+      "static-files:read"
     ]
   },
   {
@@ -15,7 +23,14 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
-      "groups:read"
+      "interactives:create",
+      "interactives:read",
+      "interactives:update",
+      "interactives:delete",
+      "groups:read",
+      "static-files:create",
+      "static-files:read",
+      "static-files:update"
     ]
   },
   {
@@ -36,6 +51,10 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
+      "interactives:create",
+      "interactives:read",
+      "interactives:update",
+      "interactives:delete",
       "groups:read",
       "policies:create",
       "policies:read",
@@ -50,7 +69,10 @@
       "groups:edit",
       "groups:delete",
       "users:logoutall",
-      "roles:read"
+      "roles:read",
+      "static-files:create",
+      "static-files:read",
+      "static-files:update"
     ]
   }
 ]
