@@ -55,9 +55,7 @@ Feature: GET /v1/permissions-bundle endpoint
                     "conditions": [
                         {
                             "operator": "StringEquals",
-                            "attributes": [
-                              "collection-id"
-                            ],
+                            "attribute": "collection-id",
                             "values": [
                               "collection-765"
                             ]
@@ -90,9 +88,7 @@ Feature: GET /v1/permissions-bundle endpoint
                     "id": "viewer",
                     "conditions": [
                       {
-                        "attributes": [
-                          "collection-id"
-                        ],
+                        "attribute": "collection-id",
                         "operator": "StringEquals",
                         "values": [
                           "collection-765"

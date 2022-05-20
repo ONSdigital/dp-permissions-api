@@ -30,9 +30,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "conditions": [
                   {
                       "operator": "StringEquals",
-                      "attributes": [
-                        "collection-id"
-                      ],
+                      "attribute": "collection-id",
                       "values": [
                         "collection-765"
                       ]
@@ -79,9 +77,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "conditions": [
                   {
                       "operator": "StringEquals",
-                      "attributes": [
-                        "collection-id"
-                      ],
+                      "attribute": "collection-id",
                       "values": [
                         "collection-765"
                       ]
