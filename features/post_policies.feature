@@ -12,9 +12,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           "role": "r1",
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
@@ -47,9 +45,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           "role": "r1",
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
@@ -69,9 +65,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           "role": "r1",
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
@@ -93,9 +87,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           ],
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
@@ -115,9 +107,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           "role": "",
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
@@ -137,9 +127,7 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
           "role": "",
           "conditions": [
             {
-              "attributes": [
-                "a1"
-              ],
+              "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
