@@ -65,6 +65,7 @@
       "users:update",
       "users:delete",
       "groups:create",
+      "groups:update",
       "groups:read",
       "groups:edit",
       "groups:delete",

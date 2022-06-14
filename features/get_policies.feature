@@ -30,9 +30,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "conditions": [
                   {
                       "operator": "StringEquals",
-                      "attributes": [
-                        "collection-id"
-                      ],
+                      "attribute": "collection-id",
                       "values": [
                         "collection-765"
                       ]
@@ -58,10 +56,10 @@ Feature: Behaviour of application when performing requests against /v1/policies 
           }
       """
 
-  Scenario: [Test #2] GET /v1/policies/publisher with invalid JWT token in header - the response status is 403 (forbidden)
+  Scenario: [Test #2] GET /v1/policies/publisher with invalid JWT token in header - the response status is 401
     Given I am a publisher user with invalid auth token
     When I GET "/v1/policies/publisher"
-    Then the HTTP status code should be "403"
+    Then the HTTP status code should be "401"
 
   Scenario: [Test #3] GET /v1/policies/viewer to fetch a policy having all parameters
     Given I am a viewer user
@@ -79,9 +77,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "conditions": [
                   {
                       "operator": "StringEquals",
-                      "attributes": [
-                        "collection-id"
-                      ],
+                      "attribute": "collection-id",
                       "values": [
                         "collection-765"
                       ]

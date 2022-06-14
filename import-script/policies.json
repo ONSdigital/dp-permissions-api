@@ -23,9 +23,7 @@
     "role": "collection-policy-manager",
     "conditions": [
       {
-        "attributes": [
-          "role"
-        ],
+        "attribute": "role",
         "operator": "StringEquals",
         "values": [
           "collection-previewer"

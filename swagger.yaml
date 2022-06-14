@@ -116,7 +116,7 @@ paths:
       tags:
         - "policies"
       summary: "Adds a policy"
-      description: "Adds a policy corresponding to the provided body in this request. A policy binds a role to specific members (groups or users) conditional on various attributes"
+      description: "Adds a policy corresponding to the provided body in this request. A policy binds a role to specific members (groups or users) conditional on an attribute"
       produces:
         - "application/json"
       parameters:
@@ -329,8 +329,8 @@ definitions:
       - values
     properties:
       attributes:
-        description: "List of attributes"
-        type: array
+        description: "List of attribute"
+        type: string
         items:
           $ref: "#/definitions/Attribute"
       operator:

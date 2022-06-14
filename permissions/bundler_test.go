@@ -37,9 +37,9 @@ func TestBundler_Get(t *testing.T) {
 		Role: "viewer",
 		Conditions: []models.Condition{
 			{
-				Attributes: []string{"collection-id"},
-				Operator:   models.OperatorStringEquals,
-				Values:     []string{"collection-765"},
+				Attribute: "collection-id",
+				Operator:  models.OperatorStringEquals,
+				Values:    []string{"collection-765"},
 			},
 		},
 	}
