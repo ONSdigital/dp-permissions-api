@@ -36,7 +36,7 @@ Feature: GET /v1/permissions-bundle endpoint
                     "entities": [
                       "group/admin"
                     ],
-                    "conditions": []
+                    "condition": {}
                 },
                 {
                     "id": "publisher",
@@ -44,7 +44,7 @@ Feature: GET /v1/permissions-bundle endpoint
                     "entities": [
                       "group/publisher"
                     ],
-                    "conditions": []
+                    "condition": {}
                 },
                 {
                     "id": "viewer",
@@ -52,15 +52,13 @@ Feature: GET /v1/permissions-bundle endpoint
                     "entities": [
                       "group/viewer"
                     ],
-                    "conditions": [
-                        {
+                    "condition": {
                             "operator": "StringEquals",
                             "attribute": "collection-id",
                             "values": [
                               "collection-765"
                             ]
-                        }
-                    ]
+                    }
                 }
             ]
             """
@@ -86,15 +84,13 @@ Feature: GET /v1/permissions-bundle endpoint
                 "group/viewer": [
                   {
                     "id": "viewer",
-                    "conditions": [
-                      {
+                    "condition":{
                         "attribute": "collection-id",
                         "operator": "StringEquals",
                         "values": [
                           "collection-765"
                         ]
-                      }
-                    ]
+                    }
                   }
                 ]
               },

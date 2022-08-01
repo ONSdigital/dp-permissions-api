@@ -37,10 +37,10 @@ type Condition struct {
 
 //Policy represent a structure for a policy in DB
 type Policy struct {
-	ID         string      `bson:"_id"          json:"id,omitempty"`
-	Entities   []string    `bson:"entities"   json:"entities"`
-	Role       string      `bson:"role"      json:"role"`
-	Conditions []Condition `bson:"conditions" json:"conditions,omitempty"`
+	ID        string    `bson:"_id"          json:"id,omitempty"`
+	Entities  []string  `bson:"entities"   json:"entities"`
+	Role      string    `bson:"role"      json:"role"`
+	Condition Condition `bson:"condition" json:"condition,omitempty"`
 }
 
 //UpdateResult represent a result of the upsert policy
@@ -51,9 +51,9 @@ type UpdateResult struct {
 
 //PolicyInfo contains properties required to create or update a policy
 type PolicyInfo struct {
-	Entities   []string    `json:"entities"`
-	Role       string      `json:"role"`
-	Conditions []Condition `json:"conditions,omitempty"`
+	Entities  []string  `json:"entities"`
+	Role      string    `json:"role"`
+	Condition Condition `json:"condition,omitempty"`
 }
 
 func (operator Operator) IsValid() bool {
@@ -72,10 +72,10 @@ func (operator Operator) String() string {
 // GetPolicy creates a policy object with ID
 func (policy *PolicyInfo) GetPolicy(id string) *Policy {
 	return &Policy{
-		ID:         id,
-		Entities:   policy.Entities,
-		Role:       policy.Role,
-		Conditions: policy.Conditions,
+		ID:        id,
+		Entities:  policy.Entities,
+		Role:      policy.Role,
+		Condition: policy.Condition,
 	}
 }
 
@@ -94,9 +94,9 @@ func (policy *PolicyInfo) ValidatePolicy() error {
 		validationErrors = append(validationErrors, fmt.Sprintf("missing mandatory fields: %v", strings.Join(missingFields, ", ")))
 	}
 
-	for _, condition := range policy.Conditions {
-		if !condition.Operator.IsValid() {
-			invalidFields = append(invalidFields, "condition operator "+condition.Operator.String())
+	if len(policy.Condition.Operator) > 0 {
+		if !policy.Condition.Operator.IsValid() {
+			invalidFields = append(invalidFields, "condition operator "+policy.Condition.Operator.String())
 		}
 	}
 	if len(invalidFields) > 0 {

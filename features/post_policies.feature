@@ -10,15 +10,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
             "e2"
           ],
           "role": "r1",
-          "conditions": [
-            {
+          "condition": {
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+          }
       }
       """
     Then the HTTP status code should be "201"
@@ -43,15 +41,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       """
       {
           "role": "r1",
-          "conditions": [
-            {
+          "condition": {
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+          }
       }
       """
     Then the HTTP status code should be "400"
@@ -63,15 +59,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       {
           "entities": [],
           "role": "r1",
-          "conditions": [
-            {
+          "condition":{
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+         }
       }
       """
     Then the HTTP status code should be "400"
@@ -85,15 +79,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
             "e1",
             "e2"
           ],
-          "conditions": [
-            {
+          "condition": {
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+          }
       }
       """
     Then the HTTP status code should be "400"
@@ -105,15 +97,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       {
           "entities": ["e1"],
           "role": "",
-          "conditions": [
-            {
+          "condition": {
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+          }
       }
       """
     Then the HTTP status code should be "400"
@@ -125,15 +115,13 @@ Feature: Behaviour of application when doing the POST /v1/policies endpoint, usi
       {
           "entities": ["e1"],
           "role": "",
-          "conditions": [
-            {
+          "condition": {
               "attribute": "a1",
               "operator": "StringEquals",
               "values": [
                 "v1"
               ]
-            }
-          ]
+          }
       }
       """
     Then the HTTP status code should be "403"

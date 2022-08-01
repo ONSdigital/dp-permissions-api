@@ -11,7 +11,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "entities": [
                 "group/admin"
               ],
-              "conditions": []
+              "condition": {}
           },
           {
               "id": "publisher",
@@ -19,7 +19,7 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "entities": [
                 "group/publisher"
               ],
-              "conditions": []
+              "condition": {}
           },
           {
               "id": "viewer",
@@ -27,15 +27,14 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "entities": [
                 "group/viewer"
               ],
-              "conditions": [
-                  {
+              "condition": {
                       "operator": "StringEquals",
                       "attribute": "collection-id",
                       "values": [
                         "collection-765"
                       ]
                   }
-              ]
+
           }
       ]
       """
