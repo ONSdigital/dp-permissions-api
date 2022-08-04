@@ -35,12 +35,10 @@ func TestBundler_Get(t *testing.T) {
 			"groups/viewer",
 		},
 		Role: "viewer",
-		Conditions: []models.Condition{
-			{
-				Attribute: "collection-id",
-				Operator:  models.OperatorStringEquals,
-				Values:    []string{"collection-765"},
-			},
+		Condition: models.Condition{
+			Attribute: "collection-id",
+			Operator:  models.OperatorStringEquals,
+			Values:    []string{"collection-765"},
 		},
 	}
 	policies := []*models.BundlePolicy{

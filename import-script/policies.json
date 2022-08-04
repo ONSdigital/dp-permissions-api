@@ -5,7 +5,7 @@
       "groups/role-admin"
     ],
     "role": "administrator",
-    "conditions": []
+    "condition": {}
   },
   {
     "id": "default-publisher-collection-author",
@@ -13,7 +13,7 @@
       "groups/role-publisher"
     ],
     "role": "collection-author",
-    "conditions": []
+    "condition": {}
   },
   {
     "id": "default-publisher-collection-policy-manager",
@@ -21,15 +21,13 @@
       "groups/role-publisher"
     ],
     "role": "collection-policy-manager",
-    "conditions": [
-      {
-        "attribute": "role",
-        "operator": "StringEquals",
-        "values": [
-          "collection-previewer"
-        ]
-      }
-    ]
+    "condition": {
+      "attribute": "role",
+      "operator": "StringEquals",
+      "values": [
+        "collection-previewer"
+      ]
+    }
   },
   {
     "id": "dp-interactives-importer",
@@ -37,6 +35,6 @@
       "users/dp-interactives-importer"
     ],
     "role": "dp-interactives-importer",
-    "conditions": []
+    "condition": {}
   }
 ]
