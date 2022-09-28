@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-permissions-api
 
-go 1.17
+go 1.18
 
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
