@@ -58,52 +58,52 @@ func getPermissionsBundle() *permissions.Bundle {
 		models.PoliciesCreate: { // role
 			"groups/role-admin": { // groups
 				permissions.Policy{
-					ID:         "policy1",
-					Conditions: nil,
+					ID:        "policy1",
+					Condition: permissions.Condition{},
 				},
 			},
 		},
 		models.PoliciesRead: { // role
 			"groups/role-admin": { // groups
 				permissions.Policy{
-					ID:         "policy1",
-					Conditions: nil,
+					ID:        "policy1",
+					Condition: permissions.Condition{},
 				},
 			},
 			"groups/role-publisher": { // groups
 				permissions.Policy{
-					ID:         "policy2",
-					Conditions: nil,
+					ID:        "policy2",
+					Condition: permissions.Condition{},
 				},
 			},
 			"groups/role-viewer": { // groups
 				permissions.Policy{
-					ID:         "policy2",
-					Conditions: nil,
+					ID:        "policy2",
+					Condition: permissions.Condition{},
 				},
 			},
 		},
 		models.PoliciesUpdate: { // role
 			"groups/role-admin": { // groups
 				permissions.Policy{
-					ID:         "policy3",
-					Conditions: nil,
+					ID:        "policy3",
+					Condition: permissions.Condition{},
 				},
 			},
 		},
 		models.PoliciesDelete: { // role
 			"groups/role-admin": { // groups
 				permissions.Policy{
-					ID:         "policy1",
-					Conditions: nil,
+					ID:        "policy1",
+					Condition: permissions.Condition{},
 				},
 			},
 		},
 		models.RolesRead: { // role
 			"groups/role-admin": { // groups
 				permissions.Policy{
-					ID:         "policy1",
-					Conditions: nil,
+					ID:        "policy1",
+					Condition: permissions.Condition{},
 				},
 			},
 		},
