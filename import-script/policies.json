@@ -44,5 +44,30 @@
     ],
     "role": "interactives-read",
     "condition": {}
+  },
+  {
+    "id": "files-admin",
+    "entities": [
+      "users/dp-upload-service"
+    ],
+    "role": "files-admin",
+    "condition": {}
+  },
+  {
+    "id": "files-updater",
+    "entities": [
+      "users/dp-static-file-publisher",
+      "users/dp-interactives-api"
+    ],
+    "role": "files-updater",
+    "condition": {}
+  },
+  {
+    "id": "files-reader",
+    "entities": [
+      "users/dp-download-service"
+    ],
+    "role": "files-reader",
+    "condition": {}
   }
 ]
