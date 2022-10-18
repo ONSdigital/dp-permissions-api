@@ -1,8 +1,14 @@
 [
   {
-    "name": "dp-interactives-importer",
+    "name": "interactives-update",
     "permissions": [
       "interactives:update"
+    ]
+  },
+  {
+    "name": "interactives-read",
+    "permissions": [
+      "interactives:read"
     ]
   },
   {
