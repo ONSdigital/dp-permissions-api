@@ -16,13 +16,13 @@ import (
 
 // Service contains all the configs, server and clients to run the dp-topic-api API
 type Service struct {
-	Config      *config.Config
-	Server      HTTPServer
-	Router      *mux.Router
-	api         *api.API
-	ServiceList *ExternalServiceList
-	HealthCheck HealthChecker
-	MongoDB     PermissionsStore
+	Config                  *config.Config
+	Server                  HTTPServer
+	Router                  *mux.Router
+	api                     *api.API
+	ServiceList             *ExternalServiceList
+	HealthCheck             HealthChecker
+	MongoDB                 PermissionsStore
 	AuthorisationMiddleware authorisation.Middleware
 }
 
@@ -78,13 +78,13 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	}()
 
 	return &Service{
-		Config:      cfg,
-		Router:      r,
-		api:         a,
-		HealthCheck: hc,
-		ServiceList: serviceList,
-		Server:      s,
-		MongoDB:     mongoDB,
+		Config:                  cfg,
+		Router:                  r,
+		api:                     a,
+		HealthCheck:             hc,
+		ServiceList:             serviceList,
+		Server:                  s,
+		MongoDB:                 mongoDB,
 		AuthorisationMiddleware: authorisationMiddleware,
 	}, nil
 }
@@ -119,9 +119,11 @@ func (svc *Service) Close(ctx context.Context) error {
 			}
 		}
 
-		if err := svc.AuthorisationMiddleware.Close(ctx); err != nil {
-			log.Error(ctx, "failed to close authorisation middleware", err)
-			hasShutdownError = true
+		if svc.ServiceList.AuthorisationMiddleware {
+			if err := svc.AuthorisationMiddleware.Close(ctx); err != nil {
+				log.Error(ctx, "failed to close authorisation middleware", err)
+				hasShutdownError = true
+			}
 		}
 	}()
 

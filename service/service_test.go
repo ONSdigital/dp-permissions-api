@@ -101,9 +101,9 @@ func TestRun(t *testing.T) {
 
 		Convey("Given that initialising mongoDB returns an error", func() {
 			initMock := &mock.InitialiserMock{
-				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
-				DoGetMongoDBFunc:     funcDoGetMongoDbErr,
-				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
+				DoGetHTTPServerFunc:              funcDoGetHTTPServerNil,
+				DoGetMongoDBFunc:                 funcDoGetMongoDbErr,
+				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -121,9 +121,9 @@ func TestRun(t *testing.T) {
 
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
-				DoGetHTTPServerFunc:  funcDoGetHTTPServerNil,
-				DoGetHealthCheckFunc: funcDoGetHealthcheckErr,
-				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetHTTPServerFunc:              funcDoGetHTTPServerNil,
+				DoGetHealthCheckFunc:             funcDoGetHealthcheckErr,
+				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -145,9 +145,9 @@ func TestRun(t *testing.T) {
 
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
-				DoGetHTTPServerFunc:  funcDoGetHTTPServer,
-				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
-				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetHTTPServerFunc:              funcDoGetHTTPServer,
+				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -193,7 +193,7 @@ func TestRun(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMockAddFail, nil
 				},
-				DoGetMongoDBFunc: funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 				// ADD CODE: add the checkers that you want to register here
 			}
@@ -217,9 +217,9 @@ func TestRun(t *testing.T) {
 
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
-				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
-				DoGetHTTPServerFunc:  funcDoGetFailingHTTPServer,
-				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
+				DoGetHTTPServerFunc:              funcDoGetFailingHTTPServer,
+				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
