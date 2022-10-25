@@ -30,11 +30,44 @@
     }
   },
   {
-    "id": "dp-interactives-importer",
+    "id": "interactives-updater",
     "entities": [
       "users/dp-interactives-importer"
     ],
-    "role": "dp-interactives-importer",
+    "role": "interactives-update",
+    "condition": {}
+  },
+  {
+    "id": "interactives-reader",
+    "entities": [
+      "users/dp-frontend-interactives-controller"
+    ],
+    "role": "interactives-read",
+    "condition": {}
+  },
+  {
+    "id": "files-admin",
+    "entities": [
+      "users/dp-upload-service"
+    ],
+    "role": "files-admin",
+    "condition": {}
+  },
+  {
+    "id": "files-updater",
+    "entities": [
+      "users/dp-static-file-publisher",
+      "users/dp-interactives-api"
+    ],
+    "role": "files-updater",
+    "condition": {}
+  },
+  {
+    "id": "files-reader",
+    "entities": [
+      "users/dp-download-service"
+    ],
+    "role": "files-reader",
     "condition": {}
   }
 ]

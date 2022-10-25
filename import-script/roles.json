@@ -1,11 +1,5 @@
 [
   {
-    "name": "dp-interactives-importer",
-    "permissions": [
-      "interactives:update"
-    ]
-  },
-  {
     "name": "collection-previewer",
     "permissions": [
       "legacy:read",
@@ -74,6 +68,38 @@
       "static-files:create",
       "static-files:read",
       "static-files:update"
+    ]
+  },
+  {
+    "name": "interactives-update",
+    "permissions": [
+      "interactives:update"
+    ]
+  },
+  {
+    "name": "interactives-read",
+    "permissions": [
+      "interactives:read"
+    ]
+  },
+  {
+    "name": "files-admin",
+    "permissions": [
+      "static-files:create",
+      "static-files:read",
+      "static-files:update"
+    ]
+  },
+  {
+    "name": "files-updater",
+    "permissions": [
+      "static-files:update"
+    ]
+  },
+  {
+    "name": "files-reader",
+    "permissions": [
+      "static-files:read"
     ]
   }
 ]
