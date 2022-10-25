@@ -15,9 +15,10 @@ import (
 
 // ExternalServiceList holds the initialiser and initialisation state of external services.
 type ExternalServiceList struct {
-	HealthCheck bool
-	Init        Initialiser
-	MongoDB     bool
+	AuthorisationMiddleware bool
+	HealthCheck             bool
+	Init                    Initialiser
+	MongoDB                 bool
 }
 
 // NewServiceList creates a new service list with the provided initialiser
@@ -91,5 +92,6 @@ func (e *Init) DoGetAuthorisationMiddleware(ctx context.Context, authorisationCo
 
 // GetAuthorisationMiddleware creates a new instance of authorisation.Middlware
 func (e *ExternalServiceList) GetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+	e.AuthorisationMiddleware = true
 	return e.Init.DoGetAuthorisationMiddleware(ctx, authorisationConfig)
 }
