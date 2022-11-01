@@ -4,7 +4,8 @@ API for managing access control permissions for Digital Publishing API resources
 
 ### Getting started
 
-* Load inital roles into your local mongodb using the `import-script` utility in the import-script folder. Follow the steps in the [README](./import-script/README.md).
+* Load inital roles into your local mongodb using the `import-script` utility in the import-script folder. Follow the
+  steps in the [README](./import-script/README.md).
 * Run `make debug`
 
 ### Dependencies
@@ -33,6 +34,10 @@ API for managing access control permissions for Digital Publishing API resources
 | DEFAULT_LIMIT                  | 20                                                  | Default limit for pagination                                                                                        |
 | DEFAULT_OFFSET                 | 0                                                   | Default offset for pagination                                                                                       |
 | DEFAULT_MAXIMUM_LIMIT          | 1000                                                | Default maximum limit for pagination                                                                                |
+
+### SDK Package
+
+[An SDK for the API is available as a subpackage in `/sdk`](sdk/README.md)
 
 ### Contributing
 
