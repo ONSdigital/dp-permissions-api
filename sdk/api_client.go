@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	dphttp "github.com/ONSdigital/dp-net/v2/http"
-	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/log.go/v2/log"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
+	"github.com/ONSdigital/dp-permissions-api/models"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // package level constants
