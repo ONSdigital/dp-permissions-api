@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	dphttp "github.com/ONSdigital/dp-net/v2/http"
-	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/ONSdigital/log.go/v2/log"
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
+	"github.com/ONSdigital/dp-permissions-api/models"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // package level constants
@@ -58,20 +59,21 @@ func NewClientWithClienter(host string, httpClient HTTPClient, opts Options) *AP
 }
 
 // == Roles Endpoint ==
+
 func (c *APIClient) GetAllRoles(ctx context.Context) (*models.Roles, error) {
 	uri := fmt.Sprintf(rolesEndpoint, c.host)
 
-	log.Info(ctx, "GetRole: starting permissions get policy request", log.Data{"uri": uri})
+	log.Info(ctx, "GetAllRoles: starting permissions get policy request", log.Data{"uri": uri})
 
 	req, err := http.NewRequest(http.MethodGet, uri, nil)
 	if err != nil {
-		log.Info(ctx, "GetRole: error building new request", log.Data{"err": err.Error()})
+		log.Info(ctx, "GetAllRoles: error building new request", log.Data{"err": err.Error()})
 		return nil, err
 	}
 
 	resp, err := c.httpCli.Do(ctx, req)
 	if err != nil {
-		log.Info(ctx, "GetRole: error executing request", log.Data{"err": err.Error()})
+		log.Info(ctx, "GetAllRoles: error executing request", log.Data{"err": err.Error()})
 		return nil, err
 	}
 
@@ -85,7 +87,7 @@ func (c *APIClient) GetAllRoles(ctx context.Context) (*models.Roles, error) {
 		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
 	}
 
-	log.Info(ctx, "GetRole: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
+	log.Info(ctx, "GetAllRoles: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
