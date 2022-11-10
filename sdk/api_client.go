@@ -84,7 +84,7 @@ func (c *APIClient) GetAllRoles(ctx context.Context) (*models.Roles, error) {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-getallpolicies endpoint: %s", resp.Status)
 	}
 
 	log.Info(ctx, "GetAllRoles: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
@@ -127,7 +127,7 @@ func (c *APIClient) GetRole(ctx context.Context, id string) (*models.Roles, erro
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-getrole endpoint: %s", resp.Status)
 	}
 
 	log.Info(ctx, "GetRole: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})

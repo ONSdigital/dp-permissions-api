@@ -324,6 +324,88 @@ func TestAPIClient_GetAllRoles(t *testing.T) {
 	})
 }
 
+func TestAPIClient_GetAllRoles_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status: `Invalid request, reasons can be one of the following:
+              * query parameters incorrect offset provided
+              * query parameters incorrect limit provided`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetAllRoles is called", func() {
+			roles, err := apiClient.GetAllRoles(ctx)
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Invalid request, reasons can be one of the following:
+              * query parameters incorrect offset provided
+              * query parameters incorrect limit provided`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(roles, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status: `Unauthorised request, reason is:
+              * Requestor does not have necessary permissions to access this resource`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetAllRoles is called", func() {
+			roles, err := apiClient.GetAllRoles(ctx)
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Unauthorised request, reason is:
+              * Requestor does not have necessary permissions to access this resource`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(roles, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetAllRoles is called", func() {
+			roles, err := apiClient.GetAllRoles(ctx)
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Failed to process the request due to an internal error`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(roles, ShouldBeNil)
+			})
+		})
+	})
+}
+
 func TestAPIClient_GetRole(t *testing.T) {
 	ctx := context.Background()
 	result := models.Roles{
@@ -363,6 +445,106 @@ func TestAPIClient_GetRole(t *testing.T) {
 
 			Convey("Then the expected role is returned", func() {
 				So(role.Items[0], ShouldResemble, models.Role{ID: "2", Name: "test", Permissions: []string{"all"}})
+			})
+		})
+	})
+}
+
+func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status:     `Invalid request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			role, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Invalid request`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(role, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status:     `Unauthorised request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			role, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Unauthorised request`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(role, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 404", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusNotFound,
+					Status:     `Requested id can not be found`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			role, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Requested id can not be found`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(role, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			role, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Failed to process the request due to an internal error`)
+			})
+
+			Convey("Then the permissions roles is nil", func() {
+				So(role, ShouldBeNil)
 			})
 		})
 	})
