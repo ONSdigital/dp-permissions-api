@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/ONSdigital/dp-permissions-api/models"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -256,7 +257,6 @@ func getExampleBundleJson() []byte {
 }
 
 func getExampleBundle() sdk.Bundle {
-
 	bundle := sdk.Bundle{
 		"permission/admin": map[string][]sdk.Policy{
 			"group/admin": {
@@ -271,4 +271,181 @@ func getExampleBundle() sdk.Bundle {
 		},
 	}
 	return bundle
+}
+
+// == Roles ===
+
+func TestAPIClient_GetAllRoles(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful all roles response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetAllRoles is called", func() {
+			bundle, err := apiClient.GetAllRoles(ctx)
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the expected roles is returned", func() {
+				So(bundle, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_GetRole(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful role response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			bundle, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the expected role is returned", func() {
+				So(bundle, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+// == Policy ===
+
+func TestAPIClient_AddPolicy(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful add policy response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When AddPolicy is called", func() {
+			err := apiClient.AddPolicy(ctx, models.PolicyInfo{
+				Entities:  nil,
+				Role:      "",
+				Condition: models.Condition{},
+			})
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the expected role is returned", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_DeletePolicy(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful delete policy response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When DeletePolicy is called", func() {
+			err := apiClient.DeletePolicy(ctx, "1")
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the expected role is returned", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_GetPolicy(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful get policy response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			policy, err := apiClient.GetPolicy(ctx, "1")
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the expected policy is returned", func() {
+				So(policy, ShouldNotBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PutPolicy(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful put policy response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PutPolicy is called", func() {
+			err := apiClient.PutPolicy(ctx, "1", models.Policy{
+				ID:        "",
+				Entities:  nil,
+				Role:      "",
+				Condition: models.Condition{},
+			})
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
 }
