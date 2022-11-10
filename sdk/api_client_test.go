@@ -277,27 +277,48 @@ func getExampleBundle() sdk.Bundle {
 
 func TestAPIClient_GetAllRoles(t *testing.T) {
 	ctx := context.Background()
+	result := models.Roles{
+		Count:  2,
+		Offset: 0,
+		Limit:  2,
+		Items: []models.Role{{
+			ID:          "1",
+			Name:        "test",
+			Permissions: []string{"all"},
+		}, {
+			ID:          "2",
+			Name:        "test",
+			Permissions: []string{"all"},
+		}},
+		TotalCount: 0,
+	}
+
+	bresult, err := json.Marshal(result)
+	if err != nil {
+		t.Failed()
+	}
 
 	Convey("Given a mock http client that returns a successful all roles response", t, func() {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetAllRoles is called", func() {
-			bundle, err := apiClient.GetAllRoles(ctx)
+			roles, err := apiClient.GetAllRoles(ctx)
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
 			})
 
 			Convey("Then the expected roles is returned", func() {
-				So(bundle, ShouldNotBeNil)
+				So(roles.Items[0], ShouldResemble, models.Role{ID: "1", Name: "test", Permissions: []string{"all"}})
+				So(roles.Items[1], ShouldResemble, models.Role{ID: "2", Name: "test", Permissions: []string{"all"}})
 			})
 		})
 	})
@@ -305,27 +326,43 @@ func TestAPIClient_GetAllRoles(t *testing.T) {
 
 func TestAPIClient_GetRole(t *testing.T) {
 	ctx := context.Background()
+	result := models.Roles{
+		Count:  2,
+		Offset: 0,
+		Limit:  2,
+		Items: []models.Role{{
+			ID:          "2",
+			Name:        "test",
+			Permissions: []string{"all"},
+		}},
+		TotalCount: 0,
+	}
+
+	bresult, err := json.Marshal(result)
+	if err != nil {
+		t.Failed()
+	}
 
 	Convey("Given a mock http client that returns a successful role response", t, func() {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetRole is called", func() {
-			bundle, err := apiClient.GetRole(ctx, "1")
+			role, err := apiClient.GetRole(ctx, "2")
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
 			})
 
 			Convey("Then the expected role is returned", func() {
-				So(bundle, ShouldNotBeNil)
+				So(role.Items[0], ShouldResemble, models.Role{ID: "2", Name: "test", Permissions: []string{"all"}})
 			})
 		})
 	})
@@ -350,16 +387,12 @@ func TestAPIClient_AddPolicy(t *testing.T) {
 		Convey("When AddPolicy is called", func() {
 			err := apiClient.AddPolicy(ctx, models.PolicyInfo{
 				Entities:  nil,
-				Role:      "",
+				Role:      "1",
 				Condition: models.Condition{},
 			})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
-			})
-
-			Convey("Then the expected role is returned", func() {
-				So(err, ShouldNotBeNil)
 			})
 		})
 	})
@@ -385,10 +418,6 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
 			})
-
-			Convey("Then the expected role is returned", func() {
-				So(err, ShouldNotBeNil)
-			})
 		})
 	})
 }
@@ -396,12 +425,24 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 func TestAPIClient_GetPolicy(t *testing.T) {
 	ctx := context.Background()
 
+	result := models.Policy{
+		ID:        "1",
+		Entities:  nil,
+		Role:      "1",
+		Condition: models.Condition{},
+	}
+
+	bresult, err := json.Marshal(result)
+	if err != nil {
+		t.Failed()
+	}
+
 	Convey("Given a mock http client that returns a successful get policy response", t, func() {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
@@ -415,7 +456,7 @@ func TestAPIClient_GetPolicy(t *testing.T) {
 			})
 
 			Convey("Then the expected policy is returned", func() {
-				So(policy, ShouldNotBeNil)
+				So(policy, ShouldResemble, &result)
 			})
 		})
 	})
