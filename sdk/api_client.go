@@ -60,20 +60,20 @@ func NewClientWithClienter(host string, httpClient HTTPClient, opts Options) *AP
 
 // == Roles Endpoint ==
 
-func (c *APIClient) GetAllRoles(ctx context.Context) (*models.Roles, error) {
+func (c *APIClient) GetRoles(ctx context.Context) (*models.Roles, error) {
 	uri := fmt.Sprintf(rolesEndpoint, c.host)
 
-	log.Info(ctx, "GetAllRoles: starting permissions get policy request", log.Data{"uri": uri})
+	log.Info(ctx, "GetRoles: starting permissions get policy request", log.Data{"uri": uri})
 
 	req, err := http.NewRequest(http.MethodGet, uri, nil)
 	if err != nil {
-		log.Info(ctx, "GetAllRoles: error building new request", log.Data{"err": err.Error()})
+		log.Info(ctx, "GetRoles: error building new request", log.Data{"err": err.Error()})
 		return nil, err
 	}
 
 	resp, err := c.httpCli.Do(ctx, req)
 	if err != nil {
-		log.Info(ctx, "GetAllRoles: error executing request", log.Data{"err": err.Error()})
+		log.Info(ctx, "GetRoles: error executing request", log.Data{"err": err.Error()})
 		return nil, err
 	}
 
@@ -84,10 +84,10 @@ func (c *APIClient) GetAllRoles(ctx context.Context) (*models.Roles, error) {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-getallpolicies endpoint: %s", resp.Status)
 	}
 
-	log.Info(ctx, "GetAllRoles: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
+	log.Info(ctx, "GetRoles: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -127,7 +127,7 @@ func (c *APIClient) GetRole(ctx context.Context, id string) (*models.Roles, erro
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-getrole endpoint: %s", resp.Status)
 	}
 
 	log.Info(ctx, "GetRole: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
@@ -148,27 +148,27 @@ func (c *APIClient) GetRole(ctx context.Context, id string) (*models.Roles, erro
 
 // == Policies Endpoint ==
 
-func (c *APIClient) AddPolicy(ctx context.Context, policy models.PolicyInfo) error {
+func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*models.Policy, error) {
 	uri := fmt.Sprintf(addPolicyEndpoint, c.host)
 
-	log.Info(ctx, "AddPolicy: starting permissions add policies request", log.Data{"uri": uri})
+	log.Info(ctx, "PostPolicy: starting permissions add policies request", log.Data{"uri": uri})
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(policy)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, uri, &buf)
 	if err != nil {
-		log.Info(ctx, "AddPolicy: error building new request", log.Data{"err": err.Error()})
-		return err
+		log.Info(ctx, "PostPolicy: error building new request", log.Data{"err": err.Error()})
+		return nil, err
 	}
 
 	resp, err := c.httpCli.Do(ctx, req)
 	if err != nil {
-		log.Info(ctx, "AddPolicy: error executing request", log.Data{"err": err.Error()})
-		return err
+		log.Info(ctx, "PostPolicy: error executing request", log.Data{"err": err.Error()})
+		return nil, err
 	}
 
 	defer func() {
@@ -178,18 +178,29 @@ func (c *APIClient) AddPolicy(ctx context.Context, policy models.PolicyInfo) err
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicy endpoint: %s", resp.Status)
 	}
 
-	log.Info(ctx, "AddPolicy: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
+	log.Info(ctx, "PostPolicy: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
 
-	return nil
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("unexpected error when attempting to read response: %v", err)
+	}
+
+	var result models.Policy
+	err = json.Unmarshal(b, &result)
+	if err != nil {
+		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+	}
+
+	return &result, nil
 }
 
 func (c *APIClient) DeletePolicy(ctx context.Context, id string) error {
 	uri := fmt.Sprintf(policyEndpoint, c.host, id)
 
-	log.Info(ctx, "DeletePolicy: starting permissions add policies request", log.Data{"uri": uri})
+	log.Info(ctx, "DeletePolicy: starting permissions delete policies request", log.Data{"uri": uri})
 
 	req, err := http.NewRequest(http.MethodDelete, uri, nil)
 	if err != nil {
@@ -212,7 +223,7 @@ func (c *APIClient) DeletePolicy(ctx context.Context, id string) error {
 	log.Info(ctx, "DeletePolicy: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return fmt.Errorf("unexpected status returned from the permissions api permissions-deletepolicy endpoint: %s", resp.Status)
 	}
 
 	return nil
@@ -242,7 +253,7 @@ func (c *APIClient) GetPolicy(ctx context.Context, id string) (*models.Policy, e
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-getpolicy endpoint: %s", resp.Status)
 	}
 
 	log.Info(ctx, "GetPolicy: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
@@ -291,7 +302,7 @@ func (c *APIClient) PutPolicy(ctx context.Context, id string, policy models.Poli
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicies endpoint: %s", resp.Status)
+		return fmt.Errorf("unexpected status returned from the permissions api permissions-putpolicy endpoint: %s", resp.Status)
 	}
 
 	log.Info(ctx, "PutPolicy: request successfully executed", log.Data{"resp.StatusCode": resp.StatusCode})
