@@ -580,6 +580,70 @@ func TestAPIClient_AddPolicy(t *testing.T) {
 	})
 }
 
+func TestAPIClient_AddPolicy_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status:     `Bad request. Invalid policy supplied`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			err := apiClient.AddPolicy(ctx, models.PolicyInfo{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Bad request. Invalid policy supplied`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status:     `Unauthorised request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			err := apiClient.AddPolicy(ctx, models.PolicyInfo{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Unauthorised request`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetAllRoles is called", func() {
+			err := apiClient.AddPolicy(ctx, models.PolicyInfo{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Failed to process the request due to an internal error`)
+			})
+		})
+	})
+}
+
 func TestAPIClient_DeletePolicy(t *testing.T) {
 	ctx := context.Background()
 
@@ -599,6 +663,70 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status:     `Bad request. Invalid policy supplied`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			err := apiClient.DeletePolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Bad request. Invalid policy supplied`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status:     `Unauthorised request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			err := apiClient.DeletePolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Unauthorised request`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			err := apiClient.DeletePolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Failed to process the request due to an internal error`)
 			})
 		})
 	})
@@ -644,6 +772,70 @@ func TestAPIClient_GetPolicy(t *testing.T) {
 	})
 }
 
+func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status:     `Bad request. Invalid policy supplied`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			_, err := apiClient.GetPolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Bad request. Invalid policy supplied`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status:     `Unauthorised request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			_, err := apiClient.GetPolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Unauthorised request`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			_, err := apiClient.GetPolicy(ctx, "1")
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Failed to process the request due to an internal error`)
+			})
+		})
+	})
+}
+
 func TestAPIClient_PutPolicy(t *testing.T) {
 	ctx := context.Background()
 
@@ -668,6 +860,70 @@ func TestAPIClient_PutPolicy(t *testing.T) {
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 400", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusBadRequest,
+					Status:     `Bad request. Invalid policy supplied`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PutPolicy is called", func() {
+			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Bad request. Invalid policy supplied`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 403", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusForbidden,
+					Status:     `Unauthorised request`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PutPolicy is called", func() {
+			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Unauthorised request`)
+			})
+		})
+	})
+
+	Convey("Given a mock http client that returns a response code 500", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusInternalServerError,
+					Status:     `Failed to process the request due to an internal error`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PutPolicy is called", func() {
+			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Failed to process the request due to an internal error`)
 			})
 		})
 	})
