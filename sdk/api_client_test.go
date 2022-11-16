@@ -275,7 +275,7 @@ func getExampleBundle() sdk.Bundle {
 
 // == Roles ===
 
-func TestAPIClient_GetAllRoles(t *testing.T) {
+func TestAPIClient_GetRoles(t *testing.T) {
 	ctx := context.Background()
 	result := models.Roles{
 		Count:  2,
@@ -324,7 +324,28 @@ func TestAPIClient_GetAllRoles(t *testing.T) {
 	})
 }
 
-func TestAPIClient_GetAllRoles_Non200ResponseCodeReturned(t *testing.T) {
+func TestAPIClient_GetRoles_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRoles is called", func() {
+			_, err := apiClient.GetRoles(ctx)
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
+			})
+		})
+	})
+}
+
+func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given a mock http client that returns a response code 400", t, func() {
@@ -450,6 +471,27 @@ func TestAPIClient_GetRole(t *testing.T) {
 	})
 }
 
+func TestAPIClient_GetRole_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetRole is called", func() {
+			_, err := apiClient.GetRole(ctx, "1")
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
+			})
+		})
+	})
+}
+
 func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 	ctx := context.Background()
 
@@ -552,7 +594,7 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 
 // == Policy ===
 
-func TestAPIClient_AddPolicy(t *testing.T) {
+func TestAPIClient_PostPolicy(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given a mock http client that returns a successful add policy response", t, func() {
@@ -591,6 +633,27 @@ func TestAPIClient_AddPolicy(t *testing.T) {
 
 			Convey("Policy should not be empty", func() {
 				So(policy, ShouldResemble, &result)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PostPolicy_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PostPolicy is called", func() {
+			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
 			})
 		})
 	})
@@ -679,6 +742,27 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_DeletePolicy_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When DeletePolicy is called", func() {
+			err := apiClient.DeletePolicy(ctx, "1")
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
 			})
 		})
 	})
@@ -788,6 +872,31 @@ func TestAPIClient_GetPolicy(t *testing.T) {
 	})
 }
 
+func TestAPIClient_GetPolicy_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When GetPolicy is called", func() {
+			policy, err := apiClient.GetPolicy(ctx, "1")
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
+			})
+
+			Convey("Then policy should be nil", func() {
+				So(policy, ShouldBeNil)
+			})
+		})
+	})
+}
+
 func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 	ctx := context.Background()
 
@@ -876,6 +985,27 @@ func TestAPIClient_PutPolicy(t *testing.T) {
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PutPolicy_BadRequest(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a error in response", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return nil, errors.New("bad request")
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PutPolicy is called", func() {
+			err := apiClient.PutPolicy(ctx, "1", models.Policy{})
+
+			Convey("Then an error is returned", func() {
+				So(err, ShouldResemble, errors.New("bad request"))
 			})
 		})
 	})
