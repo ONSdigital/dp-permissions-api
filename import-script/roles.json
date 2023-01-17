@@ -5,7 +5,8 @@
       "legacy:read",
       "datasets:read",
       "interactives:read",
-      "static-files:read"
+      "static-files:read",
+      "cantabularmetadatadataset:read"
     ]
   },
   {
@@ -24,7 +25,8 @@
       "groups:read",
       "static-files:create",
       "static-files:read",
-      "static-files:update"
+      "static-files:update",
+      "cantabularmetadatadataset:read"
     ]
   },
   {
@@ -67,7 +69,8 @@
       "roles:read",
       "static-files:create",
       "static-files:read",
-      "static-files:update"
+      "static-files:update",
+      "cantabularmetadatadataset:read"
     ]
   },
   {
