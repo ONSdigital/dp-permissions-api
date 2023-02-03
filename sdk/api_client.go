@@ -6,14 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-permissions-api/models"
 )
-
-type header string
 
 // package level constants
 const (
@@ -22,14 +19,14 @@ const (
 	policyEndpoint           = "%s/v1/policies/%s" // Delete policy
 	rolesEndpoint            = "%s/v1/roles"       // Add roles
 	getRoleEndpoint          = "%s/v1/roles/%s"    // Get roles
-	Authorisation     header = "Authorisation"     // List of available headers
+	Authorization     string = "Authorization"
 )
 
 // setHeaders adds authorisation header to request
-func setHeaders(req *http.Request, headers map[header][]string) {
-	for h := range headers {
-		for i := range h {
-			req.Header.Add(string(h), headers[h][i])
+func setHeaders(req *http.Request, headers http.Header) {
+	for name, values := range headers {
+		for _, value := range values {
+			req.Header.Add(name, value)
 		}
 	}
 }
@@ -48,7 +45,7 @@ type APIClient struct {
 
 // Options is a struct containing for customised options for the API client
 type Options struct {
-	Headers map[header][]string
+	Headers http.Header
 }
 
 // NewClient constructs a new APIClient instance with a default http client and Options.
@@ -367,12 +364,12 @@ func getResponseBytes(reader io.Reader) ([]byte, error) {
 		return nil, ErrGetPermissionsResponseBodyNil
 	}
 
-	b, err := ioutil.ReadAll(reader)
+	b, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
 
-	if b == nil || len(b) == 0 {
+	if len(b) == 0 {
 		return nil, ErrGetPermissionsResponseBodyNil
 	}
 
