@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -52,7 +52,7 @@ func TestAPIClient_GetPermissionsBundle(t *testing.T) {
 
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(getExampleBundleJson())),
+					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJson())),
 				}, nil
 			},
 		}
@@ -96,12 +96,12 @@ func TestAPIClient_GetPermissionsBundle_SucceedsOnSecondAttempt(t *testing.T) {
 					retryCount++
 					return &http.Response{
 						StatusCode: http.StatusInternalServerError,
-						Body:       ioutil.NopCloser(strings.NewReader(`bad response`)),
+						Body:       io.NopCloser(strings.NewReader(`bad response`)),
 					}, nil
 				}
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(getExampleBundleJson())),
+					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJson())),
 				}, nil
 			},
 		}
@@ -228,7 +228,7 @@ func TestAPIClient_GetPermissionsBundle_UnexpectedResponseBody(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(strings.NewReader(`bad response`)),
+					Body:       io.NopCloser(strings.NewReader(`bad response`)),
 				}, nil
 			},
 		}
@@ -303,7 +303,7 @@ func TestAPIClient_GetRoles(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
@@ -451,7 +451,7 @@ func TestAPIClient_GetRole(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
@@ -614,7 +614,7 @@ func TestAPIClient_PostPolicy(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
@@ -731,7 +731,7 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+					Body:       io.NopCloser(bytes.NewReader([]byte{})),
 				}, nil
 			},
 		}
@@ -852,7 +852,7 @@ func TestAPIClient_GetPolicy(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(bresult)),
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
@@ -969,7 +969,7 @@ func TestAPIClient_PutPolicy(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader([]byte{})),
+					Body:       io.NopCloser(bytes.NewReader([]byte{})),
 				}, nil
 			},
 		}
