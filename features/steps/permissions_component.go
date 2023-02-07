@@ -18,7 +18,7 @@ import (
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
 
-	"github.com/ONSdigital/dp-authorisation/v2/permissions"
+	permsdk "github.com/ONSdigital/dp-permissions-api/sdk"
 
 	"github.com/cucumber/godog"
 	"github.com/gofrs/uuid"
@@ -53,57 +53,57 @@ func setupFakePermissionsAPI() *authorisationtest.FakePermissionsAPI {
 }
 
 // getPermissionsBundle seed's the PermissionsComponent bundle on startup
-func getPermissionsBundle() *permissions.Bundle {
-	return &permissions.Bundle{
+func getPermissionsBundle() *permsdk.Bundle {
+	return &permsdk.Bundle{
 		models.PoliciesCreate: { // role
 			"groups/role-admin": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy1",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 		},
 		models.PoliciesRead: { // role
 			"groups/role-admin": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy1",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 			"groups/role-publisher": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy2",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 			"groups/role-viewer": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy2",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 		},
 		models.PoliciesUpdate: { // role
 			"groups/role-admin": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy3",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 		},
 		models.PoliciesDelete: { // role
 			"groups/role-admin": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy1",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 		},
 		models.RolesRead: { // role
 			"groups/role-admin": { // groups
-				permissions.Policy{
+				permsdk.Policy{
 					ID:        "policy1",
-					Condition: permissions.Condition{},
+					Condition: permsdk.Condition{},
 				},
 			},
 		},
