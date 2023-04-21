@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/ONSdigital/dp-permissions-api/models"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 
-	dphttp "github.com/ONSdigital/dp-net/http"
+	"github.com/ONSdigital/dp-permissions-api/models"
+
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-permissions-api/sdk"
 	. "github.com/smartystreets/goconvey/convey"
 )
