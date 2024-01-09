@@ -5,16 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
 )
 
 // policies permissions
 const (
 	PoliciesRead   string = "policies:read"
-	PoliciesCreate        = "policies:create"
-	PoliciesUpdate        = "policies:update"
-	PoliciesDelete        = "policies:delete"
+	PoliciesCreate string = "policies:create"
+	PoliciesUpdate string = "policies:update"
+	PoliciesDelete string = "policies:delete"
 
 	OperatorStringEquals Operator = "StringEquals"
 	OperatorStartsWith   Operator = "StartsWith"
@@ -28,14 +27,14 @@ var (
 
 type Operator string
 
-//Condition represents the conditions to be applied for a policy
+// Condition represents the conditions to be applied for a policy
 type Condition struct {
 	Attribute string   `bson:"attribute" json:"attribute"`
 	Operator  Operator `bson:"operator" json:"operator"`
 	Values    []string `bson:"Values" json:"values"`
 }
 
-//Policy represent a structure for a policy in DB
+// Policy represent a structure for a policy in DB
 type Policy struct {
 	ID        string    `bson:"_id"          json:"id,omitempty"`
 	Entities  []string  `bson:"entities"   json:"entities"`
@@ -43,13 +42,13 @@ type Policy struct {
 	Condition Condition `bson:"condition" json:"condition,omitempty"`
 }
 
-//UpdateResult represent a result of the upsert policy
+// UpdateResult represent a result of the upsert policy
 type UpdateResult struct {
 	ModifiedCount int
 	UpsertedCount int
 }
 
-//PolicyInfo contains properties required to create or update a policy
+// PolicyInfo contains properties required to create or update a policy
 type PolicyInfo struct {
 	Entities  []string  `json:"entities"`
 	Role      string    `json:"role"`
@@ -109,10 +108,10 @@ func (policy *PolicyInfo) ValidatePolicy() error {
 	return nil
 }
 
-//CreatePolicy manages the creation of a filter from reader
+// CreatePolicy manages the creation of a filter from reader
 func CreatePolicy(reader io.Reader) (*PolicyInfo, error) {
 
-	bytes, err := ioutil.ReadAll(reader)
+	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, ErrorReadingBody
 	}

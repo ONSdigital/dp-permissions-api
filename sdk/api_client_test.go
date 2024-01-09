@@ -5,13 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/ONSdigital/dp-permissions-api/models"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
 
-	dphttp "github.com/ONSdigital/dp-net/http"
+	"github.com/ONSdigital/dp-permissions-api/models"
+
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/dp-permissions-api/sdk"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -75,7 +76,7 @@ func TestAPIClient_GetPermissionsBundle(t *testing.T) {
 				policy := policies[0]
 				So(policy.ID, ShouldEqual, "policy/123")
 				So(policy.Condition.Attribute, ShouldEqual, "collection_id")
-				So(policy.Condition.Operator, ShouldEqual, "StringEquals")
+				So(policy.Condition.Operator, ShouldEqual, sdk.Operator("StringEquals"))
 				So(policy.Condition.Values, ShouldHaveLength, 1)
 				So(policy.Condition.Values[0], ShouldEqual, "col123")
 			})
@@ -128,7 +129,7 @@ func TestAPIClient_GetPermissionsBundle_SucceedsOnSecondAttempt(t *testing.T) {
 				policy := policies[0]
 				So(policy.ID, ShouldEqual, "policy/123")
 				So(policy.Condition.Attribute, ShouldEqual, "collection_id")
-				So(policy.Condition.Operator, ShouldEqual, "StringEquals")
+				So(policy.Condition.Operator, ShouldEqual, sdk.Operator("StringEquals"))
 				So(policy.Condition.Values, ShouldHaveLength, 1)
 				So(policy.Condition.Values[0], ShouldEqual, "col123")
 			})
