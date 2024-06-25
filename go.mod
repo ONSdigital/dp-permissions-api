@@ -2,6 +2,8 @@ module github.com/ONSdigital/dp-permissions-api
 
 go 1.21
 
+replace google.golang.org/protobuf => google.golang.org/protobuf v1.33.0
+
 require (
 	github.com/ONSdigital/dp-authorisation/v2 v2.31.1
 	github.com/ONSdigital/dp-component-test v0.10.0
