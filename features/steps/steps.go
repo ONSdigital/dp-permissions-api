@@ -29,12 +29,12 @@ var (
 	jwtViewerOnlyToken        = "eyJraWQiOiJOZUtiNjUxOTRKbz0iLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhYWFhYWFhYS1iYmJiLWNjY2MtZGRkZC1lZWVlZWVlZWVlZWUiLCJkZXZpY2Vfa2V5IjoiYWFhYWFhYWEtYmJiYi1jY2NjLWRkZGQtZWVlZWVlZWVlZWVlIiwiY29nbml0bzpncm91cHMiOlsicm9sZS12aWV3ZXIiXSwidG9rZW5fdXNlIjoiYWNjZXNzIiwic2NvcGUiOiJhd3MuY29nbml0by5zaWduaW4udXNlci5hZG1pbiIsImF1dGhfdGltZSI6MTU2MjE5MDUyNCwiaXNzIjoiaHR0cHM6Ly9jb2duaXRvLWlkcC51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS91cy13ZXN0LTJfZXhhbXBsZSIsImV4cCI6NDA5NzgyNTI5MiwiaWF0IjoxNTYyMTkwNTI0LCJqdGkiOiJhYWFhYWFhYS1iYmJiLWNjY2MtZGRkZC1lZWVlZWVlZWVlZWUiLCJjbGllbnRfaWQiOiI1N2NiaXNoazRqMjRwYWJjMTIzNDU2Nzg5MCIsInVzZXJuYW1lIjoiamFuZWRvZUBleGFtcGxlLmNvbSJ9.CT-aGaJJCLRxDqEvMITntjF-RAbaVxDWgrfxPRYtgCD4l91uzNkfeuwbQFNbx-0eD7A86O8G-FwVqhBZXn1Wc12X-le_Ta_0Y4FX0YI3Zjqio1KSZIV2_AW5BUmd0FV4DMQplXWPMyJhJpYH7d8erDD8txAANMYL0EPA_pwDo1zQSlioas88ELF8sJa2dUMXLcOFnbqNkWQj_y_Y58iWRoVdwRz51pWzuT5NiJ4JOogolgBhYzwcWNwZE3VD7ht5y_udzDl4fHmadCxgNOacF4jVF91eLKH0PYZR6Dbf0a1Y7QDEYJQU3fYikoOVOL9DlszU5cRtitYbrrsaLrM_PQ"
 )
 
-func (f *PermissionsComponent) iHaveTheseRoles(rolesWriteJson *godog.DocString) error {
+func (f *PermissionsComponent) iHaveTheseRoles(rolesWriteJSON *godog.DocString) error {
 	ctx := context.Background()
 	roles := []models.Role{}
 	m := f.MongoClient
 
-	err := json.Unmarshal([]byte(rolesWriteJson.Content), &roles)
+	err := json.Unmarshal([]byte(rolesWriteJSON.Content), &roles)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,6 @@ func (f *PermissionsComponent) putPolicyInDatabase(
 	mongoConnection *dpMongoDriver.MongoConnection,
 	policy models.Policy,
 	collection string) error {
-
 	update := bson.M{
 		"$set": policy,
 		"$setOnInsert": bson.M{
@@ -101,26 +100,26 @@ func (f *PermissionsComponent) putPolicyInDatabase(
 }
 
 func (f *PermissionsComponent) adminJWTToken() error {
-	err := f.ApiFeature.ISetTheHeaderTo("Authorization", jwtAdminOnlyToken)
+	err := f.APIFeature.ISetTheHeaderTo("Authorization", jwtAdminOnlyToken)
 	return err
 }
 
 func (f *PermissionsComponent) publisherJWTToken() error {
-	err := f.ApiFeature.ISetTheHeaderTo("Authorization", jwtPublisherAndAdminToken)
+	err := f.APIFeature.ISetTheHeaderTo("Authorization", jwtPublisherAndAdminToken)
 	return err
 }
 
 func (f *PermissionsComponent) viewerJWTToken() error {
-	err := f.ApiFeature.ISetTheHeaderTo("Authorization", jwtViewerOnlyToken)
+	err := f.APIFeature.ISetTheHeaderTo("Authorization", jwtViewerOnlyToken)
 	return err
 }
 
 func (f *PermissionsComponent) basicUserJWTToken() error {
-	err := f.ApiFeature.ISetTheHeaderTo("Authorization", jwtBasicUserOnlyToken)
+	err := f.APIFeature.ISetTheHeaderTo("Authorization", jwtBasicUserOnlyToken)
 	return err
 }
 
 func (f *PermissionsComponent) publisherWithNoJWTToken() error {
-	err := f.ApiFeature.ISetTheHeaderTo("Authorization", "")
+	err := f.APIFeature.ISetTheHeaderTo("Authorization", "")
 	return err
 }

@@ -12,12 +12,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//GetRoleHandler is a handler that gets a role by its ID from MongoDB
+// GetRoleHandler is a handler that gets a role by its ID from MongoDB
 func (api *API) GetRoleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	roleID := vars["id"]
 
-	//get role from mongoDB by id
+	// get role from mongoDB by id
 	role, err := api.permissionsStore.GetRole(ctx, roleID)
 	if err != nil {
 		return nil, handleGetRoleError(ctx, err, roleID)
@@ -45,7 +45,7 @@ func handleGetRoleError(ctx context.Context, err error, roleID string) *models.E
 	)
 }
 
-//GetRolesHandler is a handler that gets all roles from MongoDB
+// GetRolesHandler is a handler that gets all roles from MongoDB
 func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	offsetParameter := req.URL.Query().Get("offset")
 	limitParameter := req.URL.Query().Get("limit")
@@ -87,10 +87,10 @@ func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req 
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
-func handleInvalidLimitQueryParameterMaxExceededError(ctx context.Context, err error, value int, max int) *models.ErrorResponse {
+func handleInvalidLimitQueryParameterMaxExceededError(ctx context.Context, err error, value, maxLimit int) *models.ErrorResponse {
 	logData := log.Data{
 		"limit":     value,
-		"max_limit": max,
+		"max_limit": maxLimit,
 	}
 	return models.NewErrorResponse(http.StatusBadRequest,
 		nil,

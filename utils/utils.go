@@ -6,7 +6,7 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 )
 
-//ValidatePositiveInteger checks if a value is positive
+// ValidatePositiveInteger checks if a value is positive
 func ValidatePositiveInteger(value string) (int, error) {
 	val, err := strconv.Atoi(value)
 	if err != nil {

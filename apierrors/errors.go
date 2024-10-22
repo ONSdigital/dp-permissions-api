@@ -5,9 +5,9 @@ import (
 	"strconv"
 )
 
-//A list of error messages for Permissions API
+// A list of error messages for Permissions API
 var (
-	//ErrRoleNotFound is an error when the role can not be found in mongoDB
+	// ErrRoleNotFound is an error when the role can not be found in mongoDB
 	ErrRoleNotFound           = errors.New("role not found")
 	ErrInvalidPositiveInteger = errors.New("value is not a positive integer")
 	ErrLimitAndOffset         = errors.New("offset and limit must be positive or zero")

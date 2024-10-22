@@ -12,14 +12,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//GetPolicyHandler is a handler that gets policy by its ID from DB
+// GetPolicyHandler is a handler that gets policy by its ID from DB
 func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
-	policyId := vars["id"]
+	policyID := vars["id"]
 
-	policy, err := api.permissionsStore.GetPolicy(ctx, policyId)
+	policy, err := api.permissionsStore.GetPolicy(ctx, policyID)
 	if err != nil {
-		return nil, handleGetPolicyError(ctx, err, policyId)
+		return nil, handleGetPolicyError(ctx, err, policyID)
 	}
 
 	b, err := json.Marshal(policy)
@@ -30,8 +30,8 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
-func handleGetPolicyError(ctx context.Context, err error, policyId string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyId}
+func handleGetPolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
+	logData := log.Data{"policy_id": policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -44,21 +44,21 @@ func handleGetPolicyError(ctx context.Context, err error, policyId string) *mode
 	)
 }
 
-//DeletePolicyHandler is a handler that deletes policy by its ID from DB
+// DeletePolicyHandler is a handler that deletes policy by its ID from DB
 func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
-	policyId := vars["id"]
+	policyID := vars["id"]
 
-	err := api.permissionsStore.DeletePolicy(ctx, policyId)
+	err := api.permissionsStore.DeletePolicy(ctx, policyID)
 	if err != nil {
-		return nil, handleDeletePolicyError(ctx, err, policyId)
+		return nil, handleDeletePolicyError(ctx, err, policyID)
 	}
 
 	return models.NewSuccessResponse(nil, http.StatusNoContent, nil), nil
 }
 
-func handleDeletePolicyError(ctx context.Context, err error, policyId string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyId}
+func handleDeletePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
+	logData := log.Data{"policy_id": policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -71,7 +71,7 @@ func handleDeletePolicyError(ctx context.Context, err error, policyId string) *m
 	)
 }
 
-//PostPolicyHandler is a handler that creates a new policies in DB
+// PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	policy, err := models.CreatePolicy(req.Body)
 	if err != nil {
@@ -105,13 +105,13 @@ func handleValidatePolicyError(ctx context.Context, err error, policy *models.Po
 }
 
 func (api *API) createNewPolicy(ctx context.Context, policy *models.PolicyInfo) (*models.Policy, error) {
-	uuid, err := uuid.NewV4()
+	policyuuid, err := uuid.NewV4()
 	if err != nil {
 		log.Error(ctx, "failed to create a new UUID for policies", err)
 		return nil, err
 	}
 
-	newPolicy, err := api.permissionsStore.AddPolicy(ctx, policy.GetPolicy(uuid.String()))
+	newPolicy, err := api.permissionsStore.AddPolicy(ctx, policy.GetPolicy(policyuuid.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -125,10 +125,10 @@ func handleCreateNewPolicyError(ctx context.Context, err error) *models.ErrorRes
 	)
 }
 
-//UpdatePolicyHandler is a handler that updates policy by its ID from DB
+// UpdatePolicyHandler is a handler that updates policy by its ID from DB
 func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
-	policyId := vars["id"]
+	policyID := vars["id"]
 
 	updatePolicy, err := models.CreatePolicy(req.Body)
 	if err != nil {
@@ -139,9 +139,9 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 		return nil, handleValidatePolicyError(ctx, err, updatePolicy)
 	}
 
-	updateResult, err := api.permissionsStore.UpdatePolicy(ctx, updatePolicy.GetPolicy(policyId))
+	updateResult, err := api.permissionsStore.UpdatePolicy(ctx, updatePolicy.GetPolicy(policyID))
 	if err != nil {
-		return nil, handleUpdatePolicyError(ctx, err, policyId)
+		return nil, handleUpdatePolicyError(ctx, err, policyID)
 	}
 
 	if updateResult.ModifiedCount > 0 {
@@ -151,8 +151,8 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 	}
 }
 
-func handleUpdatePolicyError(ctx context.Context, err error, policyId string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyId}
+func handleUpdatePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
+	logData := log.Data{"policy_id": policyID}
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
 		models.NewError(ctx, err, models.UpdatePolicyError, models.UpdatePolicyErrorDescription, logData),

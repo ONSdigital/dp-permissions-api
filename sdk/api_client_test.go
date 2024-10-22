@@ -50,17 +50,15 @@ func TestAPIClient_GetPermissionsBundle(t *testing.T) {
 	Convey("Given a mock http client that returns a successful permissions bundle response", t, func() {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
-
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJson())),
+					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJSON())),
 				}, nil
 			},
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Then no error is returned", func() {
@@ -102,14 +100,13 @@ func TestAPIClient_GetPermissionsBundle_SucceedsOnSecondAttempt(t *testing.T) {
 				}
 				return &http.Response{
 					StatusCode: http.StatusOK,
-					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJson())),
+					Body:       io.NopCloser(bytes.NewReader(getExampleBundleJSON())),
 				}, nil
 			},
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Bundle request made twice (failed on first attempt)", func() {
@@ -150,7 +147,6 @@ func TestAPIClient_GetPermissionsBundle_HTTPError(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Then the expected error is returned", func() {
@@ -179,7 +175,6 @@ func TestAPIClient_GetPermissionsBundle_Non200ResponseCodeReturned(t *testing.T)
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Then the expected error is returned", func() {
@@ -207,7 +202,6 @@ func TestAPIClient_GetPermissionsBundle_NilResponseBody(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Then the expected error is returned", func() {
@@ -236,7 +230,6 @@ func TestAPIClient_GetPermissionsBundle_UnexpectedResponseBody(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When GetPermissionsBundle is called", func() {
-
 			bundle, err := apiClient.GetPermissionsBundle(ctx)
 
 			Convey("Then the expected error is returned", func() {
@@ -250,11 +243,11 @@ func TestAPIClient_GetPermissionsBundle_UnexpectedResponseBody(t *testing.T) {
 	})
 }
 
-func getExampleBundleJson() []byte {
+func getExampleBundleJSON() []byte {
 	bundle := getExampleBundle()
-	permissionsBundleJson, err := json.Marshal(bundle)
+	permissionsBundleJSON, err := json.Marshal(bundle)
 	So(err, ShouldBeNil)
-	return permissionsBundleJson
+	return permissionsBundleJSON
 }
 
 func getExampleBundle() sdk.Bundle {

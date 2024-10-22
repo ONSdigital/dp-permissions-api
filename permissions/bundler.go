@@ -2,12 +2,13 @@ package permissions
 
 import (
 	"context"
+
 	"github.com/ONSdigital/dp-permissions-api/models"
 )
 
 //go:generate moq -out mock/store.go -pkg mock . Store
 
-//Store defines the behaviour of a PermissionsStore as used by the Bundler type.
+// Store defines the behaviour of a PermissionsStore as used by the Bundler type.
 type Store interface {
 	GetAllRoles(ctx context.Context) ([]*models.Role, error)
 	GetAllBundlePolicies(ctx context.Context) ([]*models.BundlePolicy, error)
@@ -47,11 +48,9 @@ func createBundle(policies []*models.BundlePolicy, roles []*models.Role) models.
 	bundle := models.Bundle{}
 
 	for _, role := range roles {
-
 		policiesForRole := roleIDToPolicies[role.ID]
 
 		for _, permission := range role.Permissions {
-
 			entityLookup, ok := bundle[permission]
 			if !ok {
 				entityLookup = map[string][]*models.BundlePolicy{}

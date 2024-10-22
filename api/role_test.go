@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -54,18 +54,8 @@ var paginatedImageList = models.Roles{
 	Offset:     1,
 }
 
-var negativeQueryImageList = models.Roles{
-	Items:      []models.Role{*dbRole(testRoleID1), *dbRole(testRoleID2)},
-	Count:      2,
-	Limit:      0,
-	TotalCount: 2,
-	Offset:     0,
-}
-
 func TestGetRoleHandler(t *testing.T) {
-
 	Convey("Given a GetRole Handler", t, func() {
-
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
 				switch id {
@@ -77,17 +67,16 @@ func TestGetRoleHandler(t *testing.T) {
 			},
 		}
 
-		permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+		permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
 		Convey("When an existing role is requested with its Role ID", func() {
-
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/roles/%s", testRoleID1), nil)
+			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/roles/%s", testRoleID1), http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("The matched role is returned with status code 200", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
-				payload, err := ioutil.ReadAll(w.Body)
+				payload, err := io.ReadAll(w.Body)
 				So(err, ShouldBeNil)
 				returnedRole := models.Role{}
 				err = json.Unmarshal(payload, &returnedRole)
@@ -97,24 +86,20 @@ func TestGetRoleHandler(t *testing.T) {
 		})
 
 		Convey("When a non existing role is requested a Not Found response is returned", func() {
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles/inexistent", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles/inexistent", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 			response := w.Body.String()
 
 			So(w.Code, ShouldEqual, http.StatusNotFound)
 			So(response, ShouldContainSubstring, models.RoleNotFoundDescription)
 		})
 	})
-
 }
 
 func TestGetRolesHandler(t *testing.T) {
-
 	Convey("Given a GetRoles Handler", t, func() {
-
 		Convey("When existing roles are requested using the default offset and limit values", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -127,26 +112,24 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("The list of roles are returned with status code 200", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
-				payload, err := ioutil.ReadAll(w.Body)
+				payload, err := io.ReadAll(w.Body)
 				So(err, ShouldBeNil)
 				returnedRoles := models.Roles{}
 				err = json.Unmarshal(payload, &returnedRoles)
 				So(err, ShouldBeNil)
 				So(returnedRoles, ShouldResemble, imageList)
 			})
-
 		})
 
 		Convey("When existing roles are requested using valid user defined offset and limit values", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -159,26 +142,24 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=1&limit=1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=1&limit=1", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("The paginated list of roles are returned with status code 200", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
-				payload, err := ioutil.ReadAll(w.Body)
+				payload, err := io.ReadAll(w.Body)
 				So(err, ShouldBeNil)
 				returnedRoles := models.Roles{}
 				err = json.Unmarshal(payload, &returnedRoles)
 				So(err, ShouldBeNil)
 				So(returnedRoles, ShouldResemble, paginatedImageList)
 			})
-
 		})
 
 		Convey("When existing roles are requested with a limit that is higher than the maximum default limit value", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -191,20 +172,18 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?limit=1500", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?limit=1500", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("A status code of 400 is returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 			})
-
 		})
 
 		Convey("When existing roles are requested using negative user defined offset and limit values", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -217,20 +196,18 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=-1&limit=-1", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=-1&limit=-1", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("A status code of 400 is returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 			})
-
 		})
 
 		Convey("When existing roles are requested using invalid user defined offset and limit values", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -243,20 +220,18 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=h&limit=i", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles?offset=h&limit=i", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("A status code of 400 is returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 			})
-
 		})
 
 		Convey("When non existing roles are requested using the default offset and limit values", func() {
-
 			mockedPermissionsStore := &mock.PermissionsStoreMock{
 				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
 					return &models.Roles{
@@ -269,22 +244,21 @@ func TestGetRolesHandler(t *testing.T) {
 				},
 			}
 
-			permissionsApi := setupAPIWithStore(mockedPermissionsStore)
+			permissionsAPI := setupAPIWithStore(mockedPermissionsStore)
 
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", nil)
+			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", http.NoBody)
 			w := httptest.NewRecorder()
-			permissionsApi.Router.ServeHTTP(w, r)
+			permissionsAPI.Router.ServeHTTP(w, r)
 
 			Convey("The list of roles are returned with status code 200", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
-				payload, err := ioutil.ReadAll(w.Body)
+				payload, err := io.ReadAll(w.Body)
 				So(err, ShouldBeNil)
 				returnedRoles := models.Roles{}
 				err = json.Unmarshal(payload, &returnedRoles)
 				So(err, ShouldBeNil)
 				So(returnedRoles, ShouldResemble, emptyImageList)
 			})
-
 		})
 	})
 }

@@ -72,7 +72,7 @@ func NewClientWithClienter(host string, httpClient HTTPClient, opts Options) *AP
 func (c *APIClient) GetRoles(ctx context.Context) (*models.Roles, error) {
 	uri := fmt.Sprintf(rolesEndpoint, c.host)
 
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	req, err := http.NewRequest(http.MethodGet, uri, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (c *APIClient) GetRoles(ctx context.Context) (*models.Roles, error) {
 func (c *APIClient) GetRole(ctx context.Context, id string) (*models.Roles, error) {
 	uri := fmt.Sprintf(getRoleEndpoint, c.host, id)
 
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	req, err := http.NewRequest(http.MethodGet, uri, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*
 func (c *APIClient) DeletePolicy(ctx context.Context, id string) error {
 	uri := fmt.Sprintf(policyEndpoint, c.host, id)
 
-	req, err := http.NewRequest(http.MethodDelete, uri, nil)
+	req, err := http.NewRequest(http.MethodDelete, uri, http.NoBody)
 	if err != nil {
 		return err
 	}
@@ -233,7 +233,7 @@ func (c *APIClient) DeletePolicy(ctx context.Context, id string) error {
 func (c *APIClient) GetPolicy(ctx context.Context, id string) (*models.Policy, error) {
 	uri := fmt.Sprintf(policyEndpoint, c.host, id)
 
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	req, err := http.NewRequest(http.MethodGet, uri, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +312,7 @@ func (c *APIClient) PutPolicy(ctx context.Context, id string, policy models.Poli
 func (c *APIClient) GetPermissionsBundle(ctx context.Context) (Bundle, error) {
 	uri := fmt.Sprintf(bundlerEndpoint, c.host)
 
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	req, err := http.NewRequest(http.MethodGet, uri, http.NoBody)
 	if err != nil {
 		return nil, err
 	}

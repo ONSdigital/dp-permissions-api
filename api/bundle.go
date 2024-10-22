@@ -10,7 +10,6 @@ import (
 
 // GetPermissionsBundleHandler gets and returns the permissions bundle as JSON in the HTTP response body.
 func (api *API) GetPermissionsBundleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
-
 	bundle, err := api.bundler.Get(ctx)
 	if err != nil {
 		return nil, handleGetPermissionsBundleError(ctx, err)

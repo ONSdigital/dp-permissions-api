@@ -3,6 +3,7 @@ package steps
 import (
 	"context"
 	"net/http"
+	"time"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
@@ -40,15 +41,19 @@ type PermissionsComponent struct {
 	Config                  *config.Config
 	HTTPServer              *http.Server
 	ServiceRunning          bool
-	ApiFeature              *componenttest.APIFeature
+	APIFeature              *componenttest.APIFeature
 	AuthorisationMiddleware authorisation.Middleware
 }
 
 func setupFakePermissionsAPI() *authorisationtest.FakePermissionsAPI {
+	ctx := context.Background()
 	fakePermissionsAPI := authorisationtest.NewFakePermissionsAPI()
 	bundle := getPermissionsBundle()
 	fakePermissionsAPI.Reset()
-	fakePermissionsAPI.UpdatePermissionsBundleResponse(bundle)
+	err := fakePermissionsAPI.UpdatePermissionsBundleResponse(bundle)
+	if err != nil {
+		log.Warn(ctx, "failed to update permissions bundle", log.Data{"err": err.Error()})
+	}
 	return fakePermissionsAPI
 }
 
@@ -113,7 +118,9 @@ func getPermissionsBundle() *permsdk.Bundle {
 // NewPermissionsComponent initializes mock server and in-memory mongodb used for running component tests.
 func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	f := &PermissionsComponent{
-		HTTPServer:     &http.Server{},
+		HTTPServer: &http.Server{
+			ReadHeaderTimeout: 5 * time.Second,
+		},
 		errorChan:      make(chan error),
 		ServiceRunning: false,
 	}
@@ -135,7 +142,7 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 		return nil, err
 	}
 
-	f.ApiFeature = componenttest.NewAPIFeature(f.InitialiseService)
+	f.APIFeature = componenttest.NewAPIFeature(f.InitialiseService)
 
 	fakePermissionsAPI := setupFakePermissionsAPI()
 	f.Config.AuthorisationConfig.JWTVerificationPublicKeys = rsaJWKS
@@ -144,7 +151,7 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	return f, nil
 }
 
-func createCredsInDB(mongoConfig dpMongoDriver.MongoDriverConfig) (string, string) {
+func createCredsInDB(mongoConfig dpMongoDriver.MongoDriverConfig) (uname, pword string) {
 	mongoConnection, err := dpMongoDriver.Open(&mongoConfig)
 	if err != nil {
 		panic("expected db connection to be opened")
@@ -217,7 +224,7 @@ func (f *PermissionsComponent) InitialiseService() (http.Handler, error) {
 	return f.HTTPServer.Handler, nil
 }
 
-func (f *PermissionsComponent) DoGetHealthcheckOk(_ *config.Config, _ string, _ string, _ string) (service.HealthChecker, error) {
+func (f *PermissionsComponent) DoGetHealthcheckOk(_ *config.Config, _, _, _ string) (service.HealthChecker, error) {
 	return &serviceMock.HealthCheckerMock{
 		AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
 		StartFunc:    func(ctx context.Context) {},

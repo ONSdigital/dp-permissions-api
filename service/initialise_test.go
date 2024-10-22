@@ -28,7 +28,6 @@ func TestGetHTTPServer(t *testing.T) {
 			DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer {
 				return serverMock
 			},
-
 		}
 		r := mux.NewRouter()
 		svcList := service.NewServiceList(newServiceMock)
@@ -119,9 +118,7 @@ func TestGetHTTPServer(t *testing.T) {
 }
 
 func TestGetHealthCheck(t *testing.T) {
-
 	Convey("Given a service list that returns a mocked healthchecker", t, func() {
-
 		hcMock := &mock.HealthCheckerMock{}
 
 		newServiceMock := &mock.InitialiserMock{
@@ -159,9 +156,7 @@ func TestGetHealthCheck(t *testing.T) {
 	})
 }
 func TestGetMongoDB(t *testing.T) {
-
 	Convey("Given a service list that returns a mocked mongo permissions store", t, func() {
-
 		mongoMock := &mock.PermissionsStoreMock{}
 
 		newServiceMock := &mock.InitialiserMock{
@@ -182,7 +177,6 @@ func TestGetMongoDB(t *testing.T) {
 	})
 
 	Convey("Given a service list that returns nil for mongo permissions store", t, func() {
-
 		newServiceMock := &mock.InitialiserMock{
 			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 				return nil, errMongoDB

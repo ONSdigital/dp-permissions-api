@@ -34,7 +34,7 @@ var (
 	errHealthcheck = errors.New("healthCheck error")
 )
 
-var funcDoGetMongoDbErr = func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
+var funcDoGetMongoDBErr = func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 	return nil, errMongoDB
 }
 
@@ -47,9 +47,7 @@ var funcDoGetHTTPServerNil = func(bindAddr string, router http.Handler) service.
 }
 
 func TestRun(t *testing.T) {
-
 	Convey("Having a set of mocked dependencies", t, func() {
-
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
@@ -85,7 +83,7 @@ func TestRun(t *testing.T) {
 			return failingServerMock
 		}
 
-		funcDoGetMongoDbOk := func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
+		funcDoGetMongoDBOk := func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
 			return &mock.PermissionsStoreMock{
 				CloseFunc: func(ctx context.Context) error { return nil },
 			}, nil
@@ -102,7 +100,7 @@ func TestRun(t *testing.T) {
 		Convey("Given that initialising mongoDB returns an error", func() {
 			initMock := &mock.InitialiserMock{
 				DoGetHTTPServerFunc:              funcDoGetHTTPServerNil,
-				DoGetMongoDBFunc:                 funcDoGetMongoDbErr,
+				DoGetMongoDBFunc:                 funcDoGetMongoDBErr,
 				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
@@ -118,12 +116,11 @@ func TestRun(t *testing.T) {
 		})
 
 		Convey("Given that initialising healthcheck returns an error", func() {
-
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
 				DoGetHTTPServerFunc:              funcDoGetHTTPServerNil,
 				DoGetHealthCheckFunc:             funcDoGetHealthcheckErr,
-				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDBOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -142,12 +139,11 @@ func TestRun(t *testing.T) {
 		})
 
 		Convey("Given that all dependencies are successfully initialised", func() {
-
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
 				DoGetHTTPServerFunc:              funcDoGetHTTPServer,
 				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
-				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDBOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -180,7 +176,6 @@ func TestRun(t *testing.T) {
 
 		// ADD CODE: put this code in, if you have Checkers to register
 		Convey("Given that Checkers cannot be registered", func() {
-
 			// setup (run before each `Convey` at this scope / indentation):
 			errAddheckFail := errors.New("Error(s) registering checkers for health check")
 			hcMockAddFail := &mock.HealthCheckerMock{
@@ -193,7 +188,7 @@ func TestRun(t *testing.T) {
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMockAddFail, nil
 				},
-				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDBOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 				// ADD CODE: add the checkers that you want to register here
 			}
@@ -214,12 +209,11 @@ func TestRun(t *testing.T) {
 		})
 
 		Convey("Given that all dependencies are successfully initialised but the http server fails", func() {
-
 			// setup (run before each `Convey` at this scope / indentation):
 			initMock := &mock.InitialiserMock{
 				DoGetHealthCheckFunc:             funcDoGetHealthcheckOk,
 				DoGetHTTPServerFunc:              funcDoGetFailingHTTPServer,
-				DoGetMongoDBFunc:                 funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:                 funcDoGetMongoDBOk,
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
 			svcErrors := make(chan error, 1)
@@ -244,7 +238,7 @@ func TestRun(t *testing.T) {
 			initMock := &mock.InitialiserMock{
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
 				DoGetHTTPServerFunc:  funcDoGetFailingHTTPServer,
-				DoGetMongoDBFunc:     funcDoGetMongoDbOk,
+				DoGetMongoDBFunc:     funcDoGetMongoDBOk,
 				DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
 					return nil, expectedError
 				},
@@ -261,9 +255,7 @@ func TestRun(t *testing.T) {
 }
 
 func TestClose(t *testing.T) {
-
 	Convey("Having a correctly initialised service", t, func() {
-
 		cfg, err := config.Get()
 		serverStopped := false
 		So(err, ShouldBeNil)
@@ -301,7 +293,7 @@ func TestClose(t *testing.T) {
 		}
 
 		// mongoDB Close will fail if healthcheck and http server are not already closed
-		mongoDbMock := &mock.PermissionsStoreMock{
+		mongoDBMock := &mock.PermissionsStoreMock{
 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error { return nil },
 			CloseFunc: func(ctx context.Context) error {
 				if !hcStopped || !serverStopped {
@@ -312,14 +304,13 @@ func TestClose(t *testing.T) {
 		}
 
 		Convey("Closing the service results in all the dependencies being closed in the expected order", func() {
-
 			initMock := &mock.InitialiserMock{
 				DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer { return serverMock },
 				DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
 					return hcMock, nil
 				},
 				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
-					return mongoDbMock, nil
+					return mongoDBMock, nil
 				},
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
@@ -333,11 +324,10 @@ func TestClose(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(len(hcMock.StopCalls()), ShouldEqual, 1)
 			So(len(serverMock.ShutdownCalls()), ShouldEqual, 1)
-			So(len(mongoDbMock.CloseCalls()), ShouldEqual, 1)
+			So(len(mongoDBMock.CloseCalls()), ShouldEqual, 1)
 		})
 
 		Convey("If services fail to stop, the Close operation tries to close all dependencies and returns an error", func() {
-
 			failingserverMock := &mock.HTTPServerMock{
 				ListenAndServeFunc: func() error { return nil },
 				ShutdownFunc: func(ctx context.Context) error {
@@ -351,7 +341,7 @@ func TestClose(t *testing.T) {
 					return hcMock, nil
 				},
 				DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
-					return mongoDbMock, nil
+					return mongoDBMock, nil
 				},
 				DoGetAuthorisationMiddlewareFunc: funcDoGetAuthorisationMiddleware,
 			}
@@ -365,7 +355,7 @@ func TestClose(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(len(hcMock.StopCalls()), ShouldEqual, 1)
 			So(len(failingserverMock.ShutdownCalls()), ShouldEqual, 1)
-			So(len(mongoDbMock.CloseCalls()), ShouldEqual, 1)
+			So(len(mongoDBMock.CloseCalls()), ShouldEqual, 1)
 		})
 
 		Convey("If service times out while shutting down, the Close operation fails with the expected error", func() {

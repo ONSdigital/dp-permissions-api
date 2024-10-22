@@ -32,7 +32,6 @@ func TestCreateNewPolicyWithValidJson(t *testing.T) {
 
 func TestCreateNewPolicyWithNoBody(t *testing.T) {
 	Convey("When a policy message has no body, an error is returned", t, func() {
-
 		policy, err := CreatePolicy(reader{})
 
 		So(err, ShouldNotBeNil)

@@ -21,22 +21,22 @@ func TestSetup(t *testing.T) {
 
 		cfg := &config.Config{}
 		r := mux.NewRouter()
-		api := api.Setup(cfg, r, mongoMock, bundlerMock, newAuthMiddlwareMock())
+		permissionsAPI := api.Setup(cfg, r, mongoMock, bundlerMock, newAuthMiddlwareMock())
 
 		Convey("When created the following routes should have been added", func() {
-			So(hasRoute(api.Router, "/v1/roles", "GET"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/roles/{id}", "GET"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/policies", "POST"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/policies/{id}", "GET"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/policies/{id}", "PUT"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/policies/{id}", "DELETE"), ShouldBeTrue)
-			So(hasRoute(api.Router, "/v1/permissions-bundle", "GET"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/roles", "GET"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/roles/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/policies", "POST"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/policies/{id}", "GET"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/policies/{id}", "PUT"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/policies/{id}", "DELETE"), ShouldBeTrue)
+			So(hasRoute(permissionsAPI.Router, "/v1/permissions-bundle", "GET"), ShouldBeTrue)
 		})
 	})
 }
 
 func hasRoute(r *mux.Router, path, method string) bool {
-	req := httptest.NewRequest(method, path, nil)
+	req := httptest.NewRequest(method, path, http.NoBody)
 	match := &mux.RouteMatch{}
 	return r.Match(req, match)
 }

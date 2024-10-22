@@ -28,9 +28,7 @@ type Service struct {
 
 // Run the service
 func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceList, buildTime, gitCommit, version string, svcErrors chan error) (*Service, error) {
-
 	log.Info(ctx, "running service")
-
 	log.Info(ctx, "using service configuration", log.Data{"config": cfg})
 
 	// Get HTTP Server and ... // ADD CODE: Add any middleware that your service requires
@@ -151,7 +149,6 @@ func registerCheckers(ctx context.Context,
 	hc HealthChecker,
 	permissionsStore PermissionsStore,
 	authorisationMiddleware authorisation.Middleware) (err error) {
-
 	hasErrors := false
 
 	if err = hc.AddCheck("Mongo DB", permissionsStore.Checker); err != nil {

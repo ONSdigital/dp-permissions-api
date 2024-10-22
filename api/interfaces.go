@@ -11,7 +11,7 @@ import (
 //go:generate moq -out ../service/mock/store.go -pkg mock . PermissionsStore
 //go:generate moq -out mock/bundler.go -pkg mock . PermissionsBundler
 
-//PermissionsStore defines the behaviour of a PermissionsStore
+// PermissionsStore defines the behaviour of a PermissionsStore
 type PermissionsStore interface {
 	Checker(ctx context.Context, state *healthcheck.CheckState) error
 	Close(ctx context.Context) error

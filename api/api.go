@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//API provides a struct to wrap the api around
+// API provides a struct to wrap the api around
 type API struct {
 	Router              *mux.Router
 	permissionsStore    PermissionsStore
@@ -36,14 +36,13 @@ func contextAndErrors(h baseHandler) http.HandlerFunc {
 	}
 }
 
-//Setup function sets up the api and returns an api
+// Setup function sets up the api and returns an api
 func Setup(
 	cfg *config.Config,
 	r *mux.Router,
 	permissionsStore PermissionsStore,
 	bundler PermissionsBundler,
 	auth authorisation.Middleware) *API {
-
 	api := &API{
 		Router:              r,
 		permissionsStore:    permissionsStore,
@@ -110,7 +109,7 @@ func writeSuccessResponse(ctx context.Context, w http.ResponseWriter, successRes
 	}
 }
 
-func handleInvalidQueryParameterError(ctx context.Context, err error, name string, value string) *models.ErrorResponse {
+func handleInvalidQueryParameterError(ctx context.Context, err error, name, value string) *models.ErrorResponse {
 	logData := log.Data{name: value}
 	return models.NewErrorResponse(http.StatusBadRequest,
 		nil,

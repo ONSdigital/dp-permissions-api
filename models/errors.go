@@ -22,7 +22,7 @@ func (e *Error) Error() string {
 }
 
 // NewError creates a new Error. Once created. the error is logged along with logData.
-func NewError(ctx context.Context, cause error, code string, description string, logData log.Data) *Error {
+func NewError(ctx context.Context, cause error, code, description string, logData log.Data) *Error {
 	err := &Error{
 		Cause:       cause,
 		Code:        code,

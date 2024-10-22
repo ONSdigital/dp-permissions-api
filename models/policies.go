@@ -80,13 +80,12 @@ func (policy *PolicyInfo) GetPolicy(id string) *Policy {
 
 // ValidatePolicy checks that all the mandatory fields are non-empty and non-empty fields contain valid values
 func (policy *PolicyInfo) ValidatePolicy() error {
-
 	var missingFields, invalidFields, validationErrors []string
 
 	if len(policy.Entities) == 0 {
 		missingFields = append(missingFields, "entities")
 	}
-	if len(policy.Role) == 0 {
+	if policy.Role == "" {
 		missingFields = append(missingFields, "role")
 	}
 	if len(missingFields) > 0 {
@@ -103,14 +102,13 @@ func (policy *PolicyInfo) ValidatePolicy() error {
 	}
 
 	if len(validationErrors) > 0 {
-		return fmt.Errorf(strings.Join(validationErrors, ". "))
+		return fmt.Errorf("%s", strings.Join(validationErrors, ". "))
 	}
 	return nil
 }
 
 // CreatePolicy manages the creation of a filter from reader
 func CreatePolicy(reader io.Reader) (*PolicyInfo, error) {
-
 	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, ErrorReadingBody

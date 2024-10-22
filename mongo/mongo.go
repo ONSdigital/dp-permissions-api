@@ -141,7 +141,6 @@ func (m *Mongo) GetPolicy(ctx context.Context, id string) (*models.Policy, error
 	}
 
 	return &policy, nil
-
 }
 
 // UpdatePolicy updates the given policy, or inserts/creates the given policy if it does not exist
@@ -178,5 +177,4 @@ func (m *Mongo) DeletePolicy(ctx context.Context, id string) error {
 	}
 
 	return nil
-
 }

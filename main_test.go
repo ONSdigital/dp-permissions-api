@@ -30,7 +30,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	}
 
 	ctx.After(func(ctx context.Context, scenario *godog.Scenario, err error) (context.Context, error) {
-		if err = component.Close(); err != nil {
+		if err := component.Close(); err != nil {
 			return nil, err
 		}
 		authorizationFeature.Close()
@@ -38,7 +38,7 @@ func (f *ComponentTest) InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 
 	component.RegisterSteps(ctx)
-	component.ApiFeature.RegisterSteps(ctx)
+	component.APIFeature.RegisterSteps(ctx)
 	authorizationFeature.RegisterSteps(ctx)
 }
 

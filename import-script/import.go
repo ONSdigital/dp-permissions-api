@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -45,7 +45,7 @@ func importRoles(ctx context.Context, mongoCollection *dpMongodb.Collection) {
 		os.Exit(1)
 	}
 
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		log.Error(ctx, "failed to read json file as a byte array", err)
 		os.Exit(1)
@@ -59,7 +59,6 @@ func importRoles(ctx context.Context, mongoCollection *dpMongodb.Collection) {
 	}
 
 	for _, role := range res {
-
 		role.ID = strings.ToLower(role.Name)
 		logData := log.Data{"role": role}
 
@@ -82,7 +81,7 @@ func importPolicies(ctx context.Context, mongoCollection *dpMongodb.Collection) 
 		os.Exit(1)
 	}
 
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		log.Error(ctx, "failed to read policies json file as a byte array", err)
 		os.Exit(1)
