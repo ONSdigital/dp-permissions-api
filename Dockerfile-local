@@ -5,4 +5,6 @@ RUN apt-get update && apt-get upgrade -y
 WORKDIR /service
 CMD tail -f /dev/null
 
+RUN git config --global --add safe.directory /service
+
 FROM build as test
