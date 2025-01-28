@@ -1,8 +1,8 @@
-dp-permissions-api
-================
+# dp-permissions-api
+
 API for managing access control permissions for Digital Publishing API resources
 
-### Getting started
+## Getting started
 
 * Load inital roles into your local mongodb using the `import-script` utility in the import-script folder. Follow the
   steps in the [README](./import-script/README.md).
@@ -10,7 +10,17 @@ API for managing access control permissions for Digital Publishing API resources
 
 ### Dependencies
 
-* No further dependencies other than those defined in `go.mod`
+* run mongo DB locally on 27017 with:
+  * database name: 'permissions'
+  * collections: 'roles, policies'
+
+This can be done via the [v1 compat stack](https://github.com/ONSdigital/dp-compose/tree/main/v2/stacks/v1-compat) in dp-compose.
+
+To run make validate-specification you require Node v20.x and to install @redocly/cli:
+
+```sh
+   npm install -g @redocly/cli
+```
 
 ### Configuration
 
@@ -35,17 +45,18 @@ API for managing access control permissions for Digital Publishing API resources
 | DEFAULT_OFFSET                 | 0                                                   | Default offset for pagination                                                                                       |
 | DEFAULT_MAXIMUM_LIMIT          | 1000                                                | Default maximum limit for pagination                                                                                |
 
-### SDK Package
+dp-permissions-api also implements the [dp-authorisation library config](https://github.com/ONSdigital/dp-authorisation/blob/main/authorisation/config.go) for managing authentication and authorisation.
+
+## SDK Package
 
 [An SDK for the API is available as a subpackage in `/sdk`](sdk/README.md)
 
-### Contributing
+## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-### License
+## License
 
-Copyright © 2022, Office for National Statistics (https://www.ons.gov.uk)
+Copyright © 2025, Office for National Statistics <https://www.ons.gov.uk>
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
-
