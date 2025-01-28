@@ -4,25 +4,25 @@ go 1.23
 
 require (
 	github.com/ONSdigital/dp-authorisation/v2 v2.31.2
-	github.com/ONSdigital/dp-component-test v0.15.0
+	github.com/ONSdigital/dp-component-test v0.17.0
 	github.com/ONSdigital/dp-healthcheck v1.6.3
-	github.com/ONSdigital/dp-mongodb/v3 v3.7.0
-	github.com/ONSdigital/dp-net/v2 v2.11.2
+	github.com/ONSdigital/dp-mongodb/v3 v3.8.0
+	github.com/ONSdigital/dp-net/v2 v2.19.0
 	github.com/ONSdigital/log.go/v2 v2.4.3
-	github.com/cucumber/godog v0.14.1
+	github.com/cucumber/godog v0.15.0
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/mux v1.8.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/smartystreets/goconvey v1.8.1
-	go.mongodb.org/mongo-driver v1.17.1
+	go.mongodb.org/mongo-driver v1.17.2
 )
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.261.0 // indirect
-	github.com/ONSdigital/dp-mongodb-in-memory v1.7.0 // indirect
-	github.com/chromedp/cdproto v0.0.0-20241014181340-cb3a7a1d51d7 // indirect
-	github.com/chromedp/chromedp v0.11.0 // indirect
+	github.com/ONSdigital/dp-mongodb-in-memory v1.8.0 // indirect
+	github.com/chromedp/cdproto v0.0.0-20241022234722-4d5d5faf59fb // indirect
+	github.com/chromedp/chromedp v0.11.1 // indirect
 	github.com/chromedp/sysutil v1.1.0 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
@@ -51,7 +51,7 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/smarty/assertions v1.16.0 // indirect
-	github.com/spf13/afero v1.11.0 // indirect
+	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/square/mongo-lock v0.0.0-20230808145049-cfcf499f6bf0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
