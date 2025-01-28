@@ -30,22 +30,6 @@
     }
   },
   {
-    "id": "interactives-updater",
-    "entities": [
-      "users/dp-interactives-importer"
-    ],
-    "role": "interactives-update",
-    "condition": {}
-  },
-  {
-    "id": "interactives-reader",
-    "entities": [
-      "users/dp-frontend-interactives-controller"
-    ],
-    "role": "interactives-read",
-    "condition": {}
-  },
-  {
     "id": "files-admin",
     "entities": [
       "users/dp-upload-service"
