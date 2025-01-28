@@ -35,5 +35,9 @@ test-component:
 	go test -race -cover -coverpkg=github.com/ONSdigital/dp-permissions-api/... -component
 
 .PHONY: lint
-lint:
+lint: validate-specification
 	golangci-lint run ./...
+
+.PHONY: validate-specification
+validate-specification:
+	redocly lint swagger.yaml
