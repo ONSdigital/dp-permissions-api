@@ -16,7 +16,7 @@ import (
 const (
 	bundlerEndpoint          = "%s/v1/permissions-bundle"
 	addPolicyEndpoint        = "%s/v1/policies"    // Add policy
-	policyEndpoint           = "%s/v1/policies/%s" // Delete policy
+	policyEndpoint           = "%s/v1/policies/%s" // Get / Update / Delete policy
 	rolesEndpoint            = "%s/v1/roles"       // Add roles
 	getRoleEndpoint          = "%s/v1/roles/%s"    // Get roles
 	Authorization     string = "Authorization"

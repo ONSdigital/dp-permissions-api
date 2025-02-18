@@ -1,5 +1,4 @@
-dp-permissions-api SDK
-======================
+# dp-permissions-api SDK
 
 ## Overview
 
@@ -12,14 +11,14 @@ It also contains reusable structs representing models used as payloads in API en
 package main
 
 import (
-	"context"
-	"github.com/ONSdigital/dp-permissions-api/sdk"
+    "context"
+    "github.com/ONSdigital/dp-permissions-api/sdk"
 )
 
 func main() {
-	apiClient := sdk.NewClient("http://localhost:25400")
+    apiClient := sdk.NewClient("http://localhost:25400")
 
-	permissionsBundle, err := c.cache.GetPermissionsBundle(context.Backgroud)
+    permissionsBundle, err := c.cache.GetPermissionsBundle(context.Backgroud)
 }
 ```
 

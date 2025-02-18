@@ -11,8 +11,11 @@ schemes:
   - http
 tags:
   - name: "roles"
+    description: "Endpoints related to role groups"
   - name: "permissions"
+    description: "Endpoints related to permissions"
   - name: "policies"
+    description: "Endpoints related to policies"
 parameters:
   limit:
     name: limit
@@ -33,6 +36,8 @@ paths:
 
   /roles:
     get:
+      security:
+        - Authorization: []
       tags:
         - "roles"
       summary: "Returns a list of all roles"
@@ -47,24 +52,18 @@ paths:
           description: "Successfully returned a json object containing a list of all roles"
           schema:
             type: object
-            required:
-              - items
             properties:
               count:
                 type: integer
-                readOnly: true
                 description: "The number of roles returned"
               total_count:
                 type: integer
-                readOnly: true
                 description: "The total number of roles"
               offset:
                 type: integer
-                readOnly: true
                 description: "The first row of resources to retrieve, starting at 0. Use this parameter as a pagination mechanism along with the limit parameter"
               limit:
                 type: integer
-                readOnly: true
                 description: "The number of items returned per request"
               items:
                 description: "A list of roles"
@@ -85,6 +84,8 @@ paths:
 
   /roles/{id}:
     get:
+      security:
+        - Authorization: []
       tags:
         - "roles"
       summary: "Returns a role"
@@ -113,6 +114,8 @@ paths:
 
   /policies:
     post:
+      security:
+        - Authorization: []
       tags:
         - "policies"
       summary: "Adds a policy"
@@ -136,51 +139,10 @@ paths:
         500:
           $ref: "#/responses/InternalError"
 
-    get:
-      tags:
-        - "policies"
-      summary: "Returns a list of policies"
-      description: "Returns the policies that match the supplied query parameters for collection id, role id and group id."
-      produces:
-        - "application/json"
-      parameters:
-        - in: query
-          name: collection_id
-          type: string
-          description: "A unique id for a collection"
-          required: true
-        - in: query
-          name: group_id
-          type: string
-          description: "A unique id for a group or user"
-          required: true
-        - in: query
-          name: role_id
-          type: string
-          description: "A unique id for a role"
-          required: true
-      responses:
-        200:
-          description: "Successfully returned a list of policies with ids that corresponds to the query parameters."
-          schema:
-            type: object
-            properties:
-              items:
-                description: "A list of policies"
-                type: array
-                items:
-                  $ref: "#/definitions/Policy"
-        400:
-          description: "Invalid request"
-        403:
-          description: "Unauthorised request"
-        404:
-          $ref: "#/responses/NotFound"
-        500:
-          $ref: "#/responses/InternalError"
-
   /policies/{id}:
     delete:
+      security:
+        - Authorization: []
       tags:
         - "policies"
       summary: "Removes a policy"
@@ -205,6 +167,8 @@ paths:
         500:
           $ref: "#/responses/InternalError"
     get:
+      security:
+        - Authorization: []
       tags:
         - "policies"
       summary: "Returns a policy"
@@ -229,6 +193,8 @@ paths:
         500:
           $ref: "#/responses/InternalError"
     put:
+      security:
+        - Authorization: []
       tags:
         - "policies"
       summary: "Upsert a policy"
@@ -243,6 +209,7 @@ paths:
           required: true
         - in: body
           name: Policy
+          required: true
           schema:
             $ref: "#/definitions/NewPolicy"
       responses:
@@ -260,7 +227,8 @@ paths:
           $ref: "#/responses/InternalError"
 
   /permissions-bundle:
-    post:
+    get:
+      security: []
       tags:
         - "permissions"
       summary: "Returns the permissions bundle"
@@ -290,10 +258,6 @@ responses:
 definitions:
   Role:
     type: object
-    required:
-      - id
-      - role
-      - permissions
     properties:
       id:
         $ref: "#/definitions/RoleId"
@@ -305,13 +269,12 @@ definitions:
         description: "A list of permissions associated with this role"
         type: array
         items:
-          $ref: "#/definitions/Permission"
-        example: "read only"
+          $ref: "#/definitions/PermissionString"
+  PermissionString:
+    type: string
+    example: "legacy:read"
   Permission:
     type: object
-    required:
-      - id
-      - description
     properties:
       id:
         description: "Unique id for a permission"
@@ -323,16 +286,9 @@ definitions:
         example: "read only"
   Condition:
     type: object
-    required:
-      - attributes
-      - operator
-      - values
     properties:
-      attributes:
-        description: "List of attribute"
-        type: string
-        items:
-          $ref: "#/definitions/Attribute"
+      attribute:
+        $ref: "#/definitions/Attribute"
       operator:
         description: "operator of the condition"
         type: string
@@ -359,18 +315,24 @@ definitions:
   EntityId:
     description: "Unique id for an entity"
     type: string
-    example: "1d"
-  Policy:
+    example: "groups/role-admin"
+  BundlePolicy:
     type: object
-    required:
-      - id
-      - entities
-      - role
+    description: "Policy as contained in the bundle. Removes entities and role attributes"
     properties:
       id:
         description: "Unique id for this policy"
         type: string
-      members:
+      condition:
+        $ref: "#/definitions/Condition"
+        description: "A condition which needs to be true for the policy to be applicable"
+  Policy:
+    type: object
+    properties:
+      id:
+        description: "Unique id for this policy"
+        type: string
+      entities:
         description: "A list of entities for this policy"
         type: array
         items:
@@ -378,30 +340,30 @@ definitions:
       role:
         description: "Role for this policy"
         type: string
-      conditions:
-        description: "list of conditions which needs to be true for the policy to be applicable"
-        type: array
-        items:
-          $ref: "#/definitions/Condition"
+        example: "administrator"
+      condition:
+        $ref: "#/definitions/Condition"
+        description: "a condition which needs to be true for the policy to be applicable"
   NewPolicy:
     type: object
     required:
       - entities
       - role
     properties:
-      members:
+      entities:
         description: "A list of entities for this policy"
+        minItems: 1
         type: array
         items:
           $ref: "#/definitions/EntityId"
       role:
         description: "Role for this policy"
         type: string
-      conditions:
-        description: "list of conditions which needs to be true for the policy to be applicable"
-        type: array
-        items:
-          $ref: "#/definitions/Condition"
+      condition:
+        description: "condition which needs to be true for the policy to be applicable"
+        type: object
+        $ref: "#/definitions/Condition"
+          
   Bundle:
     description: "A map of permission ID to entity lookup map"
     type: object
@@ -412,28 +374,29 @@ definitions:
         description: "A list of policies"
         type: array
         items:
-          $ref: "#/definitions/Policy"
+          $ref: "#/definitions/BundlePolicy"
     example:
       legacy.read:
         group/publisher:
           - id: publisher
-            entities:
-              - group/publisher
-            role: publisher
+            condition:
+              attribute: ""
+              operator: ""
+              values: []
         group/viewer:
           - id: viewer
             entities:
               - group/viewer
             role: viewer
-            conditions:
-              - attributes:
-                  - collection-id
-                operator: 'StringEquals'
-                values:
-                  - collection-765
+            condition:
+              attribute: "collection-id"
+              operator: "StringEquals"
+              values:
+                - collection-765
 
 securityDefinitions:
-  UserAuthorisationToken:
-    type: apiKey
+  Authorization:
+    name: Authorization
+    description: "Access token used by Auth service in a Bearer format"
     in: header
-    name: user-authorisation-token
+    type: apiKey
