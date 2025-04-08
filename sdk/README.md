@@ -38,7 +38,7 @@ apiClient := sdk.NewClientWithOptions("http://localhost:25400", sdk.Options{})
 ### With Options and a custom http client
 
 ```go
-import dphttp "github.com/ONSdigital/dp-net/v2/http"
+import dphttp "github.com/ONSdigital/dp-net/v3/http"
 
 apiClient := sdk.NewClientWithClienter("http://localhost:25400", dphttp.NewClient(), sdk.Options{})
 ```

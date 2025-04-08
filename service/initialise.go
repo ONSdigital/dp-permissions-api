@@ -8,7 +8,7 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/mongo"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dphttp "github.com/ONSdigital/dp-net/v2/http"
+	dphttp "github.com/ONSdigital/dp-net/v3/http"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 )
