@@ -21,7 +21,10 @@
       "static-files:create",
       "static-files:read",
       "static-files:update",
-      "cantabularmetadatadataset:read"
+      "cantabularmetadatadataset:read",
+      "bundles:read",
+      "bundles:update",
+      "bundles:create"
     ]
   },
   {
@@ -61,7 +64,10 @@
       "static-files:create",
       "static-files:read",
       "static-files:update",
-      "cantabularmetadatadataset:read"
+      "cantabularmetadatadataset:read",
+      "bundles:read",
+      "bundles:update",
+      "bundles:create"
     ]
   },
   {
