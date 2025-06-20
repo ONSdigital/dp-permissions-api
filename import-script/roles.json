@@ -24,7 +24,8 @@
       "cantabularmetadatadataset:read",
       "bundles:read",
       "bundles:update",
-      "bundles:create"
+      "bundles:create",
+      "bundles:delete"
     ]
   },
   {
@@ -67,7 +68,8 @@
       "cantabularmetadatadataset:read",
       "bundles:read",
       "bundles:update",
-      "bundles:create"
+      "bundles:create",
+      "bundles:delete"
     ]
   },
   {
