@@ -3,7 +3,7 @@ module github.com/ONSdigital/dp-permissions-api
 go 1.24
 
 require (
-	github.com/ONSdigital/dp-authorisation/v2 v2.32.2
+	github.com/ONSdigital/dp-authorisation/v2 v2.32.3
 	github.com/ONSdigital/dp-component-test v0.17.0
 	github.com/ONSdigital/dp-healthcheck v1.6.3
 	github.com/ONSdigital/dp-mongodb/v3 v3.8.0
