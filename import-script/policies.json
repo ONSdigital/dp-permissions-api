@@ -53,5 +53,17 @@
     ],
     "role": "files-reader",
     "condition": {}
-  }
+  },
+  {
+    "id" : "bundle-scheduler",
+    "entities" : [ 
+        "users/dis-bundle-scheduler"
+    ],
+    "role" : "bundle-scheduler-admin",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+}
 ]

@@ -90,5 +90,12 @@
     "permissions": [
       "static-files:read"
     ]
-  }
+  },
+ {
+    "name" : "bundle-scheduler-admin",
+    "permissions" : [ 
+        "bundles:read", 
+        "bundles:update"
+    ]
+}
 ]
