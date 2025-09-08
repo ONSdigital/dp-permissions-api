@@ -55,15 +55,25 @@
     "condition": {}
   },
   {
-    "id" : "bundle-scheduler",
-    "entities" : [ 
-        "users/dis-bundle-scheduler"
+    "id": "bundle-scheduler",
+    "entities": [
+      "users/dis-bundle-scheduler"
     ],
-    "role" : "bundle-scheduler-admin",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
+    "role": "bundle-scheduler-admin",
+    "condition": {
+      "attribute": "",
+      "operator": "",
+      "Values": null
     }
-}
+  },
+  {
+    "id": "redirect-admin",
+    "entities": [
+      "users/zebedee"
+    ],
+    "roles": [
+      "redirect-admin"
+    ],
+    "condition": {}
+  }
 ]

@@ -91,11 +91,19 @@
       "static-files:read"
     ]
   },
- {
-    "name" : "bundle-scheduler-admin",
-    "permissions" : [ 
-        "bundles:read", 
-        "bundles:update"
+  {
+    "name": "bundle-scheduler-admin",
+    "permissions": [
+      "bundles:read",
+      "bundles:update"
     ]
-}
+  },
+  {
+    "name": "redirect-admin",
+    "permissions": [
+      "redirects:read",
+      "redirects:edit",
+      "redirects:delete"
+    ]
+  }
 ]
