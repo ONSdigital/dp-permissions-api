@@ -358,12 +358,14 @@ func TestSuccessfulUpdatePolicy(t *testing.T) {
 	Convey("Given a permissions store", t, func() {
 		mockedPermissionsStore := &mock.PermissionsStoreMock{
 			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
-				if policy.ID == "existing_policy" {
+				switch policy.ID {
+				case "existing_policy":
 					return &models.UpdateResult{ModifiedCount: 1}, nil
-				} else if policy.ID == "new_policy" {
+				case "new_policy":
 					return &models.UpdateResult{UpsertedCount: 1}, nil
+				default:
+					return nil, fmt.Errorf("unknown policy id %q", policy.ID)
 				}
-				return nil, errors.New("Something went wrong")
 			},
 		}
 

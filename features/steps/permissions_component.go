@@ -131,12 +131,12 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 		return nil, err
 	}
 
-	f.Config.MongoDB.ClusterEndpoint = mongoURI
-	f.Config.MongoDB.Database = utils.RandomDatabase()
+	f.Config.ClusterEndpoint = mongoURI
+	f.Config.Database = utils.RandomDatabase()
 	// The following is to reset the Username and Password that have been set is Config from the previous
 	// config.Get()
 	f.Config.Username, f.Config.Password = "", ""
-	f.Config.MongoDB.Username, f.Config.Password = createCredsInDB(f.Config.MongoDB)
+	f.Config.Username, f.Config.Password = createCredsInDB(f.Config.MongoDB)
 
 	if f.MongoClient, err = mongo.NewMongoStore(context.Background(), f.Config.MongoDB); err != nil {
 		return nil, err
