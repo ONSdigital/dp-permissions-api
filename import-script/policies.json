@@ -32,7 +32,9 @@
   {
     "id": "files-admin",
     "entities": [
-      "users/dp-upload-service"
+      "users/dp-upload-service", 
+      "users/zebedee", 
+      "users/dp-dataset-api"
     ],
     "role": "files-admin",
     "condition": {}
