@@ -8,6 +8,14 @@ API for managing access control permissions for Digital Publishing API resources
   steps in the [README](./import-script/README.md).
 * Run `make debug`
 
+## Tools
+
+To run some of our tests you will need additional tooling:
+
+### Audit
+
+We use `dis-vulncheck` to do auditing, which you will [need to install](https://github.com/ONSdigital/dis-vulncheck).
+
 ### Dependencies
 
 * run mongo DB locally on 27017 with:
