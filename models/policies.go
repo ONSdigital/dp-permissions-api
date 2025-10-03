@@ -29,9 +29,9 @@ type Operator string
 
 // Condition represents the conditions to be applied for a policy
 type Condition struct {
-	Attribute string   `bson:"attribute" json:"attribute"`
-	Operator  Operator `bson:"operator" json:"operator"`
-	Values    []string `bson:"Values" json:"values"`
+	Attribute string   `bson:"attribute" json:"attribute,omitempty"`
+	Operator  Operator `bson:"operator" json:"operator,omitempty"`
+	Values    []string `bson:"Values" json:"values,omitempty"`
 }
 
 // Policy represent a structure for a policy in DB

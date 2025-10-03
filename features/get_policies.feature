@@ -50,7 +50,8 @@ Feature: Behaviour of application when performing requests against /v1/policies 
               "role": "publisher",
               "entities": [
                 "group/publisher"
-              ]
+              ],
+              "condition":{}
           }
       """
 

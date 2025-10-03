@@ -73,12 +73,14 @@ Feature: GET /v1/permissions-bundle endpoint
               "legacy.read": {
                 "group/admin": [
                   {
-                    "id": "admin"
+                    "id": "admin",
+                    "condition": {}
                   }
                 ],
                 "group/publisher": [
                   {
-                    "id": "publisher"
+                    "id": "publisher",
+                    "condition": {}
                   }
                 ],
                 "group/viewer": [
@@ -97,19 +99,22 @@ Feature: GET /v1/permissions-bundle endpoint
               "legacy.update": {
                 "group/admin": [
                   {
-                    "id": "admin"
+                    "id": "admin",
+                    "condition": {}
                   }
                 ],
                 "group/publisher": [
                   {
-                    "id": "publisher"
+                    "id": "publisher",
+                    "condition": {}
                   }
                 ]
               },
               "users.add": {
                 "group/admin": [
                   {
-                    "id": "admin"
+                    "id": "admin",
+                    "condition": {}
                   }
                 ]
               }
