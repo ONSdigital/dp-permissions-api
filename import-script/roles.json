@@ -105,5 +105,11 @@
       "redirects:edit",
       "redirects:delete"
     ]
+  },
+  {
+    "name" : "groups-reader",
+    "permissions" : [
+      "groups:read"
+    ]
   }
 ]
