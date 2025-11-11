@@ -26,7 +26,10 @@
       "bundles:read",
       "bundles:update",
       "bundles:create",
-      "bundles:delete"
+      "bundles:delete",
+      "migration:read",
+      "migration:create",
+      "migration:edit"
     ]
   },
   {
@@ -68,7 +71,11 @@
       "bundles:read",
       "bundles:update",
       "bundles:create",
-      "bundles:delete"
+      "bundles:delete",
+      "migration:create",
+      "migration:edit",
+      "migration:approve",
+      "migration:read"
     ]
   },
   {
@@ -110,6 +117,36 @@
     "name" : "groups-reader",
     "permissions" : [
       "groups:read"
+    ]
+  },
+  {
+    "name": "legacy-admin",
+    "permissions": [
+      "legacy:edit",
+      "legacy:read"
+    ]
+  },
+  {
+    "name": "datasets-admin",
+    "permissions": [
+      "datasets:read",
+      "datasets:update",
+      "datasets:delete"
+    ]
+  },
+  {
+    "name": "migration-admin",
+    "permissions": [
+      "migration:create",
+      "migration:edit",
+      "migration:approve",
+      "migration:read"
+    ]
+  },
+  {
+    "name": "migration-reader",
+    "permissions": [
+      "migration:read"
     ]
   }
 ]

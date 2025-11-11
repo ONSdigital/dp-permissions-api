@@ -34,7 +34,8 @@
     "entities": [
       "users/dp-upload-service", 
       "users/zebedee", 
-      "users/dp-dataset-api"
+      "users/dp-dataset-api",
+      "users/dis-migration-service"
     ],
     "role": "files-admin",
     "condition": {}
@@ -43,7 +44,8 @@
     "id": "files-updater",
     "entities": [
       "users/dp-static-file-publisher",
-      "users/dp-interactives-api"
+      "users/dp-interactives-api",
+      "users/dis-migration-service"
     ],
     "role": "files-updater",
     "condition": {}
@@ -51,7 +53,8 @@
   {
     "id": "files-reader",
     "entities": [
-      "users/dp-download-service"
+      "users/dp-download-service",
+      "users/dis-migration-service"
     ],
     "role": "files-reader",
     "condition": {}
@@ -71,7 +74,8 @@
   {
     "id": "redirect-admin",
     "entities": [
-      "users/zebedee"
+      "users/zebedee",
+      "users/dis-migration-service"
     ],
     "roles": [
       "redirect-admin"
@@ -84,6 +88,38 @@
       "users/dis-wagtail"
     ],
     "role" : "groups-reader",
+    "condition" : {}
+  },
+  {
+    "id" : "migration-admin",
+    "entities" : [
+      "users/dis-migration-service"
+    ],
+    "role" : "migration-admin",
+    "condition" : {}
+  },
+  {
+    "id" : "migration-reader",
+    "entities" : [
+      "users/dis-migration-service"
+    ],
+    "role" : "migration-reader",
+    "condition" : {}
+  },
+  {
+    "id" : "datasets-admin",
+    "entities" : [
+      "users/dis-migration-service"
+    ],
+    "role" : "datasets-admin",
+    "condition" : {}
+  },
+  {
+    "id" : "legacy-admin",
+    "entities" : [
+      "users/dis-migration-service"
+    ],
+    "role" : "legacy-admin",
     "condition" : {}
   }
 ]
