@@ -3,8 +3,11 @@ package steps
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"time"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -12,15 +15,10 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/mongo"
+	permsdk "github.com/ONSdigital/dp-permissions-api/sdk"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	serviceMock "github.com/ONSdigital/dp-permissions-api/service/mock"
 	"github.com/ONSdigital/log.go/v2/log"
-
-	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
-	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
-
-	permsdk "github.com/ONSdigital/dp-permissions-api/sdk"
-
 	"github.com/cucumber/godog"
 	"github.com/gofrs/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -50,8 +48,7 @@ func setupFakePermissionsAPI() *authorisationtest.FakePermissionsAPI {
 	fakePermissionsAPI := authorisationtest.NewFakePermissionsAPI()
 	bundle := getPermissionsBundle()
 	fakePermissionsAPI.Reset()
-	err := fakePermissionsAPI.UpdatePermissionsBundleResponse(bundle)
-	if err != nil {
+	if err := fakePermissionsAPI.UpdatePermissionsBundleResponse(bundle); err != nil {
 		log.Warn(ctx, "failed to update permissions bundle", log.Data{"err": err.Error()})
 	}
 	return fakePermissionsAPI
@@ -115,7 +112,6 @@ func getPermissionsBundle() *permsdk.Bundle {
 	}
 }
 
-// NewPermissionsComponent initializes mock server and in-memory mongodb used for running component tests.
 func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	f := &PermissionsComponent{
 		HTTPServer: &http.Server{
@@ -131,7 +127,13 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 		return nil, err
 	}
 
-	f.Config.ClusterEndpoint = mongoURI
+	// Extract host:port from the MongoDB URI
+	parsedURI, err := url.Parse(mongoURI)
+	if err != nil {
+		return nil, err
+	}
+	hostPort := parsedURI.Host
+	f.Config.ClusterEndpoint = hostPort
 	f.Config.Database = utils.RandomDatabase()
 	// The following is to reset the Username and Password that have been set is Config from the previous
 	// config.Get()
@@ -143,7 +145,6 @@ func NewPermissionsComponent(mongoURI string) (*PermissionsComponent, error) {
 	}
 
 	f.APIFeature = componenttest.NewAPIFeature(f.InitialiseService)
-
 	fakePermissionsAPI := setupFakePermissionsAPI()
 	f.Config.AuthorisationConfig.JWTVerificationPublicKeys = rsaJWKS
 	f.Config.AuthorisationConfig.PermissionsAPIURL = fakePermissionsAPI.URL()
@@ -191,18 +192,18 @@ func (f *PermissionsComponent) RegisterSteps(ctx *godog.ScenarioContext) {
 
 func (f *PermissionsComponent) Close() error {
 	ctx := context.Background()
-	err := f.MongoClient.Connection.DropDatabase(ctx)
-	if err != nil {
-		log.Warn(ctx, "error dropping database on Close()", log.Data{"err": err.Error()})
+	if f.MongoClient != nil && f.MongoClient.Connection != nil {
+		if err := f.MongoClient.Connection.DropDatabase(ctx); err != nil {
+			log.Warn(ctx, "error dropping database on Close()", log.Data{"err": err.Error()})
+		}
 	}
 	if f.svc != nil && f.ServiceRunning {
-		err = f.svc.Close(ctx)
+		err := f.svc.Close(ctx)
 		if err != nil {
 			log.Warn(ctx, "error closing service on Close()", log.Data{"err": err.Error()})
 		}
 		f.ServiceRunning = false
 	}
-
 	return nil
 }
 
@@ -246,11 +247,9 @@ func (f *PermissionsComponent) DoGetMongoDB(_ context.Context, _ *config.Config)
 // DoGetAuthorisationMiddleware returns an authorisationMock.Middleware object
 func (f *PermissionsComponent) DoGetAuthorisationMiddleware(ctx context.Context, cfg *authorisation.Config) (authorisation.Middleware, error) {
 	middleware, err := authorisation.NewMiddlewareFromConfig(ctx, cfg, publicSigningkey)
-
 	if err != nil {
 		return nil, err
 	}
-
 	f.AuthorisationMiddleware = middleware
 	return f.AuthorisationMiddleware, nil
 }
