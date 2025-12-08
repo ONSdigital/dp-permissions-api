@@ -85,5 +85,17 @@
     ],
     "role" : "groups-reader",
     "condition" : {}
-  }
+  },
+  {
+    "_id" : "legacy-admin-administrator",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    },
+    "entities" : [ 
+        "users/admin"
+    ],
+    "role" : "administrator"
+}
 ]
