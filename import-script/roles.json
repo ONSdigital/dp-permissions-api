@@ -17,6 +17,10 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
+      "dataset-editions-versions:create",
+      "dataset-editions-versions:read",
+      "dataset-editions-versions:update",
+      "dataset-editions-versions:delete",
       "users:read",
       "groups:read",
       "static-files:create",
@@ -50,6 +54,12 @@
       "datasets:read",
       "datasets:update",
       "datasets:delete",
+      "dataset-editions-versions:create", 
+      "dataset-editions-versions:read", 
+      "dataset-editions-versions:update", 
+      "dataset-instances:create", 
+      "dataset-instances:read", 
+      "dataset-instances:update", 
       "policies:create",
       "policies:read",
       "policies:update",
@@ -150,3 +160,4 @@
     ]
   }
 ]
+

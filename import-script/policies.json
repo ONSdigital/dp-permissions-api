@@ -91,6 +91,18 @@
     "condition" : {}
   },
   {
+    "_id" : "legacy-admin-administrator",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    },
+    "entities" : [ 
+        "users/admin"
+    ],
+    "role" : "administrator"
+   },
+   {
     "id" : "migration-admin",
     "entities" : [
       "users/dis-migration-service"
@@ -123,3 +135,4 @@
     "condition" : {}
   }
 ]
+
