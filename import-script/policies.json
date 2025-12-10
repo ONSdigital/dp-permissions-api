@@ -91,7 +91,7 @@
     "condition" : {}
   },
   {
-    "_id" : "legacy-admin-administrator",
+    "id" : "legacy-admin-administrator",
     "condition" : {
         "attribute" : "",
         "operator" : "",
