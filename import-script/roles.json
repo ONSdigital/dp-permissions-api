@@ -158,6 +158,13 @@
     "permissions": [
       "migration:read"
     ]
-  }
+  },
+  {
+    "name" : "datasets-previewer",
+    "permissions" : [ 
+        "dataset-editions-versions:read", 
+        "datasets:read"
+    ]
+}
 ]
 
