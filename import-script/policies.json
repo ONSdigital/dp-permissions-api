@@ -133,6 +133,21 @@
     ],
     "role" : "legacy-admin",
     "condition" : {}
-  }
+  },
+  {
+    "id" : "uuid-value-here",
+    "entities" : [ 
+        "groups/uuid-value-here"
+    ],
+    "role" : "datasets-previewer",
+    "condition" : {
+        "attribute" : "dataset_edition",
+        "operator" : "StringEquals",
+        "Values" : [ 
+            "static-test-dataset/time-series", 
+            "static-test-dataset"
+        ]
+    }
+}
 ]
 
