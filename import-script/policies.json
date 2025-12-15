@@ -143,11 +143,8 @@
     "condition" : {
         "attribute" : "dataset_edition",
         "operator" : "StringEquals",
-        "Values" : [ 
-            "static-test-dataset/time-series", 
-            "static-test-dataset"
-        ]
+        "Values" : ["static-test-dataset/time-series", "static-test-dataset"]
     }
-}
+  }
 ]
 
