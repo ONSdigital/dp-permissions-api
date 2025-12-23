@@ -182,7 +182,7 @@ func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*
 		}
 	}()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicy endpoint: %s", resp.Status)
 	}
 
