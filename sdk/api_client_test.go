@@ -607,7 +607,7 @@ func TestAPIClient_PostPolicy(t *testing.T) {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
-					StatusCode: http.StatusOK,
+					StatusCode: http.StatusCreated,
 					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
@@ -653,7 +653,7 @@ func TestAPIClient_PostPolicy_BadRequest(t *testing.T) {
 	})
 }
 
-func TestAPIClient_PostPolicy_Non200ResponseCodeReturned(t *testing.T) {
+func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given a mock http client that returns a response code 400", t, func() {
