@@ -742,7 +742,7 @@ func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When PostPolicyWithID is called", func() {
-			policy, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+			policy, err := apiClient.PostPolicyWithID(ctx, sdk.Headers{ServiceAuthToken: "test-auth-token"}, "policyID", models.PolicyInfo{
 				Entities:  []string{"groups/group1", "groups/group2"},
 				Role:      "1",
 				Condition: models.Condition{},
@@ -752,8 +752,12 @@ func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 
-			Convey("Policy should not be empty", func() {
+			Convey("And Policy should not be empty", func() {
 				So(policy, ShouldResemble, &result)
+			})
+
+			Convey("And the Authorization header is set on the request", func() {
+				So(httpClient.DoCalls()[0].Req.Header.Get("Authorization"), ShouldEqual, "Bearer test-auth-token")
 			})
 		})
 	})
@@ -774,7 +778,7 @@ func TestAPIClient_PostPolicyWithID_Non201ResponseCodeReturned(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When PostPolicyWithID is called", func() {
-			_, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+			_, err := apiClient.PostPolicyWithID(ctx, sdk.Headers{}, "policyID", models.PolicyInfo{
 				Entities:  []string{"groups/group1", "groups/group2"},
 				Role:      "1",
 				Condition: models.Condition{},

@@ -200,7 +200,7 @@ func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*
 	return &result, nil
 }
 
-func (c *APIClient) PostPolicyWithID(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+func (c *APIClient) PostPolicyWithID(ctx context.Context, headers Headers, id string, policy models.PolicyInfo) (*models.Policy, error) {
 	uri := fmt.Sprintf(policyEndpoint, c.host, id)
 
 	var buf bytes.Buffer
@@ -214,9 +214,7 @@ func (c *APIClient) PostPolicyWithID(ctx context.Context, id string, policy mode
 		return nil, err
 	}
 
-	if len(c.options.Headers) > 0 {
-		setHeaders(req, c.options.Headers)
-	}
+	headers.Add(req)
 
 	resp, err := c.httpCli.Do(ctx, req)
 	if err != nil {

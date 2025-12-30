@@ -38,7 +38,7 @@ var _ sdk.Clienter = &ClienterMock{}
 //			PostPolicyFunc: func(ctx context.Context, policy models.PolicyInfo) (*models.Policy, error) {
 //				panic("mock out the PostPolicy method")
 //			},
-//			PostPolicyWithIDFunc: func(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+//			PostPolicyWithIDFunc: func(ctx context.Context, headers sdk.Headers, id string, policy models.PolicyInfo) (*models.Policy, error) {
 //				panic("mock out the PostPolicyWithID method")
 //			},
 //			PutPolicyFunc: func(ctx context.Context, id string, policy models.Policy) error {
@@ -70,7 +70,7 @@ type ClienterMock struct {
 	PostPolicyFunc func(ctx context.Context, policy models.PolicyInfo) (*models.Policy, error)
 
 	// PostPolicyWithIDFunc mocks the PostPolicyWithID method.
-	PostPolicyWithIDFunc func(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error)
+	PostPolicyWithIDFunc func(ctx context.Context, headers sdk.Headers, id string, policy models.PolicyInfo) (*models.Policy, error)
 
 	// PutPolicyFunc mocks the PutPolicy method.
 	PutPolicyFunc func(ctx context.Context, id string, policy models.Policy) error
@@ -119,6 +119,8 @@ type ClienterMock struct {
 		PostPolicyWithID []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+			// Headers is the headers argument value.
+			Headers sdk.Headers
 			// ID is the id argument value.
 			ID string
 			// Policy is the policy argument value.
@@ -353,23 +355,25 @@ func (mock *ClienterMock) PostPolicyCalls() []struct {
 }
 
 // PostPolicyWithID calls PostPolicyWithIDFunc.
-func (mock *ClienterMock) PostPolicyWithID(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+func (mock *ClienterMock) PostPolicyWithID(ctx context.Context, headers sdk.Headers, id string, policy models.PolicyInfo) (*models.Policy, error) {
 	if mock.PostPolicyWithIDFunc == nil {
 		panic("ClienterMock.PostPolicyWithIDFunc: method is nil but Clienter.PostPolicyWithID was just called")
 	}
 	callInfo := struct {
-		Ctx    context.Context
-		ID     string
-		Policy models.PolicyInfo
+		Ctx     context.Context
+		Headers sdk.Headers
+		ID      string
+		Policy  models.PolicyInfo
 	}{
-		Ctx:    ctx,
-		ID:     id,
-		Policy: policy,
+		Ctx:     ctx,
+		Headers: headers,
+		ID:      id,
+		Policy:  policy,
 	}
 	mock.lockPostPolicyWithID.Lock()
 	mock.calls.PostPolicyWithID = append(mock.calls.PostPolicyWithID, callInfo)
 	mock.lockPostPolicyWithID.Unlock()
-	return mock.PostPolicyWithIDFunc(ctx, id, policy)
+	return mock.PostPolicyWithIDFunc(ctx, headers, id, policy)
 }
 
 // PostPolicyWithIDCalls gets all the calls that were made to PostPolicyWithID.
@@ -377,14 +381,16 @@ func (mock *ClienterMock) PostPolicyWithID(ctx context.Context, id string, polic
 //
 //	len(mockedClienter.PostPolicyWithIDCalls())
 func (mock *ClienterMock) PostPolicyWithIDCalls() []struct {
-	Ctx    context.Context
-	ID     string
-	Policy models.PolicyInfo
+	Ctx     context.Context
+	Headers sdk.Headers
+	ID      string
+	Policy  models.PolicyInfo
 } {
 	var calls []struct {
-		Ctx    context.Context
-		ID     string
-		Policy models.PolicyInfo
+		Ctx     context.Context
+		Headers sdk.Headers
+		ID      string
+		Policy  models.PolicyInfo
 	}
 	mock.lockPostPolicyWithID.RLock()
 	calls = mock.calls.PostPolicyWithID
