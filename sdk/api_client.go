@@ -104,7 +104,7 @@ func (c *APIClient) GetRoles(ctx context.Context) (*models.Roles, error) {
 	var result models.Roles
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal permission response to model: %v", err)
 	}
 
 	return &result, nil
@@ -145,7 +145,7 @@ func (c *APIClient) GetRole(ctx context.Context, id string) (*models.Roles, erro
 	var result models.Roles
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal permission response to model: %v", err)
 	}
 
 	return &result, nil
@@ -194,7 +194,7 @@ func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*
 	var result models.Policy
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal permission response to model: %v", err)
 	}
 
 	return &result, nil
@@ -241,7 +241,7 @@ func (c *APIClient) PostPolicyWithID(ctx context.Context, id string, policy mode
 	var result models.Policy
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal permission response to model: %v", err)
 	}
 
 	return &result, nil
@@ -312,7 +312,7 @@ func (c *APIClient) GetPolicy(ctx context.Context, id string) (*models.Policy, e
 	var result models.Policy
 	err = json.Unmarshal(b, &result)
 	if err != nil {
-		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+		return nil, fmt.Errorf("unable to unmarshal permission response to model: %v", err)
 	}
 
 	return &result, nil
