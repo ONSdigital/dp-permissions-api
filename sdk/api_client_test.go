@@ -667,7 +667,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
-		Convey("When GetRole is called", func() {
+		Convey("When PostPolicy is called", func() {
 			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
 
 			Convey("Then the expected error is returned", func() {
@@ -687,7 +687,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
-		Convey("When GetRole is called", func() {
+		Convey("When PostPolicy is called", func() {
 			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
 
 			Convey("Then the expected error is returned", func() {
@@ -707,11 +707,81 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 		}
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
-		Convey("When GetAllRoles is called", func() {
+		Convey("When PostPolicy is called", func() {
 			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Failed to process the request due to an internal error`)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful response", t, func() {
+		result := models.Policy{
+			ID:        "policyID",
+			Entities:  []string{"groups/group1", "groups/group2"},
+			Role:      "1",
+			Condition: models.Condition{},
+		}
+
+		bresult, err := json.Marshal(result)
+		So(err, ShouldBeNil)
+
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PostPolicyWithID is called", func() {
+			policy, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+				Entities:  []string{"groups/group1", "groups/group2"},
+				Role:      "1",
+				Condition: models.Condition{},
+			})
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Policy should not be empty", func() {
+				So(policy, ShouldResemble, &result)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PostPolicyWithID_Non201ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 409", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusConflict,
+					Status:     `Policy already exists with given ID`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+
+		Convey("When PostPolicyWithID is called", func() {
+			_, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+				Entities:  []string{"groups/group1", "groups/group2"},
+				Role:      "1",
+				Condition: models.Condition{},
+			})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api: Policy already exists with given ID`)
 			})
 		})
 	})

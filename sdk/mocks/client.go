@@ -38,6 +38,9 @@ var _ sdk.Clienter = &ClienterMock{}
 //			PostPolicyFunc: func(ctx context.Context, policy models.PolicyInfo) (*models.Policy, error) {
 //				panic("mock out the PostPolicy method")
 //			},
+//			PostPolicyWithIDFunc: func(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+//				panic("mock out the PostPolicyWithID method")
+//			},
 //			PutPolicyFunc: func(ctx context.Context, id string, policy models.Policy) error {
 //				panic("mock out the PutPolicy method")
 //			},
@@ -65,6 +68,9 @@ type ClienterMock struct {
 
 	// PostPolicyFunc mocks the PostPolicy method.
 	PostPolicyFunc func(ctx context.Context, policy models.PolicyInfo) (*models.Policy, error)
+
+	// PostPolicyWithIDFunc mocks the PostPolicyWithID method.
+	PostPolicyWithIDFunc func(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error)
 
 	// PutPolicyFunc mocks the PutPolicy method.
 	PutPolicyFunc func(ctx context.Context, id string, policy models.Policy) error
@@ -109,6 +115,15 @@ type ClienterMock struct {
 			// Policy is the policy argument value.
 			Policy models.PolicyInfo
 		}
+		// PostPolicyWithID holds details about calls to the PostPolicyWithID method.
+		PostPolicyWithID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID string
+			// Policy is the policy argument value.
+			Policy models.PolicyInfo
+		}
 		// PutPolicy holds details about calls to the PutPolicy method.
 		PutPolicy []struct {
 			// Ctx is the ctx argument value.
@@ -125,6 +140,7 @@ type ClienterMock struct {
 	lockGetRole              sync.RWMutex
 	lockGetRoles             sync.RWMutex
 	lockPostPolicy           sync.RWMutex
+	lockPostPolicyWithID     sync.RWMutex
 	lockPutPolicy            sync.RWMutex
 }
 
@@ -333,6 +349,46 @@ func (mock *ClienterMock) PostPolicyCalls() []struct {
 	mock.lockPostPolicy.RLock()
 	calls = mock.calls.PostPolicy
 	mock.lockPostPolicy.RUnlock()
+	return calls
+}
+
+// PostPolicyWithID calls PostPolicyWithIDFunc.
+func (mock *ClienterMock) PostPolicyWithID(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+	if mock.PostPolicyWithIDFunc == nil {
+		panic("ClienterMock.PostPolicyWithIDFunc: method is nil but Clienter.PostPolicyWithID was just called")
+	}
+	callInfo := struct {
+		Ctx    context.Context
+		ID     string
+		Policy models.PolicyInfo
+	}{
+		Ctx:    ctx,
+		ID:     id,
+		Policy: policy,
+	}
+	mock.lockPostPolicyWithID.Lock()
+	mock.calls.PostPolicyWithID = append(mock.calls.PostPolicyWithID, callInfo)
+	mock.lockPostPolicyWithID.Unlock()
+	return mock.PostPolicyWithIDFunc(ctx, id, policy)
+}
+
+// PostPolicyWithIDCalls gets all the calls that were made to PostPolicyWithID.
+// Check the length with:
+//
+//	len(mockedClienter.PostPolicyWithIDCalls())
+func (mock *ClienterMock) PostPolicyWithIDCalls() []struct {
+	Ctx    context.Context
+	ID     string
+	Policy models.PolicyInfo
+} {
+	var calls []struct {
+		Ctx    context.Context
+		ID     string
+		Policy models.PolicyInfo
+	}
+	mock.lockPostPolicyWithID.RLock()
+	calls = mock.calls.PostPolicyWithID
+	mock.lockPostPolicyWithID.RUnlock()
 	return calls
 }
 

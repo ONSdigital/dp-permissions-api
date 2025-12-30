@@ -16,7 +16,7 @@ import (
 const (
 	bundlerEndpoint          = "%s/v1/permissions-bundle"
 	addPolicyEndpoint        = "%s/v1/policies"    // Add policy
-	policyEndpoint           = "%s/v1/policies/%s" // Get / Update / Delete policy
+	policyEndpoint           = "%s/v1/policies/%s" // Get / Add / Update / Delete policy
 	rolesEndpoint            = "%s/v1/roles"       // Add roles
 	getRoleEndpoint          = "%s/v1/roles/%s"    // Get roles
 	Authorization     string = "Authorization"
@@ -184,6 +184,53 @@ func (c *APIClient) PostPolicy(ctx context.Context, policy models.PolicyInfo) (*
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, fmt.Errorf("unexpected status returned from the permissions api permissions-addpolicy endpoint: %s", resp.Status)
+	}
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("unexpected error when attempting to read response: %v", err)
+	}
+
+	var result models.Policy
+	err = json.Unmarshal(b, &result)
+	if err != nil {
+		return nil, fmt.Errorf("unable to marshal permission response to model: %v", err)
+	}
+
+	return &result, nil
+}
+
+func (c *APIClient) PostPolicyWithID(ctx context.Context, id string, policy models.PolicyInfo) (*models.Policy, error) {
+	uri := fmt.Sprintf(policyEndpoint, c.host, id)
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(policy)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, uri, &buf)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(c.options.Headers) > 0 {
+		setHeaders(req, c.options.Headers)
+	}
+
+	resp, err := c.httpCli.Do(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		if resp.Body != nil {
+			resp.Body.Close()
+		}
+	}()
+
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("unexpected status returned from the permissions api: %s", resp.Status)
 	}
 
 	b, err := io.ReadAll(resp.Body)
