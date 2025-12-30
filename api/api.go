@@ -55,6 +55,7 @@ func Setup(
 	r.HandleFunc("/v1/roles", auth.Require(models.RolesRead, contextAndErrors(api.GetRolesHandler))).Methods(http.MethodGet)
 	r.HandleFunc("/v1/roles/{id}", auth.Require(models.RolesRead, contextAndErrors(api.GetRoleHandler))).Methods(http.MethodGet)
 	r.HandleFunc("/v1/policies", auth.Require(models.PoliciesCreate, contextAndErrors(api.PostPolicyHandler))).Methods(http.MethodPost)
+	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesCreate, contextAndErrors(api.PostPolicyWithIDHandler))).Methods(http.MethodPost)
 	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesRead, contextAndErrors(api.GetPolicyHandler))).Methods(http.MethodGet)
 	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesUpdate, contextAndErrors(api.UpdatePolicyHandler))).Methods(http.MethodPut)
 	r.HandleFunc("/v1/policies/{id}", auth.Require(models.PoliciesDelete, contextAndErrors(api.DeletePolicyHandler))).Methods(http.MethodDelete)

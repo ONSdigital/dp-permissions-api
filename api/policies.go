@@ -125,6 +125,65 @@ func handleCreateNewPolicyError(ctx context.Context, err error) *models.ErrorRes
 	)
 }
 
+// PostPolicyWithIDHandler is a handler that creates a new policy with the given ID
+func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
+	vars := mux.Vars(req)
+	policyID := vars["id"]
+
+	policy, err := models.CreatePolicy(req.Body)
+	if err != nil {
+		return nil, handleBodyUnmarshalError(ctx, err)
+	}
+
+	if err := policy.ValidatePolicy(); err != nil {
+		return nil, handleValidatePolicyError(ctx, err, policy)
+	}
+
+	newPolicy, err := api.createPolicyWithID(ctx, policyID, policy)
+	if err != nil {
+		return nil, handleCreatePolicyWithIDError(ctx, err, policyID)
+	}
+
+	b, err := json.Marshal(newPolicy)
+	if err != nil {
+		return nil, handleBodyMarshalError(ctx, err, "new_policy", newPolicy)
+	}
+
+	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
+}
+
+func (api *API) createPolicyWithID(ctx context.Context, policyID string, policy *models.PolicyInfo) (*models.Policy, error) {
+	_, err := api.permissionsStore.GetPolicy(ctx, policyID)
+	if err == nil {
+		return nil, apierrors.ErrPolicyAlreadyExists
+	}
+	if err != apierrors.ErrPolicyNotFound {
+		return nil, err
+	}
+
+	newPolicy, err := api.permissionsStore.AddPolicy(ctx, policy.GetPolicy(policyID))
+	if err != nil {
+		return nil, err
+	}
+	return newPolicy, nil
+}
+
+func handleCreatePolicyWithIDError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
+	logData := log.Data{"policy_id": policyID}
+
+	if err == apierrors.ErrPolicyAlreadyExists {
+		return models.NewErrorResponse(http.StatusConflict,
+			nil,
+			models.NewError(ctx, err, models.PolicyAlreadyExistsError, models.PolicyAlreadyExistsDescription, logData),
+		)
+	}
+
+	return models.NewErrorResponse(http.StatusInternalServerError,
+		nil,
+		models.NewError(ctx, err, models.CreatePolicyWithIDError, models.CreatePolicyWithIDErrorDescription, logData),
+	)
+}
+
 // UpdatePolicyHandler is a handler that updates policy by its ID from DB
 func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
