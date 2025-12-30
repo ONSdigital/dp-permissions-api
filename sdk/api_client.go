@@ -20,6 +20,7 @@ const (
 	rolesEndpoint            = "%s/v1/roles"       // Add roles
 	getRoleEndpoint          = "%s/v1/roles/%s"    // Get roles
 	Authorization     string = "Authorization"
+	BearerPrefix      string = "Bearer "
 )
 
 // setHeaders adds authorisation header to request

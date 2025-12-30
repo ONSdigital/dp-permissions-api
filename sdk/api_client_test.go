@@ -742,7 +742,7 @@ func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
 		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
 
 		Convey("When PostPolicyWithID is called", func() {
-			policy, err := apiClient.PostPolicyWithID(ctx, sdk.Headers{ServiceAuthToken: "test-auth-token"}, "policyID", models.PolicyInfo{
+			policy, err := apiClient.PostPolicyWithID(ctx, sdk.Headers{Authorization: "test-auth-token"}, "policyID", models.PolicyInfo{
 				Entities:  []string{"groups/group1", "groups/group2"},
 				Role:      "1",
 				Condition: models.Condition{},
@@ -757,7 +757,7 @@ func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
 			})
 
 			Convey("And the Authorization header is set on the request", func() {
-				So(httpClient.DoCalls()[0].Req.Header.Get("Authorization"), ShouldEqual, "Bearer test-auth-token")
+				So(httpClient.DoCalls()[0].Req.Header.Get(sdk.Authorization), ShouldEqual, sdk.BearerPrefix+"test-auth-token")
 			})
 		})
 	})

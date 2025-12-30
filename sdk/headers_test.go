@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"testing"
 
-	dprequest "github.com/ONSdigital/dp-net/v3/request"
-
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -28,17 +26,17 @@ func TestHeaders_Add(t *testing.T) {
 		})
 	})
 
-	Convey("Given Headers with a ServiceAuthToken", t, func() {
+	Convey("Given Headers with an Authorization token", t, func() {
 		headers := &Headers{
-			ServiceAuthToken: "test-auth-token",
+			Authorization: "test-auth-token",
 		}
 
 		Convey("When Add is called", func() {
 			headers.Add(req)
-			expectedHeader := dprequest.BearerPrefix + headers.ServiceAuthToken
+			expectedHeader := BearerPrefix + headers.Authorization
 
 			Convey("Then an Authorization header is set on the request", func() {
-				So(req.Header[dprequest.AuthHeaderKey][0], ShouldEqual, expectedHeader)
+				So(req.Header[Authorization][0], ShouldEqual, expectedHeader)
 			})
 		})
 	})
