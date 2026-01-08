@@ -145,6 +145,89 @@
         "operator" : "StringEquals",
         "Values" : ["static-test-dataset/time-series", "static-test-dataset"]
     }
+  },
+  {
+    "id" : "data-import",
+    "entities" : [ 
+        "users/dp-import-api", 
+        "users/dp-publishing-dataset-controller", 
+        "users/zebedee"
+    ],
+    "role" : "data-import",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+  },
+  {
+    "id" : "data-pipelines",
+    "entities" : [ 
+        "users/dp-dataset-api"
+    ],
+    "role" : "data-pipelines",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+  },
+  {
+    "id" : "cantabular-exporter-services",
+    "entities" : [ 
+        "users/dp-cantabular-csv-exporter", 
+        "users/dp-cantabular-xlsx-exporter", 
+        "users/dp-cantabular-metadata-exporter"
+    ],
+    "role" : "cantabular-exporter-services",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+  },
+  {
+    "id" : "cmd-data-import",
+    "entities" : [ 
+        "users/dp-import-reporter", 
+        "users/dp-dimension-extractor", 
+        "users/dp-dimension-importer", 
+        "users/dp-observation-importer", 
+        "users/dp-observation-extractor", 
+        "users/dp-hierarchy-builder", 
+        "users/dp-import-tracker"
+    ],
+    "role" : "data-import",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+  },
+  {
+    "id" : "cmd-exporter-services",
+    "entities" : [ 
+        "users/dp-dataset-exporter", 
+        "users/dp-dataset-exporter-xlsx"
+    ],
+    "role" : "cmd-exporter-services",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
+  },
+  {
+    "id" : "search-reindex",
+    "entities" : [ 
+        "users/dp-search-reindex-batch"
+    ],
+    "role" : "search-reindex",
+    "condition" : {
+        "attribute" : "",
+        "operator" : "",
+        "Values" : null
+    }
   }
 ]
 

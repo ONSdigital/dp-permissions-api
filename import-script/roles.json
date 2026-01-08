@@ -112,7 +112,10 @@
     "name": "bundle-scheduler-admin",
     "permissions": [
       "bundles:read",
-      "bundles:update"
+      "bundles:update",
+      "datasets:read", 
+      "dataset-editions-versions:read", 
+      "dataset-editions-versions:update"
     ]
   },
   {
@@ -164,6 +167,61 @@
     "permissions" : [ 
         "dataset-editions-versions:read", 
         "datasets:read"
+    ]
+  },
+  {
+    "name" : "data-pipelines",
+    "permissions" : [ 
+        "datasets:read", 
+        "dataset-editions-versions:create", 
+        "dataset-editions-versions:read", 
+        "dataset-editions-versions:update"
+    ]
+  },
+  {
+    "name" : "data-import",
+    "permissions" : [ 
+        "datasets:read", 
+        "datasets:update", 
+        "datasets:create", 
+        "dataset-editions-versions:create", 
+        "dataset-editions-versions:read", 
+        "dataset-editions-versions:update", 
+        "dataset-instances:create", 
+        "dataset-instances:read", 
+        "dataset-instances:update"
+    ]
+  },
+  {
+    "_id" : "cantabular-exporter-services",
+    "name" : "cantabular-exporter-services",
+    "permissions" : [ 
+        "dataset-editions-versions:create", 
+        "dataset-editions-versions:read", 
+        "dataset-editions-versions:update", 
+        "dataset-instances:create", 
+        "dataset-instances:read", 
+        "dataset-instances:update"
+    ]
+  },
+  {
+    "_id" : "cmd-exporter-services",
+    "name" : "cmd-exporter-services",
+    "permissions" : [ 
+        "dataset-editions-versions:create", 
+        "dataset-editions-versions:read", 
+        "dataset-editions-versions:update", 
+        "dataset-instances:create", 
+        "dataset-instances:read", 
+        "dataset-instances:update"
+    ]
+  },
+  {
+    "_id" : "search-reindex",
+    "name" : "search-reindex",
+    "permissions" : [ 
+        "datasets:read", 
+        "dataset-editions-versions:read"
     ]
   }
 ]
