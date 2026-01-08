@@ -154,11 +154,7 @@
         "users/zebedee"
     ],
     "role" : "data-import",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   },
   {
     "id" : "data-pipelines",
@@ -166,11 +162,7 @@
         "users/dp-dataset-api"
     ],
     "role" : "data-pipelines",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   },
   {
     "id" : "cantabular-exporter-services",
@@ -180,11 +172,7 @@
         "users/dp-cantabular-metadata-exporter"
     ],
     "role" : "cantabular-exporter-services",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   },
   {
     "id" : "cmd-data-import",
@@ -198,11 +186,7 @@
         "users/dp-import-tracker"
     ],
     "role" : "data-import",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   },
   {
     "id" : "cmd-exporter-services",
@@ -211,11 +195,7 @@
         "users/dp-dataset-exporter-xlsx"
     ],
     "role" : "cmd-exporter-services",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   },
   {
     "id" : "search-reindex",
@@ -223,11 +203,7 @@
         "users/dp-search-reindex-batch"
     ],
     "role" : "search-reindex",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
-    }
+    "condition" : {}
   }
 ]
 
