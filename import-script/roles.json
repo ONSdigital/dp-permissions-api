@@ -31,9 +31,9 @@
       "bundles:update",
       "bundles:create",
       "bundles:delete",
-      "migration:read",
-      "migration:create",
-      "migration:edit"
+      "migrations:read",
+      "migrations:create",
+      "migrations:edit"
     ]
   },
   {
@@ -82,10 +82,10 @@
       "bundles:update",
       "bundles:create",
       "bundles:delete",
-      "migration:create",
-      "migration:edit",
-      "migration:approve",
-      "migration:read"
+      "migrations:create",
+      "migrations:edit",
+      "migrations:approve",
+      "migrations:read"
     ]
   },
   {
@@ -150,16 +150,16 @@
   {
     "name": "migration-admin",
     "permissions": [
-      "migration:create",
-      "migration:edit",
-      "migration:approve",
-      "migration:read"
+      "migrations:create",
+      "migrations:edit",
+      "migrations:approve",
+      "migrations:read"
     ]
   },
   {
     "name": "migration-reader",
     "permissions": [
-      "migration:read"
+      "migrations:read"
     ]
   },
   {
