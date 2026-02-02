@@ -166,7 +166,8 @@
     "name" : "datasets-previewer",
     "permissions" : [ 
         "dataset-editions-versions:read", 
-        "datasets:read"
+        "datasets:read",
+        "bundles:read"
     ]
   },
   {
