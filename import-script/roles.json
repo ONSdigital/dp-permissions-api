@@ -142,9 +142,13 @@
   {
     "name": "datasets-admin",
     "permissions": [
+      "datasets:create",
       "datasets:read",
       "datasets:update",
-      "datasets:delete"
+      "datasets:delete",
+      "dataset-editions-versions:create",
+      "dataset-editions-versions:read",
+      "dataset-editions-versions:update"
     ]
   },
   {
