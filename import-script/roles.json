@@ -111,8 +111,13 @@
   {
     "name": "bundle-scheduler-admin",
     "permissions": [
-      "bundles:read",
-      "bundles:update"
+      "bundles:read", 
+      "bundles:update", 
+      "dataset-editions-versions:read", 
+      "dataset-editions-versions:update", 
+      "datasets:read", 
+      "static-files:read",
+      "static-files:update"
     ]
   },
   {
