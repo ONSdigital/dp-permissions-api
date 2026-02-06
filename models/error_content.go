@@ -12,10 +12,12 @@ const (
 	GetRolesError                              = "GetRolesError"
 	GetPermissionBundleError                   = "GetPermissionBundleError"
 	PolicyNotFoundError                        = "PolicyNotFoundError"
+	PolicyAlreadyExistsError                   = "PolicyAlreadyExistsError"
 	GetPolicyError                             = "GetPolicyError"
 	DeletePolicyError                          = "DeletePolicyError"
 	InvalidPolicyError                         = "InvalidPolicyError"
 	CreateNewPolicyError                       = "CreateNewPolicyError"
+	CreatePolicyWithIDError                    = "CreatePolicyWithIDError"
 	UpdatePolicyError                          = "UpdatePolicyError"
 )
 
@@ -32,9 +34,11 @@ const (
 	GetRoleErrorDescription                          = "retrieving role from DB returned an error"
 	GetRolesErrorDescription                         = "retrieving roles from DB returned an error"
 	GetPermissionBundleErrorDescription              = "failed to get permissions bundle"
+	PolicyAlreadyExistsDescription                   = "policy already exists with given ID"
 	PolicyNotFoundDescription                        = "policy not found"
 	GetPolicyErrorDescription                        = "retrieving policy from DB returned an error"
 	DeletePolicyErrorDescription                     = "deleting policy from DB returned an error"
 	CreateNewPolicyErrorDescription                  = "failed to create new policy"
+	CreatePolicyWithIDErrorDescription               = "failed to create policy with given ID"
 	UpdatePolicyErrorDescription                     = "failed to update policy"
 )

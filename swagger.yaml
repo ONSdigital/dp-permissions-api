@@ -225,6 +225,40 @@ paths:
           $ref: "#/responses/NotFound"
         500:
           $ref: "#/responses/InternalError"
+    post:
+      security:
+        - Authorization: []
+      tags:
+        - "policies"
+      summary: "Adds a policy with a specific id"
+      description: "Adds a policy corresponding to the provided body and id in this request. A policy binds a role to specific members (groups or users) conditional on an attribute"
+      produces:
+        - "application/json"
+      parameters:
+        - in: path
+          name: id
+          description: "Unique id of policy"
+          type: string
+          required: true
+        - in: body
+          name: Policy
+          schema:
+            $ref: "#/definitions/NewPolicy"
+      responses:
+        201:
+          description: "Successfully added a policy"
+          schema:
+            $ref: "#/definitions/Policy"
+        400:
+          description: "Bad request. Invalid policy supplied"
+        401:
+          description: "Unauthorised request"
+        403:
+          description: "User is unauthorised for this role"
+        409:
+          description: "Conflict. policy already exists with given id"
+        500:
+          $ref: "#/responses/InternalError"
 
   /permissions-bundle:
     get:

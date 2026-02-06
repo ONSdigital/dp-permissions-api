@@ -17,26 +17,15 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var host = "localhost:1234"
+var (
+	host = "localhost:1234"
+)
 
 func TestNewClient(t *testing.T) {
 	Convey("Given some host", t, func() {
 		someHost := host
 		Convey("When NewClient is called", func() {
 			apiClient := sdk.NewClient(someHost)
-			Convey("Then the api is not nil", func() {
-				So(apiClient, ShouldNotBeNil)
-			})
-		})
-	})
-}
-
-func TestNewClientWithOptions(t *testing.T) {
-	Convey("Given some host and custom options", t, func() {
-		someHost := host
-		ops := sdk.Options{}
-		Convey("When NewClientWithOptions is called", func() {
-			apiClient := sdk.NewClientWithOptions(someHost, ops)
 			Convey("Then the api is not nil", func() {
 				So(apiClient, ShouldNotBeNil)
 			})
@@ -56,10 +45,10 @@ func TestAPIClient_GetPermissionsBundle(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -104,10 +93,10 @@ func TestAPIClient_GetPermissionsBundle_SucceedsOnSecondAttempt(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Bundle request made twice (failed on first attempt)", func() {
 				So(retryCount, ShouldEqual, 2)
@@ -144,10 +133,10 @@ func TestAPIClient_GetPermissionsBundle_HTTPError(t *testing.T) {
 				return nil, expectedErr
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err, ShouldEqual, expectedErr)
@@ -172,10 +161,10 @@ func TestAPIClient_GetPermissionsBundle_Non200ResponseCodeReturned(t *testing.T)
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, "unexpected status returned from the permissions api permissions-bundle endpoint: 500 internal server error")
@@ -199,10 +188,10 @@ func TestAPIClient_GetPermissionsBundle_NilResponseBody(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err, ShouldEqual, sdk.ErrGetPermissionsResponseBodyNil)
@@ -227,10 +216,10 @@ func TestAPIClient_GetPermissionsBundle_UnexpectedResponseBody(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPermissionsBundle is called", func() {
-			bundle, err := apiClient.GetPermissionsBundle(ctx)
+			bundle, err := apiClient.GetPermissionsBundle(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err, ShouldEqual, sdk.ErrFailedToParsePermissionsResponse)
@@ -301,10 +290,10 @@ func TestAPIClient_GetRoles(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRoles is called", func() {
-			roles, err := apiClient.GetRoles(ctx)
+			roles, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -327,10 +316,10 @@ func TestAPIClient_GetRoles_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRoles is called", func() {
-			_, err := apiClient.GetRoles(ctx)
+			_, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -353,10 +342,10 @@ func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRoles is called", func() {
-			roles, err := apiClient.GetRoles(ctx)
+			roles, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Invalid request, reasons can be one of the following:
@@ -380,10 +369,10 @@ func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRoles is called", func() {
-			roles, err := apiClient.GetRoles(ctx)
+			roles, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Unauthorised request, reason is:
@@ -405,10 +394,10 @@ func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRoles is called", func() {
-			roles, err := apiClient.GetRoles(ctx)
+			roles, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Failed to process the request due to an internal error`)
@@ -449,10 +438,10 @@ func TestAPIClient_GetRole(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			role, err := apiClient.GetRole(ctx, "2")
+			role, err := apiClient.GetRole(ctx, "2", sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -474,10 +463,10 @@ func TestAPIClient_GetRole_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			_, err := apiClient.GetRole(ctx, "1")
+			_, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -498,10 +487,10 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			role, err := apiClient.GetRole(ctx, "1")
+			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Invalid request`)
@@ -522,10 +511,10 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			role, err := apiClient.GetRole(ctx, "1")
+			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Unauthorised request`)
@@ -546,10 +535,10 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			role, err := apiClient.GetRole(ctx, "1")
+			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Requested id can not be found`)
@@ -570,10 +559,10 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetRole is called", func() {
-			role, err := apiClient.GetRole(ctx, "1")
+			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Failed to process the request due to an internal error`)
@@ -607,19 +596,19 @@ func TestAPIClient_PostPolicy(t *testing.T) {
 		httpClient := &dphttp.ClienterMock{
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
-					StatusCode: http.StatusOK,
+					StatusCode: http.StatusCreated,
 					Body:       io.NopCloser(bytes.NewReader(bresult)),
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PostPolicy is called", func() {
 			policy, err := apiClient.PostPolicy(ctx, models.PolicyInfo{
 				Entities:  nil,
 				Role:      "1",
 				Condition: models.Condition{},
-			})
+			}, sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -641,10 +630,10 @@ func TestAPIClient_PostPolicy_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PostPolicy is called", func() {
-			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
+			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -653,7 +642,7 @@ func TestAPIClient_PostPolicy_BadRequest(t *testing.T) {
 	})
 }
 
-func TestAPIClient_PostPolicy_Non200ResponseCodeReturned(t *testing.T) {
+func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given a mock http client that returns a response code 400", t, func() {
@@ -665,10 +654,10 @@ func TestAPIClient_PostPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
-		Convey("When GetRole is called", func() {
-			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
+		Convey("When PostPolicy is called", func() {
+			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Bad request. Invalid policy supplied`)
@@ -685,10 +674,10 @@ func TestAPIClient_PostPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
-		Convey("When GetRole is called", func() {
-			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
+		Convey("When PostPolicy is called", func() {
+			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Unauthorised request`)
@@ -705,13 +694,83 @@ func TestAPIClient_PostPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
-		Convey("When GetAllRoles is called", func() {
-			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{})
+		Convey("When PostPolicy is called", func() {
+			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Failed to process the request due to an internal error`)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PostPolicyWithID_Success(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a successful response", t, func() {
+		result := models.Policy{
+			ID:        "policyID",
+			Entities:  []string{"groups/group1", "groups/group2"},
+			Role:      "1",
+			Condition: models.Condition{},
+		}
+
+		bresult, err := json.Marshal(result)
+		So(err, ShouldBeNil)
+
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusCreated,
+					Body:       io.NopCloser(bytes.NewReader(bresult)),
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
+
+		Convey("When PostPolicyWithID is called", func() {
+			policy, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+				Entities:  []string{"groups/group1", "groups/group2"},
+				Role:      "1",
+				Condition: models.Condition{},
+			}, sdk.Headers{})
+
+			Convey("Then no error is returned", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And Policy should not be empty", func() {
+				So(policy, ShouldResemble, &result)
+			})
+		})
+	})
+}
+
+func TestAPIClient_PostPolicyWithID_Non201ResponseCodeReturned(t *testing.T) {
+	ctx := context.Background()
+
+	Convey("Given a mock http client that returns a response code 409", t, func() {
+		httpClient := &dphttp.ClienterMock{
+			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: http.StatusConflict,
+					Status:     `Policy already exists with given ID`,
+				}, nil
+			},
+		}
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
+
+		Convey("When PostPolicyWithID is called", func() {
+			_, err := apiClient.PostPolicyWithID(ctx, "policyID", models.PolicyInfo{
+				Entities:  []string{"groups/group1", "groups/group2"},
+				Role:      "1",
+				Condition: models.Condition{},
+			}, sdk.Headers{})
+
+			Convey("Then the expected error is returned", func() {
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api: Policy already exists with given ID`)
 			})
 		})
 	})
@@ -729,10 +788,10 @@ func TestAPIClient_DeletePolicy(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When DeletePolicy is called", func() {
-			err := apiClient.DeletePolicy(ctx, "1")
+			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -750,10 +809,10 @@ func TestAPIClient_DeletePolicy_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When DeletePolicy is called", func() {
-			err := apiClient.DeletePolicy(ctx, "1")
+			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -774,10 +833,10 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			err := apiClient.DeletePolicy(ctx, "1")
+			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Bad request. Invalid policy supplied`)
@@ -794,10 +853,10 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			err := apiClient.DeletePolicy(ctx, "1")
+			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Unauthorised request`)
@@ -814,10 +873,10 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			err := apiClient.DeletePolicy(ctx, "1")
+			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Failed to process the request due to an internal error`)
@@ -850,10 +909,10 @@ func TestAPIClient_GetPolicy(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			policy, err := apiClient.GetPolicy(ctx, "1")
+			policy, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -875,10 +934,10 @@ func TestAPIClient_GetPolicy_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			policy, err := apiClient.GetPolicy(ctx, "1")
+			policy, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -903,10 +962,10 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			_, err := apiClient.GetPolicy(ctx, "1")
+			_, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Bad request. Invalid policy supplied`)
@@ -923,10 +982,10 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			_, err := apiClient.GetPolicy(ctx, "1")
+			_, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Unauthorised request`)
@@ -943,10 +1002,10 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When GetPolicy is called", func() {
-			_, err := apiClient.GetPolicy(ctx, "1")
+			_, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Failed to process the request due to an internal error`)
@@ -967,7 +1026,7 @@ func TestAPIClient_PutPolicy(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PutPolicy is called", func() {
 			err := apiClient.PutPolicy(ctx, "1", models.Policy{
@@ -975,7 +1034,7 @@ func TestAPIClient_PutPolicy(t *testing.T) {
 				Entities:  nil,
 				Role:      "",
 				Condition: models.Condition{},
-			})
+			}, sdk.Headers{})
 
 			Convey("Then no error is returned", func() {
 				So(err, ShouldBeNil)
@@ -993,10 +1052,10 @@ func TestAPIClient_PutPolicy_BadRequest(t *testing.T) {
 				return nil, errors.New("bad request")
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PutPolicy is called", func() {
-			err := apiClient.PutPolicy(ctx, "1", models.Policy{})
+			err := apiClient.PutPolicy(ctx, "1", models.Policy{}, sdk.Headers{})
 
 			Convey("Then an error is returned", func() {
 				So(err, ShouldResemble, errors.New("bad request"))
@@ -1017,10 +1076,10 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PutPolicy is called", func() {
-			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+			err := apiClient.PutPolicy(ctx, "", models.Policy{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Bad request. Invalid policy supplied`)
@@ -1037,10 +1096,10 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PutPolicy is called", func() {
-			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+			err := apiClient.PutPolicy(ctx, "", models.Policy{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Unauthorised request`)
@@ -1057,10 +1116,10 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 				}, nil
 			},
 		}
-		apiClient := sdk.NewClientWithClienter(host, httpClient, sdk.Options{})
+		apiClient := sdk.NewClientWithClienter(host, httpClient)
 
 		Convey("When PutPolicy is called", func() {
-			err := apiClient.PutPolicy(ctx, "", models.Policy{})
+			err := apiClient.PutPolicy(ctx, "", models.Policy{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
 				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Failed to process the request due to an internal error`)
