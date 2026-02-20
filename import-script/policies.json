@@ -32,8 +32,8 @@
   {
     "id": "files-admin",
     "entities": [
-      "users/dp-upload-service", 
-      "users/zebedee", 
+      "users/dp-upload-service",
+      "users/zebedee",
       "users/dp-dataset-api",
       "users/dis-migration-service"
     ],
@@ -83,127 +83,144 @@
     "condition": {}
   },
   {
-    "id" : "groups-reader",
-    "entities" : [
+    "id": "groups-reader",
+    "entities": [
       "users/dis-wagtail"
     ],
-    "role" : "groups-reader",
-    "condition" : {}
+    "role": "groups-reader",
+    "condition": {}
   },
   {
-    "id" : "legacy-admin-administrator",
-    "condition" : {
-        "attribute" : "",
-        "operator" : "",
-        "Values" : null
+    "id": "legacy-admin-administrator",
+    "condition": {
+      "attribute": "",
+      "operator": "",
+      "Values": null
     },
-    "entities" : [ 
-        "users/admin"
+    "entities": [
+      "users/admin"
     ],
-    "role" : "administrator"
-   },
-   {
-    "id" : "migration-admin",
-    "entities" : [
-      "users/dis-migration-service"
-    ],
-    "role" : "migration-admin",
-    "condition" : {}
+    "role": "administrator"
   },
   {
-    "id" : "migration-reader",
-    "entities" : [
+    "id": "migration-admin",
+    "entities": [
       "users/dis-migration-service"
     ],
-    "role" : "migration-reader",
-    "condition" : {}
+    "role": "migration-admin",
+    "condition": {}
   },
   {
-    "id" : "datasets-admin",
-    "entities" : [
+    "id": "migration-reader",
+    "entities": [
       "users/dis-migration-service"
     ],
-    "role" : "datasets-admin",
-    "condition" : {}
+    "role": "migration-reader",
+    "condition": {}
   },
   {
-    "id" : "legacy-admin",
-    "entities" : [
+    "id": "datasets-admin",
+    "entities": [
       "users/dis-migration-service"
     ],
-    "role" : "legacy-admin",
-    "condition" : {}
+    "role": "datasets-admin",
+    "condition": {}
   },
   {
-    "id" : "uuid-value-here",
-    "entities" : [ 
-        "groups/uuid-value-here"
+    "id": "legacy-admin",
+    "entities": [
+      "users/dis-migration-service"
     ],
-    "role" : "datasets-previewer",
-    "condition" : {
-        "attribute" : "dataset_edition",
-        "operator" : "StringEquals",
-        "Values" : ["static-test-dataset/time-series", "static-test-dataset"]
+    "role": "legacy-admin",
+    "condition": {}
+  },
+  {
+    "id": "uuid-value-here",
+    "entities": [
+      "groups/uuid-value-here"
+    ],
+    "role": "datasets-previewer",
+    "condition": {
+      "attribute": "dataset_edition",
+      "operator": "StringEquals",
+      "Values": [
+        "static-test-dataset/time-series",
+        "static-test-dataset"
+      ]
     }
   },
   {
-    "id" : "data-import",
-    "entities" : [ 
-        "users/dp-import-api", 
-        "users/dp-publishing-dataset-controller", 
-        "users/zebedee"
+    "id": "data-import",
+    "entities": [
+      "users/dp-import-api",
+      "users/dp-publishing-dataset-controller",
+      "users/zebedee"
     ],
-    "role" : "data-import",
-    "condition" : {}
+    "role": "data-import",
+    "condition": {}
   },
   {
-    "id" : "data-pipelines",
-    "entities" : [ 
-        "users/dp-dataset-api"
+    "id": "data-pipelines",
+    "entities": [
+      "users/dp-dataset-api"
     ],
-    "role" : "data-pipelines",
-    "condition" : {}
+    "role": "data-pipelines",
+    "condition": {}
   },
   {
-    "id" : "cantabular-exporter-services",
-    "entities" : [ 
-        "users/dp-cantabular-csv-exporter", 
-        "users/dp-cantabular-xlsx-exporter", 
-        "users/dp-cantabular-metadata-exporter"
+    "id": "cantabular-exporter-services",
+    "entities": [
+      "users/dp-cantabular-csv-exporter",
+      "users/dp-cantabular-xlsx-exporter",
+      "users/dp-cantabular-metadata-exporter"
     ],
-    "role" : "cantabular-exporter-services",
-    "condition" : {}
+    "role": "cantabular-exporter-services",
+    "condition": {}
   },
   {
-    "id" : "cmd-data-import",
-    "entities" : [ 
-        "users/dp-import-reporter", 
-        "users/dp-dimension-extractor", 
-        "users/dp-dimension-importer", 
-        "users/dp-observation-importer", 
-        "users/dp-observation-extractor", 
-        "users/dp-hierarchy-builder", 
-        "users/dp-import-tracker"
+    "id": "cmd-data-import",
+    "entities": [
+      "users/dp-import-reporter",
+      "users/dp-dimension-extractor",
+      "users/dp-dimension-importer",
+      "users/dp-observation-importer",
+      "users/dp-observation-extractor",
+      "users/dp-hierarchy-builder",
+      "users/dp-import-tracker"
     ],
-    "role" : "data-import",
-    "condition" : {}
+    "role": "data-import",
+    "condition": {}
   },
   {
-    "id" : "cmd-exporter-services",
-    "entities" : [ 
-        "users/dp-dataset-exporter", 
-        "users/dp-dataset-exporter-xlsx"
+    "id": "cmd-exporter-services",
+    "entities": [
+      "users/dp-dataset-exporter",
+      "users/dp-dataset-exporter-xlsx"
     ],
-    "role" : "cmd-exporter-services",
-    "condition" : {}
+    "role": "cmd-exporter-services",
+    "condition": {}
   },
   {
-    "id" : "search-reindex",
-    "entities" : [ 
-        "users/dp-search-reindex-batch"
+    "id": "search-reindex",
+    "entities": [
+      "users/dp-search-reindex-batch"
     ],
-    "role" : "search-reindex",
-    "condition" : {}
+    "role": "search-reindex",
+    "condition": {}
+  },
+  {
+    "id": "default-viewer",
+    "condition": {
+      "attribute": "dataset_edition",
+      "operator": "StringEquals",
+      "Values": [
+        "static-test-dataset",
+        "static-test-dataset/time-series"
+      ]
+    },
+    "entities": [
+      "groups/role-viewer"
+    ],
+    "role": "files-reader"
   }
 ]
-
