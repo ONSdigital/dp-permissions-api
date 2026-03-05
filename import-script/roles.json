@@ -173,7 +173,8 @@
     "permissions" : [ 
         "dataset-editions-versions:read", 
         "datasets:read",
-        "bundles:read"
+        "bundles:read",
+        "static-files:read"
     ]
   },
   {

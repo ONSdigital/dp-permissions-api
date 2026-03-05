@@ -204,6 +204,18 @@
     ],
     "role" : "search-reindex",
     "condition" : {}
+  },
+  {
+    "id" : "role-viewer",
+    "entities" : [ 
+        "groups/role-viewer"
+    ],
+    "role" : "datasets-previewer",
+    "condition" : {
+        "attribute" : "dataset_edition",
+        "operator" : "StringEquals",
+        "Values" : ["static-test-dataset/time-series", "static-test-dataset"]
+    }
   }
 ]
 
