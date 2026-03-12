@@ -92,6 +92,7 @@ func (svc *Service) Close(ctx context.Context) error {
 	timeout := svc.Config.GracefulShutdownTimeout
 	log.Info(ctx, "commencing graceful shutdown", log.Data{"graceful_shutdown_timeout": timeout})
 	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 
 	// track shutown gracefully closes up
 	var hasShutdownError bool
