@@ -77,9 +77,7 @@
       "users/zebedee",
       "users/dis-migration-service"
     ],
-    "roles": [
-      "redirect-admin"
-    ],
+    "role": "redirect-admin",
     "condition": {}
   },
   {
