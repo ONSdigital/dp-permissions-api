@@ -138,7 +138,8 @@
     "name": "legacy-admin",
     "permissions": [
       "legacy:edit",
-      "legacy:read"
+      "legacy:read",
+      "legacy:self-approve"
     ]
   },
   {

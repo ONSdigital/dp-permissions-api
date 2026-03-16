@@ -130,7 +130,13 @@
       "users/dis-migration-service"
     ],
     "role" : "legacy-admin",
-    "condition" : {}
+    "condition": {
+      "attribute": "collection_type",
+      "operator": "StringEquals",
+      "values": [
+        "automated"
+      ]
+    }
   },
   {
     "id" : "data-import",
