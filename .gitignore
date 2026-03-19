@@ -11,3 +11,19 @@
 *.iml
 *.iws
 vendor/
+
+# Maven
+log/
+target/
+
+### Java template
+# Compiled class file
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar

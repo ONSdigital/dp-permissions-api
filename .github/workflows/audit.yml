@@ -1,0 +1,46 @@
+name: Audit
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    - cron: 0 0 */7 * *
+  workflow_dispatch:
+
+# Single source of truth for tool versions
+env:
+  JAVA_VERSION: '8'
+
+jobs:
+  dp-permissions-api-audit-java:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Configure Maven settings.xml for OSS Index
+        uses: s4u/maven-settings-action@v3.1.0
+        with:
+          servers: |
+            [{
+              "id": "ossindex",
+              "username": "${{ secrets.OSSINDEX_USERNAME }}",
+              "password": "${{ secrets.OSSINDEX_TOKEN }}"
+            }]
+      - name: Run Java audit
+        run: make audit-java
+      - name: Slack notification on failure
+        # Only notify failures for periodic runs on main branch
+        if: failure() && env.BRANCH_NAME == 'main'
+        uses: slackapi/slack-github-action@v3.0.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|audit test ${{ github.run_id }}> failed for <${{ github.server_url }}/${{ github.repository }}|${{ github.repository }}> branch `${{ env.BRANCH_NAME }}`"

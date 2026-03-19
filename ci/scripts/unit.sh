@@ -1,5 +1,5 @@
 #!/bin/bash -eux
 
 pushd dp-permissions-api
-  make test
+  make test-go
 popd

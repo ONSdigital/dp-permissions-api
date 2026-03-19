@@ -1,0 +1,82 @@
+name: CI
+
+permissions:
+  contents: read
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# Single source of truth for tool versions
+env:
+  JAVA_VERSION: '8'
+
+jobs:
+  dp-permissions-api-audit-java:
+    # Dependabot PRs cannot access secrets so the java audit check will be skipped for those PRs.
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Configure Maven settings.xml for OSS Index
+        uses: s4u/maven-settings-action@v3.1.0
+        with:
+          servers: |
+            [{
+              "id": "ossindex",
+              "username": "${{ secrets.OSSINDEX_USERNAME }}",
+              "password": "${{ secrets.OSSINDEX_TOKEN }}"
+            }]
+      - name: Run audit
+        run: make audit-java
+
+  dp-permissions-api-lint-java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Run Java linters
+        run: make lint-java
+
+  dp-permissions-api-unit-java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Run Java unit tests
+        run: make test-java
+
+  dp-permissions-api-build-java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Run Java build test
+        run: make build-java

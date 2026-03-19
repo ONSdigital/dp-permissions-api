@@ -16,6 +16,9 @@ To run some of our tests you will need additional tooling:
 
 We use `dis-vulncheck` to do auditing, which you will [need to install](https://github.com/ONSdigital/dis-vulncheck).
 
+For Java auditing we use mvn `ossindex:audit` which requires you to [setup an OSS Index account](https://github.com/ONSdigital/dp/blob/main/guides/MAC_SETUP.md#oss-index-account-and-configuration)
+and make some updates to [Maven: Local Setup for ossindex:audit](https://github.com/ONSdigital/dp/blob/main/guides/MAC_SETUP.md#maven-local-setup-for-ossindexaudit)
+
 #### Linting
 
 We use v2 of golangci-lint, which you will [need to install](https://golangci-lint.run/docs/welcome/install).
@@ -27,12 +30,6 @@ We use v2 of golangci-lint, which you will [need to install](https://golangci-li
   * collections: 'roles, policies'
 
 This can be done via the [v1 compat stack](https://github.com/ONSdigital/dp-compose/tree/main/v2/stacks/v1-compat) in dp-compose.
-
-To run make validate-specification you require Node v20.x and to install @redocly/cli:
-
-```sh
-   npm install -g @redocly/cli
-```
 
 ### Configuration
 
@@ -61,7 +58,12 @@ dp-permissions-api also implements the [dp-authorisation library config](https:/
 
 ## SDK Package
 
-[An SDK for the API is available as a subpackage in `/sdk`](sdk/README.md)
+This API has two SDKs available:
+
+* [Go](./sdk/README.md)
+* [Java](./sdk-java/README.md)
+
+Moving the Go package or having a folder for both SDKs would cause a breaking change for the Go SDK which we do not want to introduce at this time.
 
 ## Contributing
 
