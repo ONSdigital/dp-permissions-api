@@ -37,7 +37,7 @@ jobs:
         run: make audit-java
       - name: Slack notification on failure
         # Only notify failures for periodic runs on main branch
-        if: failure() && env.BRANCH_NAME == 'main'
+        if: failure() && env.BRANCH_NAME == 'master'
         uses: slackapi/slack-github-action@v3.0.1
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
