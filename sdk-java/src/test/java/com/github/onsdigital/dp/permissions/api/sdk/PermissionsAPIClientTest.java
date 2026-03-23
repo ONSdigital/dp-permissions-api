@@ -25,6 +25,7 @@ class PermissionsAPIClientTest {
         String invalidUrl = "ht!tp://bad_url";
         CloseableHttpClient mockClient = mock(CloseableHttpClient.class);
 		assertThrows(java.net.URISyntaxException.class, () -> {
+			// this uses try-with-resources https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
 			try (PermissionsAPIClient client = new PermissionsAPIClient(invalidUrl, SERVICE_AUTH_TOKEN, mockClient)) {
 				// The exception is expected to be thrown during construction
 			}

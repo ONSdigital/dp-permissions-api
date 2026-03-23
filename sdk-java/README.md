@@ -30,6 +30,7 @@ public class MyApplicationClass {
     private static final String SERVICE_AUTH_TOKEN = "xyz1234";
 
     public static void main(String[] args) throws Exception {
+        // this uses try-with-resources https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
         try (PermissionsClient client = new PermissionsAPIClient(
                 PERMISSIONS_API_URL, SERVICE_AUTH_TOKEN)) {
             // use client
@@ -47,6 +48,7 @@ import com.github.onsdigital.dp.permissions.api.sdk.exception.BadRequestExceptio
 import com.github.onsdigital.dp.permissions.api.sdk.exception.PolicyNotFoundException;
 import com.github.onsdigital.dp.permissions.api.sdk.exception.PermissionsAPIException;
 
+// this uses try-with-resources https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
 try (PermissionsClient client = new PermissionsAPIClient(
         PERMISSIONS_API_URL, SERVICE_AUTH_TOKEN)) {
     client.deletePolicy("policy-id");
