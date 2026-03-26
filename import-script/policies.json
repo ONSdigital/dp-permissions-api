@@ -133,7 +133,7 @@
     "condition": {
       "attribute": "collection_type",
       "operator": "StringEquals",
-      "values": [
+      "Values": [
         "automated"
       ]
     }
