@@ -36,7 +36,7 @@ class PermissionsAPIClientTest {
 	void testDeletePolicySuccess() throws Exception {
 		CloseableHttpClient mockClient = mock(CloseableHttpClient.class);
 		PermissionsAPIClient client = new PermissionsAPIClient(PERMISSIONS_API_URL, SERVICE_AUTH_TOKEN, mockClient);
-		CloseableHttpResponse mockResponse = MockHttp.response(200);
+		CloseableHttpResponse mockResponse = MockHttp.response(204);
 		stubExecuteWithHandler(mockClient, mockResponse);
 		assertDoesNotThrow(() -> client.deletePolicy("policy123"));
 		client.close();

@@ -121,6 +121,8 @@ public class PermissionsAPIClient implements PermissionsClient {
         switch (statusCode) {
             case HttpStatus.SC_OK:
                 return;
+            case HttpStatus.SC_NO_CONTENT:
+                return;
             case HttpStatus.SC_BAD_REQUEST:
                 throw new BadRequestException(formatErrResponse(httpRequest,
                         statusCode, HttpStatus.SC_BAD_REQUEST, responseBody),
