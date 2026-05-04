@@ -3,12 +3,12 @@ module github.com/ONSdigital/dp-permissions-api
 go 1.26.0
 
 require (
-	github.com/ONSdigital/dp-authorisation/v2 v2.33.1
+	github.com/ONSdigital/dp-authorisation/v2 v2.34.0
 	github.com/ONSdigital/dp-component-test v1.4.4-alpha
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-mongodb/v3 v3.8.0
 	github.com/ONSdigital/dp-net/v3 v3.8.0
-	github.com/ONSdigital/log.go/v2 v2.5.0
+	github.com/ONSdigital/log.go/v2 v2.5.2
 	github.com/cucumber/godog v0.15.1
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/gorilla/mux v1.8.1
@@ -40,7 +40,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/docker v28.5.2+incompatible // indirect
 	github.com/docker/go-connections v0.6.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect
@@ -92,7 +91,6 @@ require (
 	github.com/moby/sys/userns v0.1.0 // indirect
 	github.com/moby/term v0.5.2 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect

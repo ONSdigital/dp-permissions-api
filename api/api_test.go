@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
+	permissionsAPISDK "github.com/ONSdigital/dp-permissions-api/sdk"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 
@@ -64,6 +65,12 @@ func newAuthMiddlwareMock() *authorisation.MiddlewareMock {
 	return &authorisation.MiddlewareMock{
 		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return handlerFunc
+		},
+		ParseFunc: func(token string) (*permissionsAPISDK.EntityData, error) {
+			return &permissionsAPISDK.EntityData{
+				UserID: "test-user",
+				Groups: []string{"role-admin"},
+			}, nil
 		},
 	}
 }
