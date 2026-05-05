@@ -34,7 +34,7 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 		return nil, nil
 	}
 
-	logPolicyAuditEvent(ctx, "successfully gotten policy audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
+	logPolicyAuditEvent(ctx, "successfully retreived policy audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
