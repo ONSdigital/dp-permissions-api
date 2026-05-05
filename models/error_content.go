@@ -19,6 +19,7 @@ const (
 	CreateNewPolicyError                       = "CreateNewPolicyError"
 	CreatePolicyWithIDError                    = "CreatePolicyWithIDError"
 	UpdatePolicyError                          = "UpdatePolicyError"
+	GetAuthEntityDataError                     = "GetAuthEntityDataError"
 )
 
 // API error descriptions
@@ -41,4 +42,5 @@ const (
 	CreateNewPolicyErrorDescription                  = "failed to create new policy"
 	CreatePolicyWithIDErrorDescription               = "failed to create policy with given ID"
 	UpdatePolicyErrorDescription                     = "failed to update policy"
+	GetAuthEntityDataErrorDescription                = "failed to get auth entity data from request"
 )
