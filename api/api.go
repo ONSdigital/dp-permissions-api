@@ -17,7 +17,6 @@ type API struct {
 	Router              *mux.Router
 	permissionsStore    PermissionsStore
 	bundler             PermissionsBundler
-	authMiddleware      authorisation.Middleware
 	defaultLimit        int
 	defaultOffset       int
 	maximumDefaultLimit int
@@ -51,7 +50,6 @@ func Setup(
 		defaultOffset:       cfg.DefaultOffset,
 		maximumDefaultLimit: cfg.MaximumDefaultLimit,
 		bundler:             bundler,
-		authMiddleware:      auth,
 	}
 
 	r.HandleFunc("/v1/roles", auth.Require(models.RolesRead, contextAndErrors(api.GetRolesHandler))).Methods(http.MethodGet)
