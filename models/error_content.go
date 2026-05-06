@@ -43,4 +43,5 @@ const (
 	CreatePolicyWithIDErrorDescription               = "failed to create policy with given ID"
 	UpdatePolicyErrorDescription                     = "failed to update policy"
 	GetAuthEntityDataErrorDescription                = "failed to get auth entity data from request"
+	EntityDataErrorDescription                       = "unable to parse entity data from request context"
 )
