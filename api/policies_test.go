@@ -810,7 +810,7 @@ func TestPoliciesHandlersWhenAuthEntityDataMissing(t *testing.T) {
 
 			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
 			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 1)
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 0)
 		})
 
 		Convey("POST /v1/policies/{id} should return 500", func() {

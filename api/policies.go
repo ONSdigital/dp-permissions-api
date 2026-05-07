@@ -91,6 +91,12 @@ func handleDeletePolicyError(ctx context.Context, err error, policyID string) *m
 
 // PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "postPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription))
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), nil)
+	}
+
 	policy, err := models.CreatePolicy(req.Body)
 	if err != nil {
 		return nil, handleBodyUnmarshalError(ctx, err)
@@ -103,13 +109,6 @@ func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, re
 	newPolicy, err := api.createNewPolicy(ctx, policy)
 	if err != nil {
 		return nil, handleCreateNewPolicyError(ctx, err)
-	}
-
-	logData := log.Data{"policy_id": newPolicy.ID}
-	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
-	if !ok {
-		log.Error(ctx, "postPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
 	}
 
 	b, err := json.Marshal(newPolicy)
