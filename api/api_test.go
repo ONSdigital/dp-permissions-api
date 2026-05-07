@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
-	authorisation "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
+	authmock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -61,8 +61,8 @@ func setupAPIWithBundler(bundler api.PermissionsBundler) *api.API {
 	return api.Setup(cfg, mux.NewRouter(), &mock.PermissionsStoreMock{}, bundler, newAuthMiddlwareMock())
 }
 
-func newAuthMiddlwareMock() *authorisation.MiddlewareMock {
-	return &authorisation.MiddlewareMock{
+func newAuthMiddlwareMock() *authmock.MiddlewareMock {
+	return &authmock.MiddlewareMock{
 		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
 			return func(w http.ResponseWriter, r *http.Request) {
 				entityData := &permsdk.EntityData{
