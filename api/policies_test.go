@@ -25,6 +25,12 @@ var (
 	testPolicyID = "testPoliciesID"
 )
 
+const (
+	testEntityE1 = "e1"
+	testEntityE2 = "e2"
+	testValueV1  = "v1"
+)
+
 func TestSuccessfulAddPolicies(t *testing.T) {
 	t.Parallel()
 
@@ -68,9 +74,9 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1, testEntityE2})
 				So(policy.Condition, ShouldResemble, models.Condition{
-					Attribute: "a1", Values: []string{"v1"}, Operator: models.OperatorStringEquals},
+					Attribute: "a1", Values: []string{testValueV1}, Operator: models.OperatorStringEquals},
 				)
 			})
 		})
@@ -102,7 +108,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1})
 				So(policy.Condition, ShouldResemble, models.Condition{})
 			})
 		})
@@ -305,9 +311,9 @@ func TestPostPolicyWithIDHandler(t *testing.T) {
 				case "ALREADYEXISTS":
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "a1", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "a1", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				default:
 					return nil, errors.New("Something went wrong")
 				}
@@ -353,9 +359,9 @@ func TestPostPolicyWithIDHandler(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1, testEntityE2})
 				So(policy.Condition, ShouldResemble, models.Condition{
-					Attribute: "a1", Values: []string{"v1"}, Operator: models.OperatorStringEquals},
+					Attribute: "a1", Values: []string{testValueV1}, Operator: models.OperatorStringEquals},
 				)
 			})
 		})
@@ -498,9 +504,9 @@ func TestGetPolicyHandler(t *testing.T) {
 				case testPolicyID:
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -519,9 +525,9 @@ func TestGetPolicyHandler(t *testing.T) {
 			Convey("The matched policy is returned with status code 200", func() {
 				expectedPolicy := models.Policy{
 					ID:        testPolicyID,
-					Entities:  []string{"e1", "e2"},
+					Entities:  []string{testEntityE1, testEntityE2},
 					Role:      "r1",
-					Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}
+					Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}
 
 				policy := models.Policy{}
 				payload, _ := io.ReadAll(responseRecorder.Body)
@@ -713,9 +719,9 @@ func TestDeletePolicyHandler(t *testing.T) {
 				case testPolicyID:
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:

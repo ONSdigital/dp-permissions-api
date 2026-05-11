@@ -14,11 +14,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const policyIDKey = "policy_id"
+
 // GetPolicyHandler is a handler that gets policy by its ID from DB
 func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
@@ -41,7 +43,7 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 }
 
 func handleGetPolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -58,7 +60,7 @@ func handleGetPolicyError(ctx context.Context, err error, policyID string) *mode
 func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
@@ -76,7 +78,7 @@ func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 }
 
 func handleDeletePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -154,7 +156,7 @@ func handleCreateNewPolicyError(ctx context.Context, err error) *models.ErrorRes
 func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
@@ -202,7 +204,7 @@ func (api *API) createPolicyWithID(ctx context.Context, policyID string, policy 
 }
 
 func handleCreatePolicyWithIDError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	if err == apierrors.ErrPolicyAlreadyExists {
 		return models.NewErrorResponse(http.StatusConflict,
@@ -221,7 +223,7 @@ func handleCreatePolicyWithIDError(ctx context.Context, err error, policyID stri
 func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
@@ -253,7 +255,7 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 }
 
 func handleUpdatePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
 		models.NewError(ctx, err, models.UpdatePolicyError, models.UpdatePolicyErrorDescription, logData),
