@@ -8,9 +8,9 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-// logPolicyAuditEvent produces protective monitoring logging for the API endpoints given successful requests.
+// logAuditEvent produces protective monitoring logging for the API endpoints given successful requests.
 // should we be logging a failed request we also log the reason for this.
-func logPolicyAuditEvent(ctx context.Context, message string, authEntityData *authorisation.AuthEntityData, action models.Action,
+func logAuditEvent(ctx context.Context, message string, authEntityData *authorisation.AuthEntityData, action models.Action,
 	endpoint string, outcome models.Outcome, errReason string) {
 	identityType := log.USER
 	if authEntityData.IsServiceAuth {

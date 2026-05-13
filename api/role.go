@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/utils"
@@ -14,6 +16,12 @@ import (
 
 // GetRoleHandler is a handler that gets a role by its ID from MongoDB
 func (api *API) GetRoleHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "getRole endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription))
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), nil)
+	}
+
 	vars := mux.Vars(req)
 	roleID := vars["id"]
 
@@ -28,6 +36,7 @@ func (api *API) GetRoleHandler(ctx context.Context, w http.ResponseWriter, req *
 		return nil, handleBodyMarshalError(ctx, err, "role", role)
 	}
 
+	logAuditEvent(ctx, "successfully retrieved role audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
@@ -47,6 +56,12 @@ func handleGetRoleError(ctx context.Context, err error, roleID string) *models.E
 
 // GetRolesHandler is a handler that gets all roles from MongoDB
 func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "getRoles endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription))
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), nil)
+	}
+
 	offsetParameter := req.URL.Query().Get("offset")
 	limitParameter := req.URL.Query().Get("limit")
 
@@ -84,6 +99,7 @@ func (api *API) GetRolesHandler(ctx context.Context, w http.ResponseWriter, req 
 		return nil, handleBodyMarshalError(ctx, err, "list_of_roles", listOfRoles)
 	}
 
+	logAuditEvent(ctx, "successfully retrieved roles audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
