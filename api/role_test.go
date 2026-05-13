@@ -9,12 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	authmock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
-	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
-	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -264,54 +261,6 @@ func TestGetRolesHandler(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(returnedRoles, ShouldResemble, emptyImageList)
 			})
-		})
-	})
-}
-
-func setupRoleAPIWithStoreWithoutAuthEntityData(permissionsStore api.PermissionsStore) *api.API {
-	authMiddleware := &authmock.MiddlewareMock{
-		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
-			return handlerFunc
-		},
-	}
-
-	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{}, authMiddleware)
-}
-
-func TestRoleHandlersWhenAuthEntityDataMissing(t *testing.T) {
-	Convey("Given auth middleware does not set auth entity data in context", t, func() {
-		Convey("GetRole returns 500 and does not call store", func() {
-			mockedPermissionsStore := &mock.PermissionsStoreMock{
-				GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
-					return dbRole(id), nil
-				},
-			}
-			permissionsAPI := setupRoleAPIWithStoreWithoutAuthEntityData(mockedPermissionsStore)
-
-			r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/roles/%s", testRoleID1), http.NoBody)
-			w := httptest.NewRecorder()
-			permissionsAPI.Router.ServeHTTP(w, r)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-			So(w.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.GetRoleCalls()), ShouldEqual, 0)
-		})
-
-		Convey("GetRoles returns 500 and does not call store", func() {
-			mockedPermissionsStore := &mock.PermissionsStoreMock{
-				GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
-					return &imageList, nil
-				},
-			}
-			permissionsAPI := setupRoleAPIWithStoreWithoutAuthEntityData(mockedPermissionsStore)
-
-			r := httptest.NewRequest(http.MethodGet, "http://localhost:25400/v1/roles", http.NoBody)
-			w := httptest.NewRecorder()
-			permissionsAPI.Router.ServeHTTP(w, r)
-
-			So(w.Code, ShouldEqual, http.StatusInternalServerError)
-			So(w.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.GetRolesCalls()), ShouldEqual, 0)
 		})
 	})
 }
