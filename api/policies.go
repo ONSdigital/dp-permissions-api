@@ -38,7 +38,7 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 		return nil, handleBodyMarshalError(ctx, err, "policy", policy)
 	}
 
-	logPolicyAuditEvent(ctx, "successfully retreived policy audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
+	logAuditEvent(ctx, "successfully retrieved policy audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
@@ -73,7 +73,7 @@ func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 		return nil, handleDeletePolicyError(ctx, err, policyID)
 	}
 
-	logPolicyAuditEvent(ctx, "successfully deleted policy audit event", authEntityData, models.ActionDelete, req.URL.Path, models.OutcomeSuccess, "")
+	logAuditEvent(ctx, "successfully deleted policy audit event", authEntityData, models.ActionDelete, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(nil, http.StatusNoContent, nil), nil
 }
 
@@ -118,7 +118,7 @@ func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, re
 		return nil, handleBodyMarshalError(ctx, err, "new_policy", newPolicy)
 	}
 
-	logPolicyAuditEvent(ctx, "successfully created policy audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
+	logAuditEvent(ctx, "successfully created policy audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
 }
 
@@ -183,7 +183,7 @@ func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWrit
 		return nil, handleBodyMarshalError(ctx, err, "new_policy", newPolicy)
 	}
 
-	logPolicyAuditEvent(ctx, "successfully created policy with ID audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
+	logAuditEvent(ctx, "successfully created policy with ID audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
 }
 
@@ -245,7 +245,7 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 		return nil, handleUpdatePolicyError(ctx, err, policyID)
 	}
 
-	logPolicyAuditEvent(ctx, "successfully updated policy audit event", authEntityData, models.ActionUpdate, req.URL.Path, models.OutcomeSuccess, "")
+	logAuditEvent(ctx, "successfully updated policy audit event", authEntityData, models.ActionUpdate, req.URL.Path, models.OutcomeSuccess, "")
 
 	if updateResult.ModifiedCount > 0 {
 		return models.NewSuccessResponse(nil, http.StatusOK, nil), nil
@@ -259,12 +259,5 @@ func handleUpdatePolicyError(ctx context.Context, err error, policyID string) *m
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
 		models.NewError(ctx, err, models.UpdatePolicyError, models.UpdatePolicyErrorDescription, logData),
-	)
-}
-
-func handleAuthEntityDataError(ctx context.Context, err error, logData log.Data) *models.ErrorResponse {
-	return models.NewErrorResponse(http.StatusInternalServerError,
-		nil,
-		models.NewError(ctx, err, models.GetAuthEntityDataError, models.GetAuthEntityDataErrorDescription, logData),
 	)
 }
