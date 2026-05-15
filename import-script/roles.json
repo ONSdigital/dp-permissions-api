@@ -232,6 +232,13 @@
         "datasets:read", 
         "dataset-editions-versions:read"
     ]
+  },
+  {
+    "_id" : "policy-deleter",
+    "name" : "policy-deleter",
+    "permissions" : [ 
+        "policies:delete"
+    ]
   }
 ]
 

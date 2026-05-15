@@ -3,8 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -12,10 +14,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const policyIDKey = "policy_id"
+
 // GetPolicyHandler is a handler that gets policy by its ID from DB
 func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
+	logData := log.Data{policyIDKey: policyID}
+
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "getPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+	}
 
 	policy, err := api.permissionsStore.GetPolicy(ctx, policyID)
 	if err != nil {
@@ -27,11 +38,12 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 		return nil, handleBodyMarshalError(ctx, err, "policy", policy)
 	}
 
+	logAuditEvent(ctx, "successfully retrieved policy audit event", authEntityData, models.ActionRead, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusOK, nil), nil
 }
 
 func handleGetPolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -48,17 +60,25 @@ func handleGetPolicyError(ctx context.Context, err error, policyID string) *mode
 func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
+	logData := log.Data{policyIDKey: policyID}
+
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "deletePolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+	}
 
 	err := api.permissionsStore.DeletePolicy(ctx, policyID)
 	if err != nil {
 		return nil, handleDeletePolicyError(ctx, err, policyID)
 	}
 
+	logAuditEvent(ctx, "successfully deleted policy audit event", authEntityData, models.ActionDelete, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(nil, http.StatusNoContent, nil), nil
 }
 
 func handleDeletePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	if err == apierrors.ErrPolicyNotFound {
 		return models.NewErrorResponse(http.StatusNotFound,
 			nil,
@@ -73,6 +93,12 @@ func handleDeletePolicyError(ctx context.Context, err error, policyID string) *m
 
 // PostPolicyHandler is a handler that creates a new policies in DB
 func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "postPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription))
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), nil)
+	}
+
 	policy, err := models.CreatePolicy(req.Body)
 	if err != nil {
 		return nil, handleBodyUnmarshalError(ctx, err)
@@ -92,6 +118,7 @@ func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, re
 		return nil, handleBodyMarshalError(ctx, err, "new_policy", newPolicy)
 	}
 
+	logAuditEvent(ctx, "successfully created policy audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
 }
 
@@ -129,6 +156,13 @@ func handleCreateNewPolicyError(ctx context.Context, err error) *models.ErrorRes
 func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
+	logData := log.Data{policyIDKey: policyID}
+
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "postPolicyWithID endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+	}
 
 	policy, err := models.CreatePolicy(req.Body)
 	if err != nil {
@@ -149,6 +183,7 @@ func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWrit
 		return nil, handleBodyMarshalError(ctx, err, "new_policy", newPolicy)
 	}
 
+	logAuditEvent(ctx, "successfully created policy with ID audit event", authEntityData, models.ActionCreate, req.URL.Path, models.OutcomeSuccess, "")
 	return models.NewSuccessResponse(b, http.StatusCreated, nil), nil
 }
 
@@ -169,7 +204,7 @@ func (api *API) createPolicyWithID(ctx context.Context, policyID string, policy 
 }
 
 func handleCreatePolicyWithIDError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 
 	if err == apierrors.ErrPolicyAlreadyExists {
 		return models.NewErrorResponse(http.StatusConflict,
@@ -188,6 +223,13 @@ func handleCreatePolicyWithIDError(ctx context.Context, err error, policyID stri
 func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, req *http.Request) (*models.SuccessResponse, *models.ErrorResponse) {
 	vars := mux.Vars(req)
 	policyID := vars["id"]
+	logData := log.Data{policyIDKey: policyID}
+
+	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
+	if !ok {
+		log.Error(ctx, "updatePolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
+		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+	}
 
 	updatePolicy, err := models.CreatePolicy(req.Body)
 	if err != nil {
@@ -203,6 +245,8 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 		return nil, handleUpdatePolicyError(ctx, err, policyID)
 	}
 
+	logAuditEvent(ctx, "successfully updated policy audit event", authEntityData, models.ActionUpdate, req.URL.Path, models.OutcomeSuccess, "")
+
 	if updateResult.ModifiedCount > 0 {
 		return models.NewSuccessResponse(nil, http.StatusOK, nil), nil
 	} else {
@@ -211,7 +255,7 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 }
 
 func handleUpdatePolicyError(ctx context.Context, err error, policyID string) *models.ErrorResponse {
-	logData := log.Data{"policy_id": policyID}
+	logData := log.Data{policyIDKey: policyID}
 	return models.NewErrorResponse(http.StatusInternalServerError,
 		nil,
 		models.NewError(ctx, err, models.UpdatePolicyError, models.UpdatePolicyErrorDescription, logData),

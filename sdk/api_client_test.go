@@ -21,6 +21,13 @@ var (
 	host = "localhost:1234"
 )
 
+const (
+	testRoleName              = "test"
+	testPermissionAll         = "all"
+	statusUnauthorisedRequest = "Unauthorised request"
+	statusInternalError       = "Failed to process the request due to an internal error"
+)
+
 func TestNewClient(t *testing.T) {
 	Convey("Given some host", t, func() {
 		someHost := host
@@ -266,12 +273,12 @@ func TestAPIClient_GetRoles(t *testing.T) {
 		Limit:  2,
 		Items: []models.Role{{
 			ID:          "1",
-			Name:        "test",
-			Permissions: []string{"all"},
+			Name:        testRoleName,
+			Permissions: []string{testPermissionAll},
 		}, {
 			ID:          "2",
-			Name:        "test",
-			Permissions: []string{"all"},
+			Name:        testRoleName,
+			Permissions: []string{testPermissionAll},
 		}},
 		TotalCount: 0,
 	}
@@ -300,8 +307,8 @@ func TestAPIClient_GetRoles(t *testing.T) {
 			})
 
 			Convey("Then the expected roles is returned", func() {
-				So(roles.Items[0], ShouldResemble, models.Role{ID: "1", Name: "test", Permissions: []string{"all"}})
-				So(roles.Items[1], ShouldResemble, models.Role{ID: "2", Name: "test", Permissions: []string{"all"}})
+				So(roles.Items[0], ShouldResemble, models.Role{ID: "1", Name: testRoleName, Permissions: []string{testPermissionAll}})
+				So(roles.Items[1], ShouldResemble, models.Role{ID: "2", Name: testRoleName, Permissions: []string{testPermissionAll}})
 			})
 		})
 	})
@@ -390,7 +397,7 @@ func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -400,7 +407,7 @@ func TestAPIClient_GetRoles_Non200ResponseCodeReturned(t *testing.T) {
 			roles, err := apiClient.GetRoles(ctx, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getallpolicies endpoint: `+statusInternalError)
 			})
 
 			Convey("Then the permissions roles is nil", func() {
@@ -418,8 +425,8 @@ func TestAPIClient_GetRole(t *testing.T) {
 		Limit:  2,
 		Items: []models.Role{{
 			ID:          "2",
-			Name:        "test",
-			Permissions: []string{"all"},
+			Name:        testRoleName,
+			Permissions: []string{testPermissionAll},
 		}},
 		TotalCount: 0,
 	}
@@ -448,7 +455,7 @@ func TestAPIClient_GetRole(t *testing.T) {
 			})
 
 			Convey("Then the expected role is returned", func() {
-				So(role.Items[0], ShouldResemble, models.Role{ID: "2", Name: "test", Permissions: []string{"all"}})
+				So(role.Items[0], ShouldResemble, models.Role{ID: "2", Name: testRoleName, Permissions: []string{testPermissionAll}})
 			})
 		})
 	})
@@ -507,7 +514,7 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusForbidden,
-					Status:     `Unauthorised request`,
+					Status:     statusUnauthorisedRequest,
 				}, nil
 			},
 		}
@@ -517,7 +524,7 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Unauthorised request`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: `+statusUnauthorisedRequest)
 			})
 
 			Convey("Then the permissions roles is nil", func() {
@@ -555,7 +562,7 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -565,7 +572,7 @@ func TestAPIClient_GetRole_Non200ResponseCodeReturned(t *testing.T) {
 			role, err := apiClient.GetRole(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getrole endpoint: `+statusInternalError)
 			})
 
 			Convey("Then the permissions roles is nil", func() {
@@ -670,7 +677,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusForbidden,
-					Status:     `Unauthorised request`,
+					Status:     statusUnauthorisedRequest,
 				}, nil
 			},
 		}
@@ -680,7 +687,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Unauthorised request`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: `+statusUnauthorisedRequest)
 			})
 		})
 	})
@@ -690,7 +697,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -700,7 +707,7 @@ func TestAPIClient_PostPolicy_Non201ResponseCodeReturned(t *testing.T) {
 			_, err := apiClient.PostPolicy(ctx, models.PolicyInfo{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-addpolicy endpoint: `+statusInternalError)
 			})
 		})
 	})
@@ -849,7 +856,7 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusForbidden,
-					Status:     `Unauthorised request`,
+					Status:     statusUnauthorisedRequest,
 				}, nil
 			},
 		}
@@ -859,7 +866,7 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Unauthorised request`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: `+statusUnauthorisedRequest)
 			})
 		})
 	})
@@ -869,7 +876,7 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -879,7 +886,7 @@ func TestAPIClient_DeletePolicy_Non200ResponseCodeReturned(t *testing.T) {
 			err := apiClient.DeletePolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-deletepolicy endpoint: `+statusInternalError)
 			})
 		})
 	})
@@ -978,7 +985,7 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusForbidden,
-					Status:     `Unauthorised request`,
+					Status:     statusUnauthorisedRequest,
 				}, nil
 			},
 		}
@@ -988,7 +995,7 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			_, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Unauthorised request`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: `+statusUnauthorisedRequest)
 			})
 		})
 	})
@@ -998,7 +1005,7 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -1008,7 +1015,7 @@ func TestAPIClient_GetPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			_, err := apiClient.GetPolicy(ctx, "1", sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-getpolicy endpoint: `+statusInternalError)
 			})
 		})
 	})
@@ -1092,7 +1099,7 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusForbidden,
-					Status:     `Unauthorised request`,
+					Status:     statusUnauthorisedRequest,
 				}, nil
 			},
 		}
@@ -1102,7 +1109,7 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			err := apiClient.PutPolicy(ctx, "", models.Policy{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Unauthorised request`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: `+statusUnauthorisedRequest)
 			})
 		})
 	})
@@ -1112,7 +1119,7 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: http.StatusInternalServerError,
-					Status:     `Failed to process the request due to an internal error`,
+					Status:     statusInternalError,
 				}, nil
 			},
 		}
@@ -1122,7 +1129,7 @@ func TestAPIClient_PutPolicy_Non200ResponseCodeReturned(t *testing.T) {
 			err := apiClient.PutPolicy(ctx, "", models.Policy{}, sdk.Headers{})
 
 			Convey("Then the expected error is returned", func() {
-				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: Failed to process the request due to an internal error`)
+				So(err.Error(), ShouldEqual, `unexpected status returned from the permissions api permissions-putpolicy endpoint: `+statusInternalError)
 			})
 		})
 	})

@@ -1,6 +1,0 @@
----
-ignore:
-  - id: GO-2026-4883
-    reason: "Indirect via dp-component-test/testcontainers docker client; no patched upstream docker module release available yet"
-  - id: GO-2026-4887
-    reason: "Indirect via dp-component-test/testcontainers docker client; no patched upstream docker module release available yet"

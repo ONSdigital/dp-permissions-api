@@ -11,15 +11,24 @@ import (
 	"strings"
 	"testing"
 
+	authorisation "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
+	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/apierrors"
 	"github.com/ONSdigital/dp-permissions-api/models"
+	"github.com/gorilla/mux"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 var (
 	testPolicyID = "testPoliciesID"
+)
+
+const (
+	testEntityE1 = "e1"
+	testEntityE2 = "e2"
+	testValueV1  = "v1"
 )
 
 func TestSuccessfulAddPolicies(t *testing.T) {
@@ -65,9 +74,9 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1, testEntityE2})
 				So(policy.Condition, ShouldResemble, models.Condition{
-					Attribute: "a1", Values: []string{"v1"}, Operator: models.OperatorStringEquals},
+					Attribute: "a1", Values: []string{testValueV1}, Operator: models.OperatorStringEquals},
 				)
 			})
 		})
@@ -99,7 +108,7 @@ func TestSuccessfulAddPolicies(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1})
 				So(policy.Condition, ShouldResemble, models.Condition{})
 			})
 		})
@@ -302,9 +311,9 @@ func TestPostPolicyWithIDHandler(t *testing.T) {
 				case "ALREADYEXISTS":
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "a1", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "a1", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				default:
 					return nil, errors.New("Something went wrong")
 				}
@@ -350,9 +359,9 @@ func TestPostPolicyWithIDHandler(t *testing.T) {
 				So(policy, ShouldNotBeNil)
 				So(policy.ID, ShouldEqual, testPolicyID)
 				So(policy.Role, ShouldResemble, "r1")
-				So(policy.Entities, ShouldResemble, []string{"e1", "e2"})
+				So(policy.Entities, ShouldResemble, []string{testEntityE1, testEntityE2})
 				So(policy.Condition, ShouldResemble, models.Condition{
-					Attribute: "a1", Values: []string{"v1"}, Operator: models.OperatorStringEquals},
+					Attribute: "a1", Values: []string{testValueV1}, Operator: models.OperatorStringEquals},
 				)
 			})
 		})
@@ -495,9 +504,9 @@ func TestGetPolicyHandler(t *testing.T) {
 				case testPolicyID:
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -516,9 +525,9 @@ func TestGetPolicyHandler(t *testing.T) {
 			Convey("The matched policy is returned with status code 200", func() {
 				expectedPolicy := models.Policy{
 					ID:        testPolicyID,
-					Entities:  []string{"e1", "e2"},
+					Entities:  []string{testEntityE1, testEntityE2},
 					Role:      "r1",
-					Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}
+					Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}
 
 				policy := models.Policy{}
 				payload, _ := io.ReadAll(responseRecorder.Body)
@@ -710,9 +719,9 @@ func TestDeletePolicyHandler(t *testing.T) {
 				case testPolicyID:
 					return &models.Policy{
 						ID:        testPolicyID,
-						Entities:  []string{"e1", "e2"},
+						Entities:  []string{testEntityE1, testEntityE2},
 						Role:      "r1",
-						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{"v1"}}}, nil
+						Condition: models.Condition{Attribute: "al", Operator: models.OperatorStringEquals, Values: []string{testValueV1}}}, nil
 				case "NOTFOUND":
 					return nil, apierrors.ErrPolicyNotFound
 				default:
@@ -755,6 +764,82 @@ func TestDeletePolicyHandler(t *testing.T) {
 
 			So(responseWriter.Code, ShouldEqual, http.StatusInternalServerError)
 			So(response, ShouldContainSubstring, models.InternalServerErrorDescription)
+		})
+	})
+}
+
+func setupAPIWithStoreWithoutAuthEntity(permissionsStore api.PermissionsStore) *api.API {
+	authMiddleware := &authorisation.MiddlewareMock{
+		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
+			return handlerFunc
+		},
+	}
+
+	return api.Setup(cfg, mux.NewRouter(), permissionsStore, &mock.PermissionsBundlerMock{}, authMiddleware)
+}
+
+func TestPoliciesHandlersWhenAuthEntityDataMissing(t *testing.T) {
+	Convey("Given auth middleware does not set auth entity data in context", t, func() {
+		mockedPermissionsStore := &mock.PermissionsStoreMock{
+			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+				policy.ID = testPolicyID
+				return policy, nil
+			},
+		}
+		permissionsAPI := setupAPIWithStoreWithoutAuthEntity(mockedPermissionsStore)
+
+		Convey("GET /v1/policies/{id} should return 500", func() {
+			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), http.NoBody)
+			responseRecorder := httptest.NewRecorder()
+			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
+
+			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
+			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
+			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 0)
+		})
+
+		Convey("DELETE /v1/policies/{id} should return 500", func() {
+			request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), http.NoBody)
+			responseRecorder := httptest.NewRecorder()
+			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
+
+			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
+			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
+			So(len(mockedPermissionsStore.DeletePolicyCalls()), ShouldEqual, 0)
+		})
+
+		Convey("POST /v1/policies should return 500", func() {
+			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
+			request := httptest.NewRequest(http.MethodPost, "http://localhost:25400/v1/policies", reader)
+			responseRecorder := httptest.NewRecorder()
+			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
+
+			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
+			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 0)
+		})
+
+		Convey("POST /v1/policies/{id} should return 500", func() {
+			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
+			request := httptest.NewRequest(http.MethodPost, "http://localhost:25400/v1/policies/new-id", reader)
+			responseRecorder := httptest.NewRecorder()
+			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
+
+			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
+			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
+			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 0)
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 0)
+		})
+
+		Convey("PUT /v1/policies/{id} should return 500", func() {
+			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
+			request := httptest.NewRequest(http.MethodPut, "http://localhost:25400/v1/policies/policyid", reader)
+			responseRecorder := httptest.NewRecorder()
+			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
+
+			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
+			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
+			So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 0)
 		})
 	})
 }

@@ -16,16 +16,18 @@ import (
 )
 
 const (
-	testRoleID1 = "testRoleID1"
-	testRoleID2 = "testRoleID2"
+	testRoleID1    = "testRoleID1"
+	testRoleID2    = "testRoleID2"
+	testRoleName   = "ReadOnly"
+	testPermission = "read"
 )
 
 func dbRole(id string) *models.Role {
 	return &models.Role{
 		ID:   id,
-		Name: "ReadOnly",
+		Name: testRoleName,
 		Permissions: []string{
-			"read",
+			testPermission,
 		},
 	}
 }
@@ -60,7 +62,7 @@ func TestGetRoleHandler(t *testing.T) {
 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
 				switch id {
 				case testRoleID1:
-					return &models.Role{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, nil
+					return &models.Role{ID: testRoleID1, Name: testRoleName, Permissions: []string{testPermission}}, nil
 				default:
 					return nil, apierrors.ErrRoleNotFound
 				}
@@ -106,7 +108,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Count:      2,
 						Offset:     0,
 						Limit:      20,
-						Items:      []models.Role{{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, {ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
+						Items:      []models.Role{{ID: testRoleID1, Name: testRoleName, Permissions: []string{testPermission}}, {ID: testRoleID2, Name: testRoleName, Permissions: []string{testPermission}}},
 						TotalCount: 2,
 					}, nil
 				},
@@ -136,7 +138,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Count:      1,
 						Offset:     1,
 						Limit:      1,
-						Items:      []models.Role{{ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
+						Items:      []models.Role{{ID: testRoleID2, Name: testRoleName, Permissions: []string{testPermission}}},
 						TotalCount: 1,
 					}, nil
 				},
@@ -166,7 +168,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Count:      1,
 						Offset:     0,
 						Limit:      1500,
-						Items:      []models.Role{{ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
+						Items:      []models.Role{{ID: testRoleID2, Name: testRoleName, Permissions: []string{testPermission}}},
 						TotalCount: 1,
 					}, nil
 				},
@@ -190,7 +192,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Count:      2,
 						Offset:     0,
 						Limit:      0,
-						Items:      []models.Role{{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, {ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
+						Items:      []models.Role{{ID: testRoleID1, Name: testRoleName, Permissions: []string{testPermission}}, {ID: testRoleID2, Name: testRoleName, Permissions: []string{testPermission}}},
 						TotalCount: 2,
 					}, nil
 				},
@@ -214,7 +216,7 @@ func TestGetRolesHandler(t *testing.T) {
 						Count:      2,
 						Offset:     0,
 						Limit:      0,
-						Items:      []models.Role{{ID: "testRoleID1", Name: "ReadOnly", Permissions: []string{"read"}}, {ID: "testRoleID2", Name: "ReadOnly", Permissions: []string{"read"}}},
+						Items:      []models.Role{{ID: testRoleID1, Name: testRoleName, Permissions: []string{testPermission}}, {ID: testRoleID2, Name: testRoleName, Permissions: []string{testPermission}}},
 						TotalCount: 2,
 					}, nil
 				},

@@ -30,6 +30,8 @@ var (
 	}
 )
 
+const groupsRoleAdmin = "groups/role-admin"
+
 // PermissionsComponent holds the initialized http server, mongo client and configs required for running component tests.
 type PermissionsComponent struct {
 	ErrorFeature            componenttest.ErrorFeature
@@ -58,7 +60,7 @@ func setupFakePermissionsAPI() *authorisationtest.FakePermissionsAPI {
 func getPermissionsBundle() *permsdk.Bundle {
 	return &permsdk.Bundle{
 		models.PoliciesCreate: { // role
-			"groups/role-admin": { // groups
+			groupsRoleAdmin: { // groups
 				permsdk.Policy{
 					ID:        "policy1",
 					Condition: permsdk.Condition{},
@@ -66,7 +68,7 @@ func getPermissionsBundle() *permsdk.Bundle {
 			},
 		},
 		models.PoliciesRead: { // role
-			"groups/role-admin": { // groups
+			groupsRoleAdmin: { // groups
 				permsdk.Policy{
 					ID:        "policy1",
 					Condition: permsdk.Condition{},
@@ -86,7 +88,7 @@ func getPermissionsBundle() *permsdk.Bundle {
 			},
 		},
 		models.PoliciesUpdate: { // role
-			"groups/role-admin": { // groups
+			groupsRoleAdmin: { // groups
 				permsdk.Policy{
 					ID:        "policy3",
 					Condition: permsdk.Condition{},
@@ -94,7 +96,7 @@ func getPermissionsBundle() *permsdk.Bundle {
 			},
 		},
 		models.PoliciesDelete: { // role
-			"groups/role-admin": { // groups
+			groupsRoleAdmin: { // groups
 				permsdk.Policy{
 					ID:        "policy1",
 					Condition: permsdk.Condition{},
@@ -102,7 +104,7 @@ func getPermissionsBundle() *permsdk.Bundle {
 			},
 		},
 		models.RolesRead: { // role
-			"groups/role-admin": { // groups
+			groupsRoleAdmin: { // groups
 				permsdk.Policy{
 					ID:        "policy1",
 					Condition: permsdk.Condition{},

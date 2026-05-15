@@ -5,13 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	auth "github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authmock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 	"github.com/ONSdigital/dp-permissions-api/api"
 	"github.com/ONSdigital/dp-permissions-api/api/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
+	permsdk "github.com/ONSdigital/dp-permissions-api/sdk"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
-
-	authorisation "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
 )
 
 func TestSetup(t *testing.T) {
@@ -60,10 +61,24 @@ func setupAPIWithBundler(bundler api.PermissionsBundler) *api.API {
 	return api.Setup(cfg, mux.NewRouter(), &mock.PermissionsStoreMock{}, bundler, newAuthMiddlwareMock())
 }
 
-func newAuthMiddlwareMock() *authorisation.MiddlewareMock {
-	return &authorisation.MiddlewareMock{
+func newAuthMiddlwareMock() *authmock.MiddlewareMock {
+	return &authmock.MiddlewareMock{
 		RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
-			return handlerFunc
+			return func(w http.ResponseWriter, r *http.Request) {
+				entityData := &permsdk.EntityData{
+					UserID: "test-user",
+					Groups: []string{"role-admin"},
+				}
+				authEntityData := auth.CreateAuthEntityData(entityData, false)
+				ctx := auth.ContextWithAuthEntityData(r.Context(), authEntityData)
+				handlerFunc(w, r.WithContext(ctx))
+			}
+		},
+		ParseFunc: func(token string) (*permsdk.EntityData, error) {
+			return &permsdk.EntityData{
+				UserID: "test-user",
+				Groups: []string{"role-admin"},
+			}, nil
 		},
 	}
 }
