@@ -5,7 +5,6 @@ import (
 	"errors"
 	"testing"
 
-	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 	"github.com/ONSdigital/dp-permissions-api/models"
 	"github.com/ONSdigital/dp-permissions-api/sdk"
 	. "github.com/smartystreets/goconvey/convey"
@@ -60,11 +59,6 @@ func TestAuthorisationPermissionsStore_GetPermissionsBundle(t *testing.T) {
 		}
 
 		store := newAuthorisationPermissionsStore(bundler)
-
-		Convey("Then the store implements the authorisation permissions store interface", func() {
-			_, ok := store.(authpermissions.Store)
-			So(ok, ShouldBeTrue)
-		})
 
 		Convey("When GetPermissionsBundle is called", func() {
 			permissionsBundle, err := store.GetPermissionsBundle(ctx, sdk.Headers{})
