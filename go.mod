@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-permissions-api
 
-go 1.26.3
+go 1.26.4
 
 require (
 	github.com/ONSdigital/dp-authorisation/v2 v2.36.0
