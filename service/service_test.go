@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-permissions-api/config"
@@ -89,7 +90,7 @@ func TestRun(t *testing.T) {
 			}, nil
 		}
 
-		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
 			return &authorisationMock.MiddlewareMock{
 				RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
 					return handlerFunc
@@ -164,6 +165,7 @@ func TestRun(t *testing.T) {
 				So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, "localhost:25400")
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
 				So(initMock.DoGetAuthorisationMiddlewareCalls(), ShouldHaveLength, 1)
+				So(initMock.DoGetAuthorisationMiddlewareCalls()[0].PermissionsStore, ShouldNotBeNil)
 				//!!! a call needed to stop the server, maybe ?
 				serverWg.Wait() // Wait for HTTP server go-routine to finish
 				So(len(serverMock.ListenAndServeCalls()), ShouldEqual, 1)
@@ -239,7 +241,7 @@ func TestRun(t *testing.T) {
 				DoGetHealthCheckFunc: funcDoGetHealthcheckOk,
 				DoGetHTTPServerFunc:  funcDoGetFailingHTTPServer,
 				DoGetMongoDBFunc:     funcDoGetMongoDBOk,
-				DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+				DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
 					return nil, expectedError
 				},
 			}
@@ -281,7 +283,7 @@ func TestClose(t *testing.T) {
 			},
 		}
 
-		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+		funcDoGetAuthorisationMiddleware := func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
 			return &authorisationMock.MiddlewareMock{
 				RequireFunc: func(permission string, handlerFunc http.HandlerFunc) http.HandlerFunc {
 					return handlerFunc

@@ -6,6 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authorisationMock "github.com/ONSdigital/dp-authorisation/v2/authorisation/mock"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
+	authpermissionsMock "github.com/ONSdigital/dp-authorisation/v2/permissions/mock"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"github.com/ONSdigital/dp-permissions-api/service/mock"
@@ -112,6 +116,59 @@ func TestGetHTTPServer(t *testing.T) {
 				So(newServiceMock.DoGetHTTPServerCalls(), ShouldHaveLength, 1)
 				So(serverMock.ListenAndServeCalls(), ShouldHaveLength, 1)
 				So(err, ShouldBeNil)
+			})
+		})
+	})
+}
+
+func TestGetAuthorisationMiddleware(t *testing.T) {
+	Convey("Given a service list that returns mocked authorisation middleware", t, func() {
+		middlewareMock := &authorisationMock.MiddlewareMock{}
+		permissionsStore := &authpermissionsMock.StoreMock{}
+		newServiceMock := &mock.InitialiserMock{
+			DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
+				return middlewareMock, nil
+			},
+		}
+		svcList := service.NewServiceList(newServiceMock)
+
+		Convey("When GetAuthorisationMiddleware is called", func() {
+			middleware, err := svcList.GetAuthorisationMiddleware(ctx, cfg.AuthorisationConfig, permissionsStore)
+
+			Convey("Then the AuthorisationMiddleware flag is set to true and the middleware is returned", func() {
+				So(svcList.AuthorisationMiddleware, ShouldBeTrue)
+				So(middleware, ShouldEqual, middlewareMock)
+				So(err, ShouldBeNil)
+			})
+
+			Convey("Then the authorisation config and permissions store are passed to the initialiser", func() {
+				So(newServiceMock.DoGetAuthorisationMiddlewareCalls(), ShouldHaveLength, 1)
+				So(newServiceMock.DoGetAuthorisationMiddlewareCalls()[0].AuthorisationConfig, ShouldEqual, cfg.AuthorisationConfig)
+				So(newServiceMock.DoGetAuthorisationMiddlewareCalls()[0].PermissionsStore, ShouldEqual, permissionsStore)
+			})
+		})
+	})
+
+	Convey("Given a service list that returns an error for authorisation middleware", t, func() {
+		expectedErr := errors.New("authorisation middleware error")
+		permissionsStore := &authpermissionsMock.StoreMock{}
+		newServiceMock := &mock.InitialiserMock{
+			DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
+				return nil, expectedErr
+			},
+		}
+		svcList := service.NewServiceList(newServiceMock)
+
+		Convey("When GetAuthorisationMiddleware is called", func() {
+			middleware, err := svcList.GetAuthorisationMiddleware(ctx, cfg.AuthorisationConfig, permissionsStore)
+
+			Convey("Then the error is returned", func() {
+				So(middleware, ShouldBeNil)
+				So(err, ShouldEqual, expectedErr)
+			})
+
+			Convey("Then the AuthorisationMiddleware flag is still set to true", func() {
+				So(svcList.AuthorisationMiddleware, ShouldBeTrue)
 			})
 		})
 	})
