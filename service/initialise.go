@@ -11,6 +11,7 @@ import (
 	dphttp "github.com/ONSdigital/dp-net/v3/http"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 )
 
 // ExternalServiceList holds the initialiser and initialisation state of external services.
@@ -86,12 +87,12 @@ func (e *Init) DoGetMongoDB(ctx context.Context, cfg *config.Config) (Permission
 }
 
 // DoGetAuthorisationMiddleware creates authorisation middleware for the given config
-func (e *Init) DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
-	return authorisation.NewFeatureFlaggedMiddleware(ctx, authorisationConfig, authorisationConfig.JWTVerificationPublicKeys)
+func (e *Init) DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
+	return authorisation.NewFeatureFlaggedMiddlewareWithPermissionsStore(ctx, authorisationConfig, authorisationConfig.JWTVerificationPublicKeys, permissionsStore)
 }
 
 // GetAuthorisationMiddleware creates a new instance of authorisation.Middlware
-func (e *ExternalServiceList) GetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+func (e *ExternalServiceList) GetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
 	e.AuthorisationMiddleware = true
-	return e.Init.DoGetAuthorisationMiddleware(ctx, authorisationConfig)
+	return e.Init.DoGetAuthorisationMiddleware(ctx, authorisationConfig, permissionsStore)
 }

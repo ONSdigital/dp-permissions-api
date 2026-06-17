@@ -6,6 +6,7 @@ package mock
 import (
 	"context"
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 	"github.com/ONSdigital/dp-permissions-api/config"
 	"github.com/ONSdigital/dp-permissions-api/service"
 	"net/http"
@@ -18,31 +19,31 @@ var _ service.Initialiser = &InitialiserMock{}
 
 // InitialiserMock is a mock implementation of service.Initialiser.
 //
-// 	func TestSomethingThatUsesInitialiser(t *testing.T) {
+//	func TestSomethingThatUsesInitialiser(t *testing.T) {
 //
-// 		// make and configure a mocked service.Initialiser
-// 		mockedInitialiser := &InitialiserMock{
-// 			DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
-// 				panic("mock out the DoGetAuthorisationMiddleware method")
-// 			},
-// 			DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer {
-// 				panic("mock out the DoGetHTTPServer method")
-// 			},
-// 			DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
-// 				panic("mock out the DoGetHealthCheck method")
-// 			},
-// 			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
-// 				panic("mock out the DoGetMongoDB method")
-// 			},
-// 		}
+//		// make and configure a mocked service.Initialiser
+//		mockedInitialiser := &InitialiserMock{
+//			DoGetAuthorisationMiddlewareFunc: func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
+//				panic("mock out the DoGetAuthorisationMiddleware method")
+//			},
+//			DoGetHTTPServerFunc: func(bindAddr string, router http.Handler) service.HTTPServer {
+//				panic("mock out the DoGetHTTPServer method")
+//			},
+//			DoGetHealthCheckFunc: func(cfg *config.Config, buildTime string, gitCommit string, version string) (service.HealthChecker, error) {
+//				panic("mock out the DoGetHealthCheck method")
+//			},
+//			DoGetMongoDBFunc: func(ctx context.Context, cfg *config.Config) (service.PermissionsStore, error) {
+//				panic("mock out the DoGetMongoDB method")
+//			},
+//		}
 //
-// 		// use mockedInitialiser in code that requires service.Initialiser
-// 		// and then make assertions.
+//		// use mockedInitialiser in code that requires service.Initialiser
+//		// and then make assertions.
 //
-// 	}
+//	}
 type InitialiserMock struct {
 	// DoGetAuthorisationMiddlewareFunc mocks the DoGetAuthorisationMiddleware method.
-	DoGetAuthorisationMiddlewareFunc func(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error)
+	DoGetAuthorisationMiddlewareFunc func(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error)
 
 	// DoGetHTTPServerFunc mocks the DoGetHTTPServer method.
 	DoGetHTTPServerFunc func(bindAddr string, router http.Handler) service.HTTPServer
@@ -61,6 +62,8 @@ type InitialiserMock struct {
 			Ctx context.Context
 			// AuthorisationConfig is the authorisationConfig argument value.
 			AuthorisationConfig *authorisation.Config
+			// PermissionsStore is the permissionsStore argument value.
+			PermissionsStore authpermissions.Store
 		}
 		// DoGetHTTPServer holds details about calls to the DoGetHTTPServer method.
 		DoGetHTTPServer []struct {
@@ -95,33 +98,38 @@ type InitialiserMock struct {
 }
 
 // DoGetAuthorisationMiddleware calls DoGetAuthorisationMiddlewareFunc.
-func (mock *InitialiserMock) DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error) {
+func (mock *InitialiserMock) DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error) {
 	if mock.DoGetAuthorisationMiddlewareFunc == nil {
 		panic("InitialiserMock.DoGetAuthorisationMiddlewareFunc: method is nil but Initialiser.DoGetAuthorisationMiddleware was just called")
 	}
 	callInfo := struct {
 		Ctx                 context.Context
 		AuthorisationConfig *authorisation.Config
+		PermissionsStore    authpermissions.Store
 	}{
 		Ctx:                 ctx,
 		AuthorisationConfig: authorisationConfig,
+		PermissionsStore:    permissionsStore,
 	}
 	mock.lockDoGetAuthorisationMiddleware.Lock()
 	mock.calls.DoGetAuthorisationMiddleware = append(mock.calls.DoGetAuthorisationMiddleware, callInfo)
 	mock.lockDoGetAuthorisationMiddleware.Unlock()
-	return mock.DoGetAuthorisationMiddlewareFunc(ctx, authorisationConfig)
+	return mock.DoGetAuthorisationMiddlewareFunc(ctx, authorisationConfig, permissionsStore)
 }
 
 // DoGetAuthorisationMiddlewareCalls gets all the calls that were made to DoGetAuthorisationMiddleware.
 // Check the length with:
-//     len(mockedInitialiser.DoGetAuthorisationMiddlewareCalls())
+//
+//	len(mockedInitialiser.DoGetAuthorisationMiddlewareCalls())
 func (mock *InitialiserMock) DoGetAuthorisationMiddlewareCalls() []struct {
 	Ctx                 context.Context
 	AuthorisationConfig *authorisation.Config
+	PermissionsStore    authpermissions.Store
 } {
 	var calls []struct {
 		Ctx                 context.Context
 		AuthorisationConfig *authorisation.Config
+		PermissionsStore    authpermissions.Store
 	}
 	mock.lockDoGetAuthorisationMiddleware.RLock()
 	calls = mock.calls.DoGetAuthorisationMiddleware
@@ -149,7 +157,8 @@ func (mock *InitialiserMock) DoGetHTTPServer(bindAddr string, router http.Handle
 
 // DoGetHTTPServerCalls gets all the calls that were made to DoGetHTTPServer.
 // Check the length with:
-//     len(mockedInitialiser.DoGetHTTPServerCalls())
+//
+//	len(mockedInitialiser.DoGetHTTPServerCalls())
 func (mock *InitialiserMock) DoGetHTTPServerCalls() []struct {
 	BindAddr string
 	Router   http.Handler
@@ -188,7 +197,8 @@ func (mock *InitialiserMock) DoGetHealthCheck(cfg *config.Config, buildTime stri
 
 // DoGetHealthCheckCalls gets all the calls that were made to DoGetHealthCheck.
 // Check the length with:
-//     len(mockedInitialiser.DoGetHealthCheckCalls())
+//
+//	len(mockedInitialiser.DoGetHealthCheckCalls())
 func (mock *InitialiserMock) DoGetHealthCheckCalls() []struct {
 	Cfg       *config.Config
 	BuildTime string
@@ -227,7 +237,8 @@ func (mock *InitialiserMock) DoGetMongoDB(ctx context.Context, cfg *config.Confi
 
 // DoGetMongoDBCalls gets all the calls that were made to DoGetMongoDB.
 // Check the length with:
-//     len(mockedInitialiser.DoGetMongoDBCalls())
+//
+//	len(mockedInitialiser.DoGetMongoDBCalls())
 func (mock *InitialiserMock) DoGetMongoDBCalls() []struct {
 	Ctx context.Context
 	Cfg *config.Config
