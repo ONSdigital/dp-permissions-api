@@ -44,8 +44,9 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	}
 
 	bundler := permissions.NewBundler(mongoDB)
+	authorisationPermissionsStore := newAuthorisationPermissionsStore(bundler)
 
-	authorisationMiddleware, err := serviceList.GetAuthorisationMiddleware(ctx, cfg.AuthorisationConfig)
+	authorisationMiddleware, err := serviceList.GetAuthorisationMiddleware(ctx, cfg.AuthorisationConfig, authorisationPermissionsStore)
 	if err != nil {
 		log.Fatal(ctx, "could not instantiate authorisation middleware", err)
 		return nil, err
