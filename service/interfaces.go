@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-permissions-api/config"
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 )
 
 //go:generate moq -out mock/initialiser.go -pkg mock . Initialiser
@@ -23,7 +24,7 @@ type Initialiser interface {
 	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
 	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
 	DoGetMongoDB(ctx context.Context, cfg *config.Config) (PermissionsStore, error)
-	DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config) (authorisation.Middleware, error)
+	DoGetAuthorisationMiddleware(ctx context.Context, authorisationConfig *authorisation.Config, permissionsStore authpermissions.Store) (authorisation.Middleware, error)
 }
 
 // HTTPServer defines the required methods from the HTTP server

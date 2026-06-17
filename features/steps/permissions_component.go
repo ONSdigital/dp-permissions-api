@@ -8,6 +8,7 @@ import (
 
 	"github.com/ONSdigital/dp-authorisation/v2/authorisation"
 	"github.com/ONSdigital/dp-authorisation/v2/authorisationtest"
+	authpermissions "github.com/ONSdigital/dp-authorisation/v2/permissions"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-component-test/utils"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -247,7 +248,7 @@ func (f *PermissionsComponent) DoGetMongoDB(_ context.Context, _ *config.Config)
 }
 
 // DoGetAuthorisationMiddleware returns an authorisationMock.Middleware object
-func (f *PermissionsComponent) DoGetAuthorisationMiddleware(ctx context.Context, cfg *authorisation.Config) (authorisation.Middleware, error) {
+func (f *PermissionsComponent) DoGetAuthorisationMiddleware(ctx context.Context, cfg *authorisation.Config, _ authpermissions.Store) (authorisation.Middleware, error) {
 	middleware, err := authorisation.NewMiddlewareFromConfig(ctx, cfg, publicSigningkey)
 	if err != nil {
 		return nil, err

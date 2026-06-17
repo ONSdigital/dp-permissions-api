@@ -17,46 +17,46 @@ var _ service.PermissionsStore = &PermissionsStoreMock{}
 
 // PermissionsStoreMock is a mock implementation of service.PermissionsStore.
 //
-// 	func TestSomethingThatUsesPermissionsStore(t *testing.T) {
+//	func TestSomethingThatUsesPermissionsStore(t *testing.T) {
 //
-// 		// make and configure a mocked service.PermissionsStore
-// 		mockedPermissionsStore := &PermissionsStoreMock{
-// 			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
-// 				panic("mock out the AddPolicy method")
-// 			},
-// 			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
-// 				panic("mock out the Checker method")
-// 			},
-// 			CloseFunc: func(ctx context.Context) error {
-// 				panic("mock out the Close method")
-// 			},
-// 			DeletePolicyFunc: func(ctx context.Context, id string) error {
-// 				panic("mock out the DeletePolicy method")
-// 			},
-// 			GetAllBundlePoliciesFunc: func(ctx context.Context) ([]*models.BundlePolicy, error) {
-// 				panic("mock out the GetAllBundlePolicies method")
-// 			},
-// 			GetAllRolesFunc: func(ctx context.Context) ([]*models.Role, error) {
-// 				panic("mock out the GetAllRoles method")
-// 			},
-// 			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
-// 				panic("mock out the GetPolicy method")
-// 			},
-// 			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
-// 				panic("mock out the GetRole method")
-// 			},
-// 			GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
-// 				panic("mock out the GetRoles method")
-// 			},
-// 			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
-// 				panic("mock out the UpdatePolicy method")
-// 			},
-// 		}
+//		// make and configure a mocked service.PermissionsStore
+//		mockedPermissionsStore := &PermissionsStoreMock{
+//			AddPolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.Policy, error) {
+//				panic("mock out the AddPolicy method")
+//			},
+//			CheckerFunc: func(ctx context.Context, state *healthcheck.CheckState) error {
+//				panic("mock out the Checker method")
+//			},
+//			CloseFunc: func(ctx context.Context) error {
+//				panic("mock out the Close method")
+//			},
+//			DeletePolicyFunc: func(ctx context.Context, id string) error {
+//				panic("mock out the DeletePolicy method")
+//			},
+//			GetAllBundlePoliciesFunc: func(ctx context.Context) ([]*models.BundlePolicy, error) {
+//				panic("mock out the GetAllBundlePolicies method")
+//			},
+//			GetAllRolesFunc: func(ctx context.Context) ([]*models.Role, error) {
+//				panic("mock out the GetAllRoles method")
+//			},
+//			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
+//				panic("mock out the GetPolicy method")
+//			},
+//			GetRoleFunc: func(ctx context.Context, id string) (*models.Role, error) {
+//				panic("mock out the GetRole method")
+//			},
+//			GetRolesFunc: func(ctx context.Context, offset int, limit int) (*models.Roles, error) {
+//				panic("mock out the GetRoles method")
+//			},
+//			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+//				panic("mock out the UpdatePolicy method")
+//			},
+//		}
 //
-// 		// use mockedPermissionsStore in code that requires service.PermissionsStore
-// 		// and then make assertions.
+//		// use mockedPermissionsStore in code that requires service.PermissionsStore
+//		// and then make assertions.
 //
-// 	}
+//	}
 type PermissionsStoreMock struct {
 	// AddPolicyFunc mocks the AddPolicy method.
 	AddPolicyFunc func(ctx context.Context, policy *models.Policy) (*models.Policy, error)
@@ -189,7 +189,8 @@ func (mock *PermissionsStoreMock) AddPolicy(ctx context.Context, policy *models.
 
 // AddPolicyCalls gets all the calls that were made to AddPolicy.
 // Check the length with:
-//     len(mockedPermissionsStore.AddPolicyCalls())
+//
+//	len(mockedPermissionsStore.AddPolicyCalls())
 func (mock *PermissionsStoreMock) AddPolicyCalls() []struct {
 	Ctx    context.Context
 	Policy *models.Policy
@@ -224,7 +225,8 @@ func (mock *PermissionsStoreMock) Checker(ctx context.Context, state *healthchec
 
 // CheckerCalls gets all the calls that were made to Checker.
 // Check the length with:
-//     len(mockedPermissionsStore.CheckerCalls())
+//
+//	len(mockedPermissionsStore.CheckerCalls())
 func (mock *PermissionsStoreMock) CheckerCalls() []struct {
 	Ctx   context.Context
 	State *healthcheck.CheckState
@@ -257,7 +259,8 @@ func (mock *PermissionsStoreMock) Close(ctx context.Context) error {
 
 // CloseCalls gets all the calls that were made to Close.
 // Check the length with:
-//     len(mockedPermissionsStore.CloseCalls())
+//
+//	len(mockedPermissionsStore.CloseCalls())
 func (mock *PermissionsStoreMock) CloseCalls() []struct {
 	Ctx context.Context
 } {
@@ -290,7 +293,8 @@ func (mock *PermissionsStoreMock) DeletePolicy(ctx context.Context, id string) e
 
 // DeletePolicyCalls gets all the calls that were made to DeletePolicy.
 // Check the length with:
-//     len(mockedPermissionsStore.DeletePolicyCalls())
+//
+//	len(mockedPermissionsStore.DeletePolicyCalls())
 func (mock *PermissionsStoreMock) DeletePolicyCalls() []struct {
 	Ctx context.Context
 	ID  string
@@ -323,7 +327,8 @@ func (mock *PermissionsStoreMock) GetAllBundlePolicies(ctx context.Context) ([]*
 
 // GetAllBundlePoliciesCalls gets all the calls that were made to GetAllBundlePolicies.
 // Check the length with:
-//     len(mockedPermissionsStore.GetAllBundlePoliciesCalls())
+//
+//	len(mockedPermissionsStore.GetAllBundlePoliciesCalls())
 func (mock *PermissionsStoreMock) GetAllBundlePoliciesCalls() []struct {
 	Ctx context.Context
 } {
@@ -354,7 +359,8 @@ func (mock *PermissionsStoreMock) GetAllRoles(ctx context.Context) ([]*models.Ro
 
 // GetAllRolesCalls gets all the calls that were made to GetAllRoles.
 // Check the length with:
-//     len(mockedPermissionsStore.GetAllRolesCalls())
+//
+//	len(mockedPermissionsStore.GetAllRolesCalls())
 func (mock *PermissionsStoreMock) GetAllRolesCalls() []struct {
 	Ctx context.Context
 } {
@@ -387,7 +393,8 @@ func (mock *PermissionsStoreMock) GetPolicy(ctx context.Context, id string) (*mo
 
 // GetPolicyCalls gets all the calls that were made to GetPolicy.
 // Check the length with:
-//     len(mockedPermissionsStore.GetPolicyCalls())
+//
+//	len(mockedPermissionsStore.GetPolicyCalls())
 func (mock *PermissionsStoreMock) GetPolicyCalls() []struct {
 	Ctx context.Context
 	ID  string
@@ -422,7 +429,8 @@ func (mock *PermissionsStoreMock) GetRole(ctx context.Context, id string) (*mode
 
 // GetRoleCalls gets all the calls that were made to GetRole.
 // Check the length with:
-//     len(mockedPermissionsStore.GetRoleCalls())
+//
+//	len(mockedPermissionsStore.GetRoleCalls())
 func (mock *PermissionsStoreMock) GetRoleCalls() []struct {
 	Ctx context.Context
 	ID  string
@@ -459,7 +467,8 @@ func (mock *PermissionsStoreMock) GetRoles(ctx context.Context, offset int, limi
 
 // GetRolesCalls gets all the calls that were made to GetRoles.
 // Check the length with:
-//     len(mockedPermissionsStore.GetRolesCalls())
+//
+//	len(mockedPermissionsStore.GetRolesCalls())
 func (mock *PermissionsStoreMock) GetRolesCalls() []struct {
 	Ctx    context.Context
 	Offset int
@@ -496,7 +505,8 @@ func (mock *PermissionsStoreMock) UpdatePolicy(ctx context.Context, policy *mode
 
 // UpdatePolicyCalls gets all the calls that were made to UpdatePolicy.
 // Check the length with:
-//     len(mockedPermissionsStore.UpdatePolicyCalls())
+//
+//	len(mockedPermissionsStore.UpdatePolicyCalls())
 func (mock *PermissionsStoreMock) UpdatePolicyCalls() []struct {
 	Ctx    context.Context
 	Policy *models.Policy
