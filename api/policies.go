@@ -25,7 +25,7 @@ func (api *API) GetPolicyHandler(ctx context.Context, w http.ResponseWriter, req
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
 		log.Error(ctx, "getPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+		// Don't fail the request here if we can't get the auth entity data, just log it and continue
 	}
 
 	policy, err := api.permissionsStore.GetPolicy(ctx, policyID)
@@ -65,7 +65,7 @@ func (api *API) DeletePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
 		log.Error(ctx, "deletePolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+		// Don't fail the request here if we can't get the auth entity data, just log it and continue
 	}
 
 	err := api.permissionsStore.DeletePolicy(ctx, policyID)
@@ -96,7 +96,7 @@ func (api *API) PostPolicyHandler(ctx context.Context, w http.ResponseWriter, re
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
 		log.Error(ctx, "postPolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription))
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), nil)
+		// Don't fail the request here if we can't get the auth entity data, just log it and continue
 	}
 
 	policy, err := models.CreatePolicy(req.Body)
@@ -161,7 +161,7 @@ func (api *API) PostPolicyWithIDHandler(ctx context.Context, w http.ResponseWrit
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
 		log.Error(ctx, "postPolicyWithID endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+		// Don't fail the request here if we can't get the auth entity data, just log it and continue
 	}
 
 	policy, err := models.CreatePolicy(req.Body)
@@ -228,7 +228,7 @@ func (api *API) UpdatePolicyHandler(ctx context.Context, w http.ResponseWriter, 
 	authEntityData, ok := authorisation.AuthEntityDataFromContext(req.Context())
 	if !ok {
 		log.Error(ctx, "updatePolicy endpoint: failed to parse auth entity data", errors.New(models.EntityDataErrorDescription), logData)
-		return nil, handleAuthEntityDataError(ctx, errors.New(models.EntityDataErrorDescription), logData)
+		// Don't fail the request here if we can't get the auth entity data, just log it and continue
 	}
 
 	updatePolicy, err := models.CreatePolicy(req.Body)

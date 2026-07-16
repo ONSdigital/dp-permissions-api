@@ -785,61 +785,68 @@ func TestPoliciesHandlersWhenAuthEntityDataMissing(t *testing.T) {
 				policy.ID = testPolicyID
 				return policy, nil
 			},
+			GetPolicyFunc: func(ctx context.Context, id string) (*models.Policy, error) {
+				if id == "new-id" {
+					return nil, apierrors.ErrPolicyNotFound
+				}
+				return &models.Policy{}, nil
+			},
+			UpdatePolicyFunc: func(ctx context.Context, policy *models.Policy) (*models.UpdateResult, error) {
+				return &models.UpdateResult{ModifiedCount: 1}, nil
+			},
+			DeletePolicyFunc: func(ctx context.Context, id string) error {
+				return nil
+			},
 		}
 		permissionsAPI := setupAPIWithStoreWithoutAuthEntity(mockedPermissionsStore)
 
-		Convey("GET /v1/policies/{id} should return 500", func() {
+		Convey("GET /v1/policies/{id} should not return 500", func() {
 			request := httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), http.NoBody)
 			responseRecorder := httptest.NewRecorder()
 			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
 
-			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
-			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 0)
+			So(responseRecorder.Code, ShouldNotEqual, http.StatusInternalServerError)
+			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 1)
 		})
 
-		Convey("DELETE /v1/policies/{id} should return 500", func() {
+		Convey("DELETE /v1/policies/{id} should not return 500", func() {
 			request := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("http://localhost:25400/v1/policies/%s", testPolicyID), http.NoBody)
 			responseRecorder := httptest.NewRecorder()
 			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
 
-			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
-			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.DeletePolicyCalls()), ShouldEqual, 0)
+			So(responseRecorder.Code, ShouldNotEqual, http.StatusInternalServerError)
+			So(len(mockedPermissionsStore.DeletePolicyCalls()), ShouldEqual, 1)
 		})
 
-		Convey("POST /v1/policies should return 500", func() {
+		Convey("POST /v1/policies should not return 500", func() {
 			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
 			request := httptest.NewRequest(http.MethodPost, "http://localhost:25400/v1/policies", reader)
 			responseRecorder := httptest.NewRecorder()
 			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
 
-			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
-			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 0)
+			So(responseRecorder.Code, ShouldNotEqual, http.StatusInternalServerError)
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 1)
 		})
 
-		Convey("POST /v1/policies/{id} should return 500", func() {
+		Convey("POST /v1/policies/{id} should not return 500", func() {
 			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
 			request := httptest.NewRequest(http.MethodPost, "http://localhost:25400/v1/policies/new-id", reader)
 			responseRecorder := httptest.NewRecorder()
 			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
 
-			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
-			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 0)
-			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 0)
+			So(responseRecorder.Code, ShouldNotEqual, http.StatusInternalServerError)
+			So(len(mockedPermissionsStore.GetPolicyCalls()), ShouldEqual, 1)
+			So(len(mockedPermissionsStore.AddPolicyCalls()), ShouldEqual, 1)
 		})
 
-		Convey("PUT /v1/policies/{id} should return 500", func() {
+		Convey("PUT /v1/policies/{id} should not return 500", func() {
 			reader := strings.NewReader(`{"entities": ["e1"], "role": "r1"}`)
 			request := httptest.NewRequest(http.MethodPut, "http://localhost:25400/v1/policies/policyid", reader)
 			responseRecorder := httptest.NewRecorder()
 			permissionsAPI.Router.ServeHTTP(responseRecorder, request)
 
-			So(responseRecorder.Code, ShouldEqual, http.StatusInternalServerError)
-			So(responseRecorder.Body.String(), ShouldContainSubstring, models.InternalServerErrorDescription)
-			So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 0)
+			So(responseRecorder.Code, ShouldNotEqual, http.StatusInternalServerError)
+			So(len(mockedPermissionsStore.UpdatePolicyCalls()), ShouldEqual, 1)
 		})
 	})
 }
