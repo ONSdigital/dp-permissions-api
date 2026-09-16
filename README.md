@@ -23,6 +23,20 @@ and make some updates to [Maven: Local Setup for ossindex:audit](https://github.
 
 We use v2 of golangci-lint, which you will [need to install](https://golangci-lint.run/docs/welcome/install).
 
+#### Validating Specification
+
+To validate the swagger specification you can do this via:
+
+```sh
+make validate-specification
+```
+
+To run this, you will need to run Node > v24 and have redocly CLI installed:
+
+```sh
+npm install -g redocly-cli
+```
+
 ### Dependencies
 
 * run mongo DB locally on 27017 with:
