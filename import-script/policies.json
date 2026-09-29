@@ -89,6 +89,15 @@
     "condition": {}
   },
   {
+    "id": "redirect-reader",
+    "entities": [
+      "users/dp-search-data-extractor",
+      "users/dp-search-reindex-batch"
+    ],
+    "role": "redirect-reader",
+    "condition": {}
+  },
+  {
     "id" : "groups-reader",
     "entities" : [
       "users/dis-wagtail"

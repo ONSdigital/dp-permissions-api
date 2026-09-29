@@ -130,6 +130,12 @@
     ]
   },
   {
+    "name": "redirect-reader",
+    "permissions": [
+      "redirects:read"
+    ]
+  },
+  {
     "name": "groups-reader",
     "permissions": [
       "groups:read"
