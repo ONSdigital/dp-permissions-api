@@ -28,6 +28,10 @@ audit-java:
 	[ $$status -eq 0 ] && grep -Eiqn $(OSSINDEX_ERRORS) target/ossindex-audit-dp-permissions-api.log && \
 		{ echo "❌ OSS Index API/auth/network error (CMS) — see target/ossindex-audit-dp-permissions-api.log"; exit 1; }; \
 	exit $$status
+
+.PHONY: analyze-dependencies
+analyze-dependencies:
+	mvn -f $(JAVA_SDK_DIR) -Dossindex.skip=true -DfailOnWarning=true dependency:analyze 
 	
 .PHONY: build
 build: build-go build-java
