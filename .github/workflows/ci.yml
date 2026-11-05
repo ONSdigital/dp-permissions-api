@@ -42,6 +42,19 @@ jobs:
       - name: Run audit
         run: make audit-java
 
+  dp-permissions-api-sdk-dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - name: Run Java dependency analysis
+        run: make analyze-dependencies
+
   dp-permissions-api-lint-java:
     runs-on: ubuntu-latest
     steps:
