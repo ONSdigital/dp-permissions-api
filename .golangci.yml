@@ -24,11 +24,10 @@ linters:
   settings:
     dupl:
       threshold: 100
-    gocognit:
-      min-complexity: 40
     goconst:
       min-len: 2
-      min-occurrences: 5
+      min-occurrences: 3
+      ignore-tests: true
     gocritic:
       disabled-checks:
         - wrapperFunc
@@ -43,16 +42,11 @@ linters:
         - performance
         - style
     gocyclo:
-      min-complexity: 20
+      min-complexity: 15
     lll:
       line-length: 140
     misspell:
       locale: UK
-    revive:
-      rules:
-        - name: unused-parameter
-          severity: warning
-          disabled: true
   exclusions:
     generated: lax
     presets:
@@ -62,11 +56,17 @@ linters:
       - std-error-handling
     rules:
       - linters:
+          - dupl
           - errcheck
+          - gocyclo
+          - gosec
+          - revive
         path: _test\.go
       - linters:
-          - gosec
-        path: steps.go
+          - revive
+        path: _test.go
+        text: dot-imports
+        source: github.com/smartystreets/goconvey/convey
 issues:
   new: false
 formatters:
